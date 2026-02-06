@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+:root {
+  --midnight-black: #101720;
+  --night: #070a0e;
+  --rich_black: #0e141b;
+  --anti-flash-white: #f2f3f4;
+  --light-coral: #f58987;
+  --earth-yellow: #dbad6c;
+  --grey-400: #333333;
+  --grey-300: #808080;
+  --confirm: #00875f;
+  --danger: #e25858;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter/static/Inter-Regular.ttf") format("truetype");
+  font-weight: normal; /* 400 */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter/static/Inter-Bold.ttf") format("truetype");
+  font-weight: bold; /* 700 */
+  font-style: normal;
+}
+
+@theme inline {
+  --color-background: var(--midnight-black);
+  --color-white: var(--anti-flash-white);
+  --color-light-coral: var(--light-coral);
+  --color-earth-yellow: var(--earth-yellow);
+  --color-grey-400: var(--grey-400);
+  --color-grey-300: var(--grey-300);
+  --color-confirm: var(--confirm);
+  --color-danger: var(--danger);
+
+  --font-default: "Inter", "Helvetica", sans-serif;
+  --font-sans: "Inter", "Helvetica", sans-serif;
+}
+
+body {
+  background: var(--midnight-black);
+  color: var(--anti-flash-white);
+  font-family: var(--font-sans);
+}
