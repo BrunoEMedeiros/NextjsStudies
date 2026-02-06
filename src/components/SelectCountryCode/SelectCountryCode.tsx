@@ -1,0 +1,64 @@
+// components/MySelectComponent.tsx
+"use client";
+
+// import { useState } from "react";
+// import { Control } from "react-hook-form";
+
+interface Country {
+  code: string;
+  name: string;
+  dialCode: string;
+  flag: string;
+}
+
+const SelectCountryCode = ({ ...props }) => {
+  const countries: Country[] = [
+    { code: "BR", name: "Brazil", dialCode: "+55", flag: "🇧🇷" },
+    { code: "US", name: "United States", dialCode: "+1", flag: "🇺🇸" },
+    { code: "GB", name: "United Kingdom", dialCode: "+44", flag: "🇬🇧" },
+    { code: "PT", name: "Portugal", dialCode: "+351", flag: "🇵🇹" },
+    { code: "ES", name: "Spain", dialCode: "+34", flag: "🇪🇸" },
+    { code: "FR", name: "France", dialCode: "+33", flag: "🇫🇷" },
+    { code: "DE", name: "Germany", dialCode: "+49", flag: "🇩🇪" },
+    { code: "IT", name: "Italy", dialCode: "+39", flag: "🇮🇹" },
+    { code: "JP", name: "Japan", dialCode: "+81", flag: "🇯🇵" },
+    { code: "CN", name: "China", dialCode: "+86", flag: "🇨🇳" },
+    { code: "IN", name: "India", dialCode: "+91", flag: "🇮🇳" },
+    { code: "MX", name: "Mexico", dialCode: "+52", flag: "🇲🇽" },
+    { code: "AR", name: "Argentina", dialCode: "+54", flag: "🇦🇷" },
+    { code: "CL", name: "Chile", dialCode: "+56", flag: "🇨🇱" },
+    { code: "CO", name: "Colombia", dialCode: "+57", flag: "🇨🇴" },
+    { code: "AU", name: "Australia", dialCode: "+61", flag: "🇦🇺" },
+    { code: "CA", name: "Canada", dialCode: "+1", flag: "🇨🇦" },
+    { code: "ZA", name: "South Africa", dialCode: "+27", flag: "🇿🇦" },
+    { code: "RU", name: "Russia", dialCode: "+7", flag: "🇷🇺" },
+    { code: "KR", name: "South Korea", dialCode: "+82", flag: "🇰🇷" },
+  ];
+
+  //   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //     setSelectedValue(e.target.value);
+  //     console.log("Selected value:", e.target.value);
+  //   };
+
+  return (
+    <div>
+      <select
+        id="select-option"
+        {...props}
+        className="border p-2 rounded dark:bg-gray-800"
+      >
+        {/* <option value={countries[0].dialCode}>
+          {countries[0].dialCode} {countries[0].flag}
+        </option> */}
+        {countries.map((option) => (
+          <option key={option.code} value={option.dialCode}>
+            {option.dialCode} {option.flag}
+          </option>
+        ))}
+      </select>
+      {/* <p>Current selection: {}</p> */}
+    </div>
+  );
+};
+
+export default SelectCountryCode;

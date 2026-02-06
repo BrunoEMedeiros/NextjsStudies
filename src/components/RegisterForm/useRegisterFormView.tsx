@@ -29,21 +29,20 @@ export function useRegisterViewModel() {
   });
 
   const onSubmit = async (data: CreateAccountSchema) => {
-    dispatch(registrationStart());
-
+    // dispatch(registrationStart());
     // Create FormData object to pass to Server Action
-    const formData = new FormData();
-    formData.append("email", data.email);
-    formData.append("password", data.password);
-
+    // const formData = new FormData();
+    // formData.append("email", data.email);
+    // formData.append("password", data.password);
     // const result = await registerUserAction(formData);
-
     // if (result.success) {
     //   dispatch(registrationSuccess({ email: data.email }));
     // } else {
     //   dispatch(registrationFailure());
     //   alert(result.message);
     // }
+
+    console.log(data);
   };
 
   return {

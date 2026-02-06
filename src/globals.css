@@ -15,19 +15,29 @@
 
 @font-face {
   font-family: "Inter";
-  src: url("/fonts/Inter/static/Inter-Regular.ttf") format("truetype");
-  font-weight: normal; /* 400 */
+  src: url("/fonts/Inter/static/Inter_18pt-Regular.ttf") format("truetype");
+  font-weight: 400;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
   font-family: "Inter";
-  src: url("/fonts/Inter/static/Inter-Bold.ttf") format("truetype");
-  font-weight: bold; /* 700 */
+  src: url("/fonts/Inter/static/Inter_18pt-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
+  font-display: swap;
 }
 
-@theme inline {
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter/static/Inter_18pt-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
   --color-background: var(--midnight-black);
   --color-white: var(--anti-flash-white);
   --color-light-coral: var(--light-coral);
@@ -37,12 +47,15 @@
   --color-confirm: var(--confirm);
   --color-danger: var(--danger);
 
-  --font-default: "Inter", "Helvetica", sans-serif;
-  --font-sans: "Inter", "Helvetica", sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui;
+
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
 }
 
 body {
-  background: var(--midnight-black);
+  background-color: var(--midnight-black);
   color: var(--anti-flash-white);
   font-family: var(--font-sans);
 }
