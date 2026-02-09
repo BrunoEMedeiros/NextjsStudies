@@ -9,6 +9,7 @@ export interface TextFieldProps
   helperText?: string;
   error?: FieldError;
   type?: string;
+  className?: string;
 }
 
 export default function FormTextField({
@@ -30,12 +31,8 @@ export default function FormTextField({
   };
 
   return (
-    <div
-      className={`flex flex-col ${
-        label ? `gap-1` : null
-      }  w-full ${className} `}
-    >
-      <label htmlFor={inputId} className="text-lg font-light text-earth-yellow">
+    <div className={`flex-col ${label ? `gap-1` : null}  ${className} `}>
+      <label htmlFor={inputId} className="text-md font-light text-earth-yellow">
         {label}
       </label>
       <div className="w-full flex">
@@ -43,13 +40,13 @@ export default function FormTextField({
           id={inputId}
           type={passwordVisible}
           className={`
-          w-full min-w-3/4 px-5 py-4 rounded-md border-2 text-base shadow-sm transition-all outline-none
+          w-full min-w-6 max-w-55 px-2 py-3 rounded-md border-2 shadow-sm transition-all outline-none
           bg-white dark:bg-gray-800 dark:text-white
           placeholder:text-gray-400
-          focus:ring-1 focus:ring-offset-1
+          focus:ring-1 focus:ring-offset-1 text-sm
           ${
             error
-              ? "border-danger focus:border-dange focus:border-dange"
+              ? "border-danger focus:border-danger" // fixed typo 'dange'
               : "border-gray-300 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
           }
         `}

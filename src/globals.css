@@ -52,6 +52,14 @@
   --font-weight-light: 300;
   --font-weight-normal: 400;
   --font-weight-bold: 700;
+
+  --container-md: 40rem;
+}
+
+@layer utilities {
+  .max-w-md {
+    max-width: var(--container-md);
+  }
 }
 
 body {

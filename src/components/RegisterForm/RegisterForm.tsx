@@ -12,7 +12,10 @@ export function RegisterForm() {
   const { onSubmit, handleSubmit, register, errors } = useRegisterViewModel();
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="grid gap-2 grid-cols-[200px_210px] w-full mx-auto"
+    >
       <FormTextField
         label="Nome"
         placeholder="Digite seu nome"
@@ -30,16 +33,16 @@ export function RegisterForm() {
       />
       <FormTextField
         label="Nome no Dharma"
-        placeholder="Nome no dharma, caso tenha"
-        helperText=""
+        placeholder="Opcional"
+        helperText="Nome no Dharma, caso tenha"
         error={errors.dharmaName}
         {...register("dharmaName")}
       />
       <FormPhoneField register={register} errors={errors} />
       <FormTextField
         label="Senha"
-        placeholder="Sua senha de 6 caracteres"
-        helperText="Deve ter um caracter especial, letras e numeros"
+        placeholder="Digite a senha"
+        helperText="Deve ter um (1) caractere especial, letras e numeros"
         type="password"
         maxLength={6}
         minLength={6}
@@ -59,7 +62,7 @@ export function RegisterForm() {
       <button
         type="submit"
         disabled={status === "loading"}
-        className="bg-confirm text-white p-4 w-full rounded"
+        className="bg-confirm text-white p-4 w-full rounded col-span-2"
       >
         {status === "loading" ? "Criando..." : "Criar conta"}
       </button>

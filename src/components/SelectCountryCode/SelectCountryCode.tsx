@@ -41,7 +41,7 @@ const SelectCountryCode = forwardRef<HTMLSelectElement, SelectCountryCodeProps>(
         <select
           ref={ref} // <--- IMPORTANT: Pass the ref here
           id="select-option"
-          className={`border min-h-15 p-4 rounded-md dark:bg-gray-800 border-gray-300 dark:border-gray-600 ${className}`}
+          className={`border px-1 min-h-12 rounded-md dark:bg-gray-800 border-gray-300 dark:border-gray-600 ${className}`}
           {...props} // Spreads onChange, onBlur, name, etc.
         >
           {countries.map((option) => (

@@ -12,14 +12,13 @@ interface FormPhoneFieldProps {
 
 const FormPhoneField = ({ register, errors }: FormPhoneFieldProps) => {
   return (
-    <div className="flex flex-col w-full gap-1 justify-center">
+    <div className="flex flex-col w-full justify-center">
       <label
         htmlFor="phone_input"
-        className="text-lg font-light text-earth-yellow"
+        className="text-md font-light text-earth-yellow"
       >
-        Telefone
+        Celular
       </label>
-
       <div className="flex flex-row gap-2">
         <SelectCountryCode
           {...register("countryCode")}
@@ -27,12 +26,13 @@ const FormPhoneField = ({ register, errors }: FormPhoneFieldProps) => {
         />
         <FormTextField
           id="phone_input"
-          placeholder="00000-0000"
-          className="flex-1" // Takes remaining space
+          placeholder="000000000"
+          className=""
           maxLength={11}
           minLength={11}
+          helperText="Celular sem 0 e sem traço"
           {...register("phone")}
-          error={errors.phone} // Pass error specifically to your custom input
+          error={errors.phone}
         />
       </div>
       {errors.countryCode && (

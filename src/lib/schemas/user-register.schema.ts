@@ -20,10 +20,11 @@ export const createAccountSchema = z
     password: z
       .string()
       .min(6, "Minimo de 6 caracteres")
-      .max(6, "Maximo de 6 caracteres"),
-    conf_password: z.string().min(1, "Senhas não combinam"),
+      .max(6, "Maximo de 6 caracteres")
+      .trim(),
+    conf_password: z.string().min(1, "Senhas não combinam").trim(),
     countryCode: z.string(),
-    phone: z.string().min(11, "Telefone invalido"),
+    phone: z.string().min(11, "Telefone invalido").trim(),
   })
   .refine((data) => data.password === data.conf_password, {
     message: "Senhas não combinam",
