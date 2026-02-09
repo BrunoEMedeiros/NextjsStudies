@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { useRegisterViewModel } from "./useRegisterFormView";
 import FormTextField from "../FormTextField/FormTextField";
 import SelectCountryCode from "../SelectCountryCode/SelectCountryCode";
+import FormPhoneField from "../FormPhoneField/FormPhoneField";
 
 export function RegisterForm() {
   const status = useSelector((state: any) => state.auth.status);
@@ -23,6 +24,7 @@ export function RegisterForm() {
         label="Email"
         placeholder="Digite seu email"
         helperText=""
+        type="email"
         error={errors.email}
         {...register("email")}
       />
@@ -33,24 +35,33 @@ export function RegisterForm() {
         error={errors.dharmaName}
         {...register("dharmaName")}
       />
-      <SelectCountryCode {...register("countryCode")} />
-      {/* <div>
-        <input
-          {...register("password")}
-          type="password"
-          placeholder="Password"
-          className="border p-2 w-full"
-        />
-        {errors.password && (
-          <p className="text-red-500 text-xs">{errors.password.message}</p>
-        )}
-      </div> */}
+      <FormPhoneField register={register} errors={errors} />
+      <FormTextField
+        label="Senha"
+        placeholder="Sua senha de 6 caracteres"
+        helperText="Deve ter um caracter especial, letras e numeros"
+        type="password"
+        maxLength={6}
+        minLength={6}
+        error={errors.password}
+        {...register("password")}
+      />
+      <FormTextField
+        label="Confirme a senha"
+        placeholder="Repita a senha"
+        helperText=""
+        type="password"
+        maxLength={6}
+        minLength={6}
+        error={errors.conf_password}
+        {...register("conf_password")}
+      />
       <button
         type="submit"
         disabled={status === "loading"}
-        className="bg-black text-white p-2 w-full rounded"
+        className="bg-confirm text-white p-4 w-full rounded"
       >
-        {status === "loading" ? "Processing..." : "Register"}
+        {status === "loading" ? "Criando..." : "Criar conta"}
       </button>
     </form>
   );
