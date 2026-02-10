@@ -43,10 +43,10 @@ export default function FormTextField({
           w-full min-w-6 max-w-55 px-2 py-3 rounded-md border-2 shadow-sm transition-all outline-none
           bg-white dark:bg-gray-800 dark:text-white
           placeholder:text-gray-400
-          focus:ring-1 focus:ring-offset-1 text-sm
+           text-sm
           ${
             error
-              ? "border-danger focus:border-danger" // fixed typo 'dange'
+              ? "border-danger focus:border-danger"
               : "border-gray-300 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500"
           }
         `}
