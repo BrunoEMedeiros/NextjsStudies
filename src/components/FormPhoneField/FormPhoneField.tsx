@@ -30,7 +30,7 @@ const FormPhoneField = ({ register, errors }: FormPhoneFieldProps) => {
           className=""
           maxLength={11}
           minLength={11}
-          helperText="Celular sem 0 e sem traço"
+          helperText="Numero de celular sem 0 e sem traços"
           {...register("phone")}
           error={errors.phone}
         />

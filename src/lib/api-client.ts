@@ -1,19 +1,14 @@
 "use client";
 
-// 1. Change import to get the TYPE only
 import type { AppStore } from "@/src/lib/store";
-// import { showSnackbar } from "@/lib/features/snack/snackSlice";
 import { logOff, signin } from "./feature/auth/authSlice";
-
-// ... keep your imports ...
-
+import { ApiError } from "./ApiError";
 type QueueItem = {
-  resolve: (token: string) => void; // Function to resume the request successfully
-  reject: (error: any) => void; // Function to crash the request if refresh fails
+  resolve: (token: string) => void;
+  reject: (error: any) => void;
 };
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://zenprojectapi.onrender.com";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
 
 let store: AppStore | undefined;
 
@@ -63,8 +58,6 @@ export async function apiFetch<T = any>(
   } as HeadersInit;
 
   let response = await fetch(url, { ...options, headers });
-
-  // 4. Handle 401 (Token Rotation)
   if (response.status === 401) {
     if (isRefreshing) {
       try {
@@ -90,7 +83,7 @@ export async function apiFetch<T = any>(
     if (isRefreshEndpoint || isSigninEndpoint) {
       if (isRefreshEndpoint) handleLogout();
       const errorBody = await response.json().catch(() => ({}));
-      throw { status: 401, ...errorBody };
+      throw new ApiError(401, errorBody);
     }
 
     isRefreshing = true;
@@ -108,7 +101,11 @@ export async function apiFetch<T = any>(
         }
       );
 
-      if (!refreshResponse.ok) throw new Error("Refresh failed");
+      if (!refreshResponse.ok) {
+        const errorData = await refreshResponse.json().catch(() => ({}));
+        throw new ApiError(refreshResponse.status, errorData);
+      }
+
       const data = await refreshResponse.json();
 
       store.dispatch(
@@ -134,39 +131,40 @@ export async function apiFetch<T = any>(
     }
   }
 
-  // 5. Handle Global Errors
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    const backendMessage = errorData?.message;
+  // if (!response.ok) {
+  //   const errorData = await response.json().catch(() => ({}));
+  //   console.log(`erro lançado aqui`);
+  //   throw new ApiError(response.status, errorData);
+  // }
 
-    if (response.status === 409) {
-      //   store.dispatch(
-      //     showSnackbar({
-      //       message: backendMessage || "Conflito de dados (409)",
-      //       open: true,
-      //       severity: "warning",
-      //     })
-      //   );
-    } else if (response.status === 401 && endpoint.includes("/signin")) {
-      //   store.dispatch(
-      //     showSnackbar({
-      //       message: "Email ou senha incorreta(s)",
-      //       open: true,
-      //       severity: "info",
-      //     })
-      //   );
-    } else if (response.status >= 500) {
-      //   store.dispatch(
-      //     showSnackbar({
-      //       message: "Erro interno do servidor",
-      //       open: true,
-      //       severity: "error",
-      //     })
-      //   );
-    }
+  //   if (response.status === 409) {
+  //     //   store.dispatch(
+  //     //     showSnackbar({
+  //     //       message: backendMessage || "Conflito de dados (409)",
+  //     //       open: true,
+  //     //       severity: "warning",
+  //     //     })
+  //     //   );
+  //   } else if (response.status === 401 && endpoint.includes("/signin")) {
+  //     //   store.dispatch(
+  //     //     showSnackbar({
+  //     //       message: "Email ou senha incorreta(s)",
+  //     //       open: true,
+  //     //       severity: "info",
+  //     //     })
+  //     //   );
+  //   } else if (response.status >= 500) {
+  //     //   store.dispatch(
+  //     //     showSnackbar({
+  //     //       message: "Erro interno do servidor",
+  //     //       open: true,
+  //     //       severity: "error",
+  //     //     })
+  //     //   );
+  //   }
 
-    throw { status: response.status, data: errorData };
-  }
+  //   throw { status: response.status, data: errorData };
+  // }
 
   return response.json();
 }

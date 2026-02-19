@@ -3,7 +3,6 @@
 import { useSelector } from "react-redux";
 import { useRegisterViewModel } from "./useRegisterFormView";
 import FormTextField from "../FormTextField/FormTextField";
-import SelectCountryCode from "../SelectCountryCode/SelectCountryCode";
 import FormPhoneField from "../FormPhoneField/FormPhoneField";
 
 export function RegisterForm() {
@@ -62,7 +61,7 @@ export function RegisterForm() {
       <button
         type="submit"
         disabled={status === "loading"}
-        className="bg-confirm text-white p-4 w-full rounded col-span-2"
+        className="bg-confirm text-white p-4 w-full rounded col-span-2 mt-4"
       >
         {status === "loading" ? "Criando..." : "Criar conta"}
       </button>

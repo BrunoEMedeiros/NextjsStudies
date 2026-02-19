@@ -12,6 +12,8 @@ import {
   CreateAccountSchema,
   createAccountSchema,
 } from "@/src/lib/schemas/user-register.schema";
+import { handleCreateUser } from "@/src/lib/service/user.service";
+import { ApiError } from "@/src/lib/ApiError";
 
 export function useRegisterViewModel() {
   const dispatch = useDispatch();
@@ -29,20 +31,36 @@ export function useRegisterViewModel() {
   });
 
   const onSubmit = async (data: CreateAccountSchema) => {
-    // dispatch(registrationStart());
-    // Create FormData object to pass to Server Action
-    // const formData = new FormData();
-    // formData.append("email", data.email);
-    // formData.append("password", data.password);
-    // const result = await registerUserAction(formData);
-    // if (result.success) {
-    //   dispatch(registrationSuccess({ email: data.email }));
-    // } else {
-    //   dispatch(registrationFailure());
-    //   alert(result.message);
-    // }
+    try {
+      await handleCreateUser(data);
+    } catch (error: any) {
+      if (error instanceof ApiError) {
+        if (error.status === 409) {
+          if (error.message === "E-mail em uso") {
+            setError("email", {
+              type: "manual",
+              message: "Este e-mail ja esta sendo usado",
+            });
+            return;
+          }
 
-    console.log(data);
+          if (error.message === "Telefone em uso") {
+            setError("phone", {
+              type: "manual",
+              message: "Telefone em uso",
+            });
+            return;
+          }
+        }
+        setError("root", {
+          type: "server",
+          message: error.message || "Erro no servidor.",
+        });
+      } else {
+        console.error(error);
+        alert("Erro inesperado. Verifique sua conexão.");
+      }
+    }
   };
 
   return {
