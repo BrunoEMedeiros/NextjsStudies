@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export default function AuthLayout({
   children,
 }: {
@@ -6,10 +8,13 @@ export default function AuthLayout({
   return (
     <main className="flex min-h-screen w-full">
       <div className="hidden w-1/2 relative lg:block">
-        <img
-          className="max-h-screen w-full object-cover"
+        <Image
           src="/buda.svg"
-          alt="imagem de Kojun-Sensei em frente ao altar de buda"
+          alt="Imagem da estatua de buda em frente a entrada do templo"
+          fill
+          className="object-cover"
+          priority={false}
+          sizes="50vw"
         />
       </div>
       <div className="flex w-full items-center justify-center p-4 lg:w-1/2">

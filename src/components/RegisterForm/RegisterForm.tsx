@@ -4,11 +4,13 @@ import { useSelector } from "react-redux";
 import { useRegisterViewModel } from "./useRegisterFormView";
 import FormTextField from "../FormTextField/FormTextField";
 import FormPhoneField from "../FormPhoneField/FormPhoneField";
+import { RotatingLines, TailSpin } from "react-loader-spinner";
 
 export function RegisterForm() {
-  const status = useSelector((state: any) => state.auth.status);
+  // const status = useSelector((state: any) => state.auth.status);
 
-  const { onSubmit, handleSubmit, register, errors } = useRegisterViewModel();
+  const { onSubmit, handleSubmit, isSubmitting, register, errors } =
+    useRegisterViewModel();
 
   return (
     <form
@@ -60,10 +62,28 @@ export function RegisterForm() {
       />
       <button
         type="submit"
-        disabled={status === "loading"}
-        className="bg-confirm text-white p-4 w-full rounded col-span-2 mt-4"
+        disabled={isSubmitting}
+        className={`${
+          isSubmitting ? "bg-gray-600" : "bg-confirm"
+        } text-white p-4 w-full rounded col-span-2 mt-4 max-h-14`}
       >
-        {status === "loading" ? "Criando..." : "Criar conta"}
+        {isSubmitting ? (
+          <div className="flex justify-center items-center">
+            <RotatingLines
+              visible={true}
+              height="30"
+              width="30"
+              color="grey"
+              strokeWidth="5"
+              animationDuration="0.75"
+              ariaLabel="rotating-lines-loading"
+              wrapperStyle={{}}
+              wrapperClass=""
+            />
+          </div>
+        ) : (
+          "Criar conta"
+        )}
       </button>
     </form>
   );

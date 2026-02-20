@@ -1,6 +1,8 @@
 import { CreateAccountSchema, UserRole } from "../schemas/user-register.schema";
 import { apiFetch } from "../api-client";
 import { ApiError } from "../ApiError";
+import { SigninUserSchema } from "../schemas/user-signin.schema";
+import { JwtToken } from "../schemas/jwtToken.schema";
 
 export const handleCreateUser = async (
   user: CreateAccountSchema
@@ -22,4 +24,19 @@ export const handleCreateUser = async (
   }
 
   return response;
+};
+
+export const handleLoginUser = async ({
+  email,
+  password,
+}: SigninUserSchema): Promise<JwtToken> => {
+  const data = await apiFetch<JwtToken>("/accounts/sessions/signin", {
+    method: "POST",
+    body: JSON.stringify({
+      email: email,
+      password: password,
+    }),
+  });
+
+  return data;
 };

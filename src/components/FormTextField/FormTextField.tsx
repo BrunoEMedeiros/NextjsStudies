@@ -40,7 +40,7 @@ export default function FormTextField({
           id={inputId}
           type={passwordVisible}
           className={`
-          w-full min-w-6 max-w-55 px-2 py-3 rounded-md border-2 shadow-sm transition-all outline-none
+          w-full min-w-6 px-2 py-3 rounded-md border-2 shadow-sm transition-all outline-none
           bg-white dark:bg-gray-800 dark:text-white
           placeholder:text-gray-400
            text-sm
