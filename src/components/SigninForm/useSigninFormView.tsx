@@ -28,30 +28,18 @@ export function useSigninViewModel() {
   const onSubmit = async (data: SigninUserSchema) => {
     try {
       await handleLoginUser(data);
+      alert("Bem vindo");
     } catch (error: any) {
       if (error instanceof ApiError) {
-        if (error.status === 409) {
-          //   if (error.message === "E-mail em uso") {
-          //     setError("email", {
-          //       type: "manual",
-          //       message: "Este e-mail ja esta sendo usado",
-          //     });
-          //     return;
-          //   }
-          //   if (error.message === "Telefone em uso") {
-          //     setError("phone", {
-          //       type: "manual",
-          //       message: "Telefone em uso",
-          //     });
-          //     return;
-          //   }
-          // }
-          // setError("root", {
-          //   type: "server",
-          //   message: error.message || "Erro no servidor.",
-          // });
-
-          alert("Login ou senha invalidos");
+        if (error.status === 401) {
+          setError("email", {
+            type: "manual",
+            message: "E-mail ou senha incorretos",
+          });
+          setError("password", {
+            type: "manual",
+            message: "E-mail ou senha incorretos",
+          });
         }
       } else {
         console.error(error);

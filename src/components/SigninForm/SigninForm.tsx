@@ -3,6 +3,7 @@
 import FormTextField from "../FormTextField/FormTextField";
 import { RotatingLines } from "react-loader-spinner";
 import { useSigninViewModel } from "./useSigninFormView";
+import Link from "next/link";
 
 export function SigninForm() {
   // const status = useSelector((state: any) => state.auth.status);
@@ -27,7 +28,6 @@ export function SigninForm() {
         label="Senha"
         placeholder="Digite a senha"
         type="password"
-        maxLength={6}
         minLength={6}
         className="w-full"
         error={errors.password}
@@ -58,6 +58,12 @@ export function SigninForm() {
           "Entrar"
         )}
       </button>
+      <hr className="w-3/4 h-px rounded mt-3 mb-2 bg-gray-300 border-0" />
+      <div className="mb-4">
+        <p className="font-sans text-sm text-earth-yellow">
+          <Link href={"/register"}>Não tem uma conta ? Crie uma agora</Link>
+        </p>
+      </div>
     </form>
   );
 }

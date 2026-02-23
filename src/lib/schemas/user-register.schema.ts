@@ -17,11 +17,7 @@ export const createAccountSchema = z
       .toLowerCase(),
     dharmaName: z.string().trim().toLowerCase().optional(),
     email: z.email("Email inválido"),
-    password: z
-      .string()
-      .min(6, "Minimo de 6 caracteres")
-      .max(6, "Maximo de 6 caracteres")
-      .trim(),
+    password: z.string().min(6, "Minimo de 6 caracteres").trim(),
     conf_password: z.string().min(1, "Senhas não combinam").trim(),
     countryCode: z.string(),
     phone: z.string().min(11, "Telefone invalido").trim(),

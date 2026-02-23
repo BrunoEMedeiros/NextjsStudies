@@ -45,7 +45,6 @@ export function RegisterForm() {
         placeholder="Digite a senha"
         helperText="Deve ter um (1) caractere especial, letras e numeros"
         type="password"
-        maxLength={6}
         minLength={6}
         error={errors.password}
         {...register("password")}
@@ -55,7 +54,6 @@ export function RegisterForm() {
         placeholder="Repita a senha"
         helperText=""
         type="password"
-        maxLength={6}
         minLength={6}
         error={errors.conf_password}
         {...register("conf_password")}
