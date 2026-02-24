@@ -9,6 +9,7 @@ import {
   signinUserSchema,
   SigninUserSchema,
 } from "@/src/lib/schemas/user-signin.schema";
+import { signin } from "@/src/lib/feature/auth/authSlice";
 
 export function useSigninViewModel() {
   const dispatch = useDispatch();
@@ -27,8 +28,9 @@ export function useSigninViewModel() {
 
   const onSubmit = async (data: SigninUserSchema) => {
     try {
-      await handleLoginUser(data);
-      alert("Bem vindo");
+      const userInfo = await handleLoginUser(data);
+      dispatch(signin({ isLoged: true, user: userInfo }));
+      router.push("/dashboard/");
     } catch (error: any) {
       if (error instanceof ApiError) {
         if (error.status === 401) {

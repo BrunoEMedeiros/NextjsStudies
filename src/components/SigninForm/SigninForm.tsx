@@ -6,7 +6,6 @@ import { useSigninViewModel } from "./useSigninFormView";
 import Link from "next/link";
 
 export function SigninForm() {
-  // const status = useSelector((state: any) => state.auth.status);
   const { handleSubmit, onSubmit, register, errors, isSubmitting } =
     useSigninViewModel();
 

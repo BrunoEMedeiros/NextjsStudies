@@ -3,8 +3,9 @@
 import type { AppStore } from "@/src/lib/store";
 import { logOff, signin } from "./feature/auth/authSlice";
 import { ApiError } from "./ApiError";
+
 type QueueItem = {
-  resolve: (token: string) => void;
+  resolve: () => void;
   reject: (error: any) => void;
 };
 
@@ -19,59 +20,61 @@ export const injectStore = (_store: AppStore) => {
 let isRefreshing = false;
 let failedQueue: QueueItem[] = [];
 
-const processQueue = (error: Error | null, token: string | null = null) => {
+const processQueue = (error: Error | null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
     } else {
-      prom.resolve(token!);
+      prom.resolve();
     }
   });
   failedQueue = [];
 };
 
-const handleLogout = () => {
+const handleLogout = async () => {
   if (!store) return;
   store.dispatch(logOff());
+
+  try {
+    await fetch(`${BASE_URL}/accounts/sessions/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+  } catch (e) {
+    console.error("Logout call failed", e);
+  }
+
   window.location.href = "/login";
 };
 
 export async function apiFetch<T = any>(
   endpoint: string,
   options: RequestInit = {}
-): Promise<T> {
+): Promise<{ data: T; headers: Record<string, string> }> {
   if (!store) {
-    throw new Error(
-      "Redux store not injected into API client. Ensure StoreProvider renders."
-    );
+    throw new Error("Redux store not injected into API client.");
   }
 
   const url = endpoint.startsWith("http") ? endpoint : `${BASE_URL}${endpoint}`;
 
-  const state = store.getState();
-  const token = state.auth.authToken;
+  const fetchOptions: RequestInit = {
+    ...options,
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  };
 
-  const headers = {
-    "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }),
-    ...options.headers,
-  } as HeadersInit;
+  let response = await fetch(url, fetchOptions);
 
-  let response = await fetch(url, { ...options, headers });
   if (response.status === 401) {
     if (isRefreshing) {
       try {
-        // As novas requisições entrando em paralelo a uma primeira feita
-        // que atribuiu isRefreshing = true vão ficar pausadas até que ela seja
-        // concluida
-        // Quando concluida ele vai "resolver" todas elas com o novo token
-        const newToken = await new Promise<string>((resolve, reject) => {
+        await new Promise<void>((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         });
-        return apiFetch<T>(endpoint, {
-          ...options,
-          headers: { ...headers, Authorization: `Bearer ${newToken}` },
-        });
+        return apiFetch<T>(endpoint, options);
       } catch (err) {
         throw err;
       }
@@ -89,15 +92,12 @@ export async function apiFetch<T = any>(
     isRefreshing = true;
 
     try {
-      const refreshToken = state.auth.refreshToken;
-      if (!refreshToken) throw new Error("No refresh token");
-
       const refreshResponse = await fetch(
         `${BASE_URL}/accounts/sessions/refresh`,
         {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ refreshToken }),
         }
       );
 
@@ -106,24 +106,13 @@ export async function apiFetch<T = any>(
         throw new ApiError(refreshResponse.status, errorData);
       }
 
-      const data = await refreshResponse.json();
+      store.dispatch(signin({ isLoged: true }));
 
-      store.dispatch(
-        signin({
-          authToken: data.authToken,
-          refreshToken: data.refreshToken,
-          isLoged: true,
-        })
-      );
+      processQueue(null);
 
-      processQueue(null, data.authToken);
-
-      return apiFetch<T>(endpoint, {
-        ...options,
-        headers: { ...headers, Authorization: `Bearer ${data.authToken}` },
-      });
+      return apiFetch<T>(endpoint, options);
     } catch (refreshError: any) {
-      processQueue(refreshError, null);
+      processQueue(refreshError);
       handleLogout();
       throw refreshError;
     } finally {
@@ -131,40 +120,8 @@ export async function apiFetch<T = any>(
     }
   }
 
-  // if (!response.ok) {
-  //   const errorData = await response.json().catch(() => ({}));
-  //   console.log(`erro lançado aqui`);
-  //   throw new ApiError(response.status, errorData);
-  // }
+  const data = await response.json();
+  const headers = Object.fromEntries(response.headers.entries());
 
-  //   if (response.status === 409) {
-  //     //   store.dispatch(
-  //     //     showSnackbar({
-  //     //       message: backendMessage || "Conflito de dados (409)",
-  //     //       open: true,
-  //     //       severity: "warning",
-  //     //     })
-  //     //   );
-  //   } else if (response.status === 401 && endpoint.includes("/signin")) {
-  //     //   store.dispatch(
-  //     //     showSnackbar({
-  //     //       message: "Email ou senha incorreta(s)",
-  //     //       open: true,
-  //     //       severity: "info",
-  //     //     })
-  //     //   );
-  //   } else if (response.status >= 500) {
-  //     //   store.dispatch(
-  //     //     showSnackbar({
-  //     //       message: "Erro interno do servidor",
-  //     //       open: true,
-  //     //       severity: "error",
-  //     //     })
-  //     //   );
-  //   }
-
-  //   throw { status: response.status, data: errorData };
-  // }
-
-  return response.json();
+  return { data, headers };
 }
