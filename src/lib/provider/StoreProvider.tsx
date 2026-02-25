@@ -12,10 +12,8 @@ export default function StoreProvider({
   const storeRef = useRef<AppStore>(undefined);
 
   if (!storeRef.current) {
-    // 1. Create the store instance
     storeRef.current = makeStore();
 
-    // 2. INJECT the store into the API client
     injectStore(storeRef.current);
   }
 

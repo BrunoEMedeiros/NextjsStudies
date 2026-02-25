@@ -30,7 +30,7 @@ export function useSigninViewModel() {
     try {
       const userInfo = await handleLoginUser(data);
       dispatch(signin({ isLoged: true, user: userInfo }));
-      router.push("/dashboard/");
+      router.push("/dashboard/activities/");
     } catch (error: any) {
       if (error instanceof ApiError) {
         if (error.status === 401) {

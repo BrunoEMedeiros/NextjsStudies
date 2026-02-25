@@ -13,7 +13,7 @@ export default function AuthLayout({
           alt="Imagem da estatua de buda em frente a entrada do templo"
           fill
           className="object-cover"
-          priority={false}
+          priority={true}
           sizes="50vw"
         />
       </div>

@@ -39,6 +39,7 @@
 
 @theme {
   --color-background: var(--midnight-black);
+  --color-rich_black: var(--rich_black);
   --color-white: var(--anti-flash-white);
   --color-light-coral: var(--light-coral);
   --color-earth-yellow: var(--earth-yellow);
