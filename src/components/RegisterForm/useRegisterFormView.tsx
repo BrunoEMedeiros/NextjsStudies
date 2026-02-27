@@ -1,13 +1,6 @@
 // useRegisterViewModel.ts
 import { Resolver, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
-import {
-  registrationFailure,
-  registrationStart,
-  registrationSuccess,
-} from "@/src/lib/feature/auth/authSlice";
 import {
   CreateAccountSchema,
   createAccountSchema,
@@ -16,9 +9,6 @@ import { handleCreateUser } from "@/src/lib/service/user.service";
 import { ApiError } from "@/src/lib/ApiError";
 
 export function useRegisterViewModel() {
-  const dispatch = useDispatch();
-  const router = useRouter(); // Usually you redirect after register
-
   const {
     register,
     handleSubmit,
