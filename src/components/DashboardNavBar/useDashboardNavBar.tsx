@@ -1,26 +1,40 @@
 "use client";
-import { logOff } from "@/src/lib/feature/auth/authSlice";
-import { RootState } from "@/src/lib/store";
+import { ApiError } from "@/src/lib/ApiError";
+import { logOff, signin } from "@/src/lib/feature/auth/authSlice";
+import { UserProfileType } from "@/src/lib/schemas/user-profile.schema";
+import { fetchProfile } from "@/src/lib/service/user.service";
+import { useQuery } from "@tanstack/react-query";
 import Cookies from "js-cookie";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 
 export function useDashBoardNavBar() {
   const dispatch = useDispatch();
 
-  const { name, role, profile_picture } = useSelector(
-    (state: RootState) => state.auth.user
-  );
+  const profileQuery = useQuery<UserProfileType>({
+    queryKey: ["profile"],
+    queryFn: fetchProfile,
+    staleTime: 6000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
+
+  useEffect(() => {
+    if (profileQuery.data) {
+      dispatch(signin({ isLoged: true, user: profileQuery.data }));
+    }
+  }, []);
 
   const handleSignOut = () => {
     dispatch(logOff());
-    Cookies.remove("authToken");
-    Cookies.remove("refreshToken");
+    Cookies.remove("authToken", { path: "/" });
+    Cookies.remove("refreshToken", { path: "/" });
   };
 
   return {
     handleSignOut,
-    name,
-    role,
-    profile_picture,
+    name: profileQuery.data?.name || "",
+    role: profileQuery.data?.role || "",
+    profilePicture: profileQuery.data?.profilePicture || "",
   };
 }

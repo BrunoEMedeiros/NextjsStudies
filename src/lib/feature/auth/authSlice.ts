@@ -4,15 +4,24 @@ interface AuthState {
   user: {
     email: string | null;
     name: string | null;
-    profile_picture: string | null;
+    profilePicture: string | null;
     role: string | null;
+    dharmaName: string | null;
+    phone: string | null;
   };
   isLoged: boolean;
   status: "idle" | "loading" | "succeeded" | "failed";
 }
 
 const initialState: AuthState = {
-  user: { email: null, name: null, profile_picture: null, role: null },
+  user: {
+    email: null,
+    name: null,
+    profilePicture: null,
+    role: null,
+    dharmaName: null,
+    phone: null,
+  },
   isLoged: false,
   status: "idle",
 };
@@ -29,15 +38,19 @@ export const authSlice = createSlice({
       action: PayloadAction<{
         email: string;
         name: string;
-        profile_picture: string;
+        profilePicture: string;
         role: string;
+        dharmaName: string;
+        phone: string;
       }>
     ) => {
       state.status = "succeeded";
       state.user.email = action.payload.email;
       state.user.name = action.payload.name;
-      state.user.profile_picture = action.payload.profile_picture;
+      state.user.profilePicture = action.payload.profilePicture;
       state.user.role = action.payload.role;
+      state.user.phone = action.payload.phone;
+      state.user.dharmaName = action.payload.dharmaName;
     },
     registrationFailure: (state) => {
       state.status = "failed";
@@ -49,8 +62,10 @@ export const authSlice = createSlice({
         user?: {
           email: string;
           name: string;
-          profile_picture: string;
+          profilePicture: string;
           role: string;
+          dharmaName: string;
+          phone: string;
         };
       }>
     ) => {
@@ -65,8 +80,10 @@ export const authSlice = createSlice({
       state.user = {
         email: null,
         name: null,
-        profile_picture: null,
+        profilePicture: null,
         role: null,
+        dharmaName: null,
+        phone: null,
       };
       state.status = "idle";
     },

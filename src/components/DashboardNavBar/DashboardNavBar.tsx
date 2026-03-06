@@ -4,9 +4,10 @@ import Image from "next/image";
 import { PiFlowerLotusThin } from "react-icons/pi";
 import NavBarItems from "../NavBarItems/NavBaritems";
 import { useDashBoardNavBar } from "./useDashboardNavBar";
+import RoleBadge from "../RoleBedge/RoleBadge";
 
 export default function DashBoardNavBar() {
-  const { handleSignOut, name, role, profile_picture } = useDashBoardNavBar();
+  const { handleSignOut, name, role, profilePicture } = useDashBoardNavBar();
   return (
     <nav className="w-1/6 min-w-50 bg-gray-900 text-white pt-8 sticky top-0 h-screen border-r border-gray-800">
       <div className="flex justify-center items-center h-20">
@@ -19,15 +20,15 @@ export default function DashBoardNavBar() {
           unoptimized
         />
       </div>
-      <div className="flex flex-col justify-center items-center">
-        <h2>{name}</h2>
-        <h2>{role}</h2>
-        {profile_picture ? (
+      <div className="flex flex-col justify-center items-center gap-4 mb-6">
+        <p className="text-base font-thin">{name}</p>
+        {profilePicture ? (
           <Image
-            src={profile_picture}
+            unoptimized={true}
+            src={profilePicture}
             alt="imagem de perfil do usuário"
-            width={60}
-            height={60}
+            width={100}
+            height={100}
             className="border-2 rounded-full"
           />
         ) : (
@@ -35,6 +36,7 @@ export default function DashBoardNavBar() {
             <PiFlowerLotusThin color="#dbad6c" size={30} />
           </div>
         )}
+        <RoleBadge type={role!} />
       </div>
       <NavBarItems
         items={[

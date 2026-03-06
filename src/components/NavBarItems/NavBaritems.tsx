@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import { MouseEventHandler } from "react";
 
 type ListItemsProps = {
   label: string;

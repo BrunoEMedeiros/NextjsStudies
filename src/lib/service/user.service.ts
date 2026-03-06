@@ -1,8 +1,10 @@
+"use server";
+
 import { CreateAccountSchema, UserRole } from "../schemas/user-register.schema";
 import { apiFetch } from "../api-client";
 import { ApiError } from "../ApiError";
-import { SigninUserSchema } from "../schemas/user-signin.schema";
-import { signin } from "../feature/auth/authSlice";
+import { UserProfileType } from "../schemas/user-profile.schema";
+import { cookies } from "next/headers";
 
 export const handleCreateUser = async (
   user: CreateAccountSchema
@@ -26,26 +28,25 @@ export const handleCreateUser = async (
   return data;
 };
 
-export const handleLoginUser = async ({
-  email,
-  password,
-}: SigninUserSchema): Promise<{
-  email: string;
-  name: string;
-  profile_picture: string;
-  role: string;
-}> => {
-  const { data } = await apiFetch<{
-    email: string;
-    name: string;
-    profile_picture: string;
-    role: string;
-  }>("/accounts/sessions/signin", {
+export const handleLoginUser = async (
+  email: string,
+  password: string
+): Promise<any> => {
+  const { data } = await apiFetch("/accounts/sessions/signin", {
     method: "POST",
     body: JSON.stringify({
       email: email,
       password: password,
     }),
+    credentials: "include",
+  });
+
+  return data;
+};
+
+export const fetchProfile = async (): Promise<UserProfileType> => {
+  const { data } = await apiFetch<UserProfileType>("/accounts/profile", {
+    method: "GET",
   });
 
   return data;

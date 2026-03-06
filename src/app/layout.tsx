@@ -1,5 +1,6 @@
 import "../globals.css";
 import StoreProvider from "@/src/lib/provider/StoreProvider";
+import ReactQueryProvider from "../lib/provider/ReactQueryProvider";
 
 export default function RootLayout({
   children,
@@ -9,7 +10,9 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={`antialiased`}>
-        <StoreProvider>{children}</StoreProvider>
+        <ReactQueryProvider>
+          <StoreProvider>{children}</StoreProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );
