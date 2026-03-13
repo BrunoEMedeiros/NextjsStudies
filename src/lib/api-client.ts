@@ -113,6 +113,7 @@
 // }
 
 import { cookies } from "next/headers";
+import * as setCookieParser from "set-cookie-parser";
 import { ApiError } from "./ApiError";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
@@ -137,8 +138,6 @@ export async function apiFetch<T = any>(
 
   const response = await fetch(url, fetchOptions);
 
-  // If we STILL get a 401 here, it means both tokens are completely dead,
-  // or the backend revoked them. Time to throw an error so the UI can redirect.
   if (response.status === 401) {
     throw new ApiError(401, { message: "Unauthorized" });
   }
@@ -149,7 +148,46 @@ export async function apiFetch<T = any>(
   }
 
   const data = await response.json().catch(() => null);
-  const headers = Object.fromEntries(response.headers.entries());
 
-  return { data, headers };
+  // 1. Correctly extract multiple Set-Cookie headers as an array
+  const setCookies = response.headers.getSetCookie();
+
+  // 2. Automatically apply incoming backend cookies to the Next.js response
+  if (setCookies && setCookies.length > 0) {
+    try {
+      const parsedCookies = setCookieParser.parse(setCookies, {
+        decodeValues: false,
+      });
+
+      parsedCookies.forEach((cookie) => {
+        cookieStore.set({
+          name: cookie.name,
+          value: cookie.value,
+          maxAge: cookie.maxAge,
+          expires: cookie.expires,
+          path: cookie.path || "/",
+          domain: cookie.domain,
+          secure: cookie.secure,
+          httpOnly: cookie.httpOnly,
+          sameSite: cookie.sameSite as "lax" | "strict" | "none",
+        });
+      });
+    } catch (error) {
+      // cookieStore.set() throws if called inside a read-only Server Component.
+      // This ensures it silently fails there, but works perfectly in Server Actions/Route Handlers.
+      console.warn(
+        "[apiFetch] Cannot set cookies automatically in this context."
+      );
+    }
+  }
+
+  // 3. Safely build the headers object without destroying the Set-Cookie data
+  const headersObject: Record<string, string> = {};
+  response.headers.forEach((value, key) => {
+    if (key.toLowerCase() !== "set-cookie") {
+      headersObject[key] = value;
+    }
+  });
+
+  return { data, headers: headersObject };
 }
