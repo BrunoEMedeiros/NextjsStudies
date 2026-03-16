@@ -27,7 +27,7 @@ export default function NewActivityForm() {
 
       <FormTextField
         label="Link para rede social"
-        placeholder="Link para postagem em rede social"
+        placeholder="Link para rede social"
         labelClassName="text-base text-earth-yellow font-bold"
         type="text"
         minLength={6}
@@ -44,8 +44,8 @@ export default function NewActivityForm() {
         mask="currency" // Use the built-in currency alias
         maskOptions={{
           prefix: "R$ ",
-          groupSeparator: ",",
-          radixPoint: ".",
+          groupSeparator: ".",
+          radixPoint: ",",
           digits: 2,
           digitsOptional: true, // 2. This is the magic bullet! It stops pre-filling ".00" so you don't have to backspace
           rightAlign: false, // 3. Keeps your cursor firmly on the left
@@ -66,7 +66,7 @@ export default function NewActivityForm() {
         labelClassName="text-base text-earth-yellow font-bold"
         type="text"
         minLength={6}
-        className="w-full"
+        className="w-full col-span-2"
         error={errors.description}
         {...register("description")}
       />

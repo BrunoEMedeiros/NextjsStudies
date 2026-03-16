@@ -50,6 +50,7 @@ export default function FormTextArea({
       >
         <textarea
           id={inputId}
+          placeholder={placeholder}
           rows={5}
           className={`
             w-full min-w-6 px-2 py-3 outline-none bg-transparent
