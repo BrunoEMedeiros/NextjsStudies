@@ -8,7 +8,7 @@ export default function AdminLayout({
   return (
     <main className="flex min-h-screen bg-background font-sans">
       <DashBoardNavBar />
-      <div>{children}</div>
+      <div className="w-full flex justify-center items-center">{children}</div>
     </main>
   );
 }
