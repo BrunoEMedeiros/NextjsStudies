@@ -16,6 +16,7 @@ export function SigninForm() {
     >
       <FormTextField
         label="Email"
+        labelClassName="text-base text-earth-yellow font-bold"
         placeholder="Digite seu email"
         helperText=""
         type="email"

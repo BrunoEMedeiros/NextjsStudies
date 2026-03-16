@@ -3,6 +3,8 @@ import { RotatingLines } from "react-loader-spinner";
 import FormTextField from "../FormTextField/FormTextField";
 import { useNewActivityForm } from "./useNewActivityForm";
 import FormTextArea from "../FormTextArea/FormTextArea";
+import PaymentRequireSwitch from "../PaymentRequireSwitch/PaymentRequireSwitch";
+import { Switch } from "../ui/switch";
 
 export default function NewActivityForm() {
   const { onSubmit, handleSubmit, isSubmitting, register, errors } =
@@ -35,31 +37,34 @@ export default function NewActivityForm() {
         error={errors.social_media_url}
         {...register("social_media_url")}
       />
-      <FormTextField
-        label="Contribuição"
-        labelClassName="text-base text-earth-yellow font-bold"
-        type="text"
-        className="w-full"
-        placeholder="R$ 0.00"
-        mask="currency" // Use the built-in currency alias
-        maskOptions={{
-          prefix: "R$ ",
-          groupSeparator: ".",
-          radixPoint: ",",
-          digits: 2,
-          digitsOptional: true, // 2. This is the magic bullet! It stops pre-filling ".00" so you don't have to backspace
-          rightAlign: false, // 3. Keeps your cursor firmly on the left
-          autoGroup: true, // 4. Automatically adds the thousands commas as you type
-          showMaskOnHover: false, // 5. Fixes the symbol disappearing when your mouse moves over it
-          allowMinus: false, // (Optional) Prevents users from typing negative prices
-          autoUnmask: true, //
-        }}
-        {...register("payment_sugestion", {
-          // Pro-tip: Convert the unmasked string back to a float for your database
-          setValueAs: (value) => (value ? parseFloat(value) : 0),
-        })}
-        error={errors.payment_sugestion}
-      />
+      <div className="flex flex-col gap-4">
+        <FormTextField
+          label="Contribuição"
+          labelClassName="text-base text-earth-yellow font-bold"
+          type="text"
+          className="w-full"
+          placeholder="R$ 0.00"
+          mask="currency" // Use the built-in currency alias
+          maskOptions={{
+            prefix: "R$ ",
+            groupSeparator: ".",
+            radixPoint: ",",
+            digits: 2,
+            digitsOptional: true, // 2. This is the magic bullet! It stops pre-filling ".00" so you don't have to backspace
+            rightAlign: false, // 3. Keeps your cursor firmly on the left
+            autoGroup: true, // 4. Automatically adds the thousands commas as you type
+            showMaskOnHover: false, // 5. Fixes the symbol disappearing when your mouse moves over it
+            allowMinus: false, // (Optional) Prevents users from typing negative prices
+            autoUnmask: true, //
+          }}
+          {...register("payment_sugestion", {
+            // Pro-tip: Convert the unmasked string back to a float for your database
+            setValueAs: (value) => (value ? parseFloat(value) : 0),
+          })}
+          error={errors.payment_sugestion}
+        />
+        <PaymentRequireSwitch />
+      </div>
       <FormTextArea
         label="Descrição"
         placeholder="Descrição da atividade"

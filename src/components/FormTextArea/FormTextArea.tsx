@@ -40,11 +40,11 @@ export default function FormTextArea({
       <div
         className={`
           flex items-center w-full rounded-md border-2 shadow-sm transition-all
-          bg-white dark:bg-gray-800
+          bg-midnight-black dark:bg-gray-800
           ${
             error
               ? "border-danger"
-              : "border-gray-300 dark:border-gray-700 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500"
+              : "border-gray-300 dark:border-gray-700 focus-within:border-blue-500 focus-within:ring-0.25 focus-within:ring-blue-500"
           }
         `}
       >
@@ -54,7 +54,7 @@ export default function FormTextArea({
           rows={5}
           className={`
             w-full min-w-6 px-2 py-3 outline-none bg-transparent
-            placeholder:text-gray-400 text-sm
+            placeholder:text-gray-500 text-sm
             dark:text-white resize-none
             ${inputClassName}
           `}
