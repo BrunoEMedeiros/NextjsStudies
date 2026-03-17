@@ -165,12 +165,12 @@ const FormTextField = forwardRef<HTMLInputElement, TextFieldProps>(
         {/* Parent container – handles background, border, shadow, focus styles */}
         <div
           className={`
-            flex items-center w-full rounded-md border-2 shadow-sm transition-all
-            bg-midnight-black dark:bg-gray-800
+            flex items-center w-full rounded-md border-1 shadow-sm transition-all
+            bg-rich_black dark:bg-midnight-black
             ${
               error
                 ? "border-danger"
-                : "border-gray-300 dark:border-gray-700 focus-within:border-blue-500 focus-within:ring-0.25 focus-within:ring-blue-500"
+                : "border-gray-300 dark:border-gray-700 focus-within:border-blue-500 focus-within:ring-blue-500"
             }
           `}
         >

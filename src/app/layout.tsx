@@ -2,10 +2,9 @@ import "../globals.css";
 import StoreProvider from "@/src/lib/provider/StoreProvider";
 import ReactQueryProvider from "../lib/provider/ReactQueryProvider";
 import { Geist } from "next/font/google";
-import { cn } from "@/lib/utils";
+import { cn } from "@/src/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export default function RootLayout({
   children,

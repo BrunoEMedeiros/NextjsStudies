@@ -6,7 +6,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main className="flex min-h-screen bg-rich_black font-sans">
+    <main className="flex min-h-screen font-sans">
       <DashBoardNavBar />
       <div className="w-full flex justify-center items-center">{children}</div>
     </main>

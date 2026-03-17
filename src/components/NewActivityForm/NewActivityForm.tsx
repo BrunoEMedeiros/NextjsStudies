@@ -5,6 +5,7 @@ import { useNewActivityForm } from "./useNewActivityForm";
 import FormTextArea from "../FormTextArea/FormTextArea";
 import PaymentRequireSwitch from "../PaymentRequireSwitch/PaymentRequireSwitch";
 import { Switch } from "../ui/switch";
+import CalendarRange from "../DateTimeActivityCalendar/DateTimeActivityCalendar";
 
 export default function NewActivityForm() {
   const { onSubmit, handleSubmit, isSubmitting, register, errors } =
@@ -75,6 +76,7 @@ export default function NewActivityForm() {
         error={errors.description}
         {...register("description")}
       />
+      <CalendarRange />
       <button
         type="submit"
         disabled={isSubmitting}
