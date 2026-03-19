@@ -55,7 +55,7 @@ export default function FormTextArea({
           className={`
             w-full min-w-6 px-2 py-3 outline-none bg-transparent
             placeholder:text-gray-500 text-sm
-            dark:text-white resize-none
+            dark:text-white resize-none text-white
             ${inputClassName}
           `}
           {...props}
