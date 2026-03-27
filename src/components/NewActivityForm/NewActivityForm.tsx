@@ -22,9 +22,9 @@ export default function NewActivityForm() {
   return (
     <div
       onSubmit={handleSubmit(onSubmit)}
-      className="grid gap-4 grid-cols-[1fr_1fr] w-full max-w-5xl mx-auto p-4"
+      className="grid gap-5 grid-cols-[1fr_1fr] w-full max-w-5xl mx-auto p-4"
     >
-      <div>
+      <div className="flex flex-col gap-3">
         <FormTextField
           label="Titulo"
           placeholder="Titulo da atividade"
@@ -46,7 +46,7 @@ export default function NewActivityForm() {
           error={errors.social_media_url}
           {...register("social_media_url")}
         />
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
           <FormTextField
             label="Contribuição"
             labelClassName="text-base text-earth-yellow font-bold"

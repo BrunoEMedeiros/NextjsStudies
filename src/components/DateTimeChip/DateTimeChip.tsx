@@ -17,7 +17,7 @@ export function DateTimeChip({ label, id }: DateTimeChipProps) {
       <button
         type="button" // Always specify type="button" so it doesn't accidentally submit forms
         onClick={() => dispatch(removeScheduleItem(id))}
-        className="mx-3 cursor-pointer hover:opacity-80 transition-opacity"
+        className="ml-2 cursor-pointer hover:opacity-80 transition-opacity"
       >
         <FaTrash color="#e25858" />
       </button>

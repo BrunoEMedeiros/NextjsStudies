@@ -1,104 +1,8 @@
-// import { NextResponse } from "next/server";
-// import type { NextRequest } from "next/server";
-// import * as setCookieParser from "set-cookie-parser";
-
-// const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
-
-// export async function proxy(request: NextRequest) {
-//   const authToken = request.cookies.get("authToken")?.value;
-//   const refreshToken = request.cookies.get("refreshToken")?.value;
-
-//   // Ideally, you would decode the authToken here (e.g., using `jose`) to check if it's expired.
-//   // For simplicity, we trigger a refresh if the authToken is missing but a refreshToken exists.
-//   const needsRefresh = !authToken && refreshToken;
-
-//   // Create a response object early so we can attach cookies to it if needed
-//   let response = NextResponse.next();
-
-//   if (needsRefresh) {
-//     try {
-//       const refreshResponse = await fetch(
-//         `${BASE_URL}/accounts/sessions/refresh`,
-//         {
-//           method: "POST",
-//           headers: {
-//             "Content-Type": "application/json",
-//             Cookie: `refreshToken=${refreshToken}`,
-//           },
-//         }
-//       );
-
-//       if (refreshResponse.ok) {
-//         const setCookieHeader = refreshResponse.headers.get("set-cookie");
-
-//         if (setCookieHeader) {
-//           const parsedCookies = setCookieParser.parse(setCookieHeader, {
-//             decodeValues: false,
-//           });
-
-//           parsedCookies.forEach((cookie) => {
-//             const cookieOptions = {
-//               maxAge: cookie.maxAge,
-//               expires: cookie.expires,
-//               path: cookie.path || "/",
-//               domain: cookie.domain,
-//               secure: cookie.secure,
-//               httpOnly: cookie.httpOnly,
-//               sameSite: cookie.sameSite as "lax" | "strict" | "none",
-//             };
-
-//             // 1. Forward the new cookie to the incoming request
-//             // so Server Components calling `cookies()` see the updated token immediately.
-//             request.cookies.set(cookie.name, cookie.value);
-
-//             // We must recreate the NextResponse after modifying the request cookies
-//             response = NextResponse.next({
-//               request: {
-//                 headers: request.headers,
-//               },
-//             });
-
-//             // 2. Attach the new cookie to the outgoing response
-//             // so the user's browser actually saves it.
-//             response.cookies.set(cookie.name, cookie.value, cookieOptions);
-//           });
-//         }
-//       } else {
-//         // If the refresh token is also invalid/expired, wipe the cookies and redirect to login
-//         response.cookies.delete("authToken");
-//         response.cookies.delete("refreshToken");
-//         return NextResponse.redirect(new URL("/login", request.url));
-//       }
-//     } catch (error) {
-//       console.error("[Middleware] Token refresh failed:", error);
-//     }
-//   }
-
-//   return response;
-// }
-
-// // Configure the paths where this middleware should run
-// export const config = {
-//   matcher: [
-//     /*
-//      * Match all request paths except for the ones starting with:
-//      * - api (API routes)
-//      * - _next/static (static files)
-//      * - _next/image (image optimization files)
-//      * - favicon.ico (favicon file)
-//      */
-//     "/((?!api|_next/static|_next/image|favicon.ico).*)",
-//   ],
-// };
-
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import * as setCookieParser from "set-cookie-parser";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
-
-// 1. Updated type to expect an array of strings (string[])
-let pendingRefreshPromise: Promise<string[] | null> | null = null;
 
 async function fetchNewTokens(refreshToken: string): Promise<string[] | null> {
   try {
@@ -121,62 +25,85 @@ async function fetchNewTokens(refreshToken: string): Promise<string[] | null> {
   }
 }
 
-// 3. Renamed to 'middleware' so Next.js picks it up automatically
+function getTokenExpiry(token: string): number | null {
+  try {
+    const payload = token.split(".")[1];
+    const decoded = JSON.parse(atob(payload));
+    return typeof decoded.exp === "number" ? decoded.exp : null;
+  } catch {
+    return null;
+  }
+}
+
+function isTokenExpired(token: string): boolean {
+  const exp = getTokenExpiry(token);
+  if (!exp) return true;
+  // Add a 10-second buffer to account for clock skew / network latency
+  return Date.now() / 1000 >= exp - 10;
+}
+
 export async function proxy(request: NextRequest) {
   const authToken = request.cookies.get("authToken")?.value;
   const refreshToken = request.cookies.get("refreshToken")?.value;
 
-  const needsRefresh = !authToken && refreshToken;
-
-  let response = NextResponse.next();
+  // ✅ THE KEY CHANGE: refresh if token is absent OR expired
+  const needsRefresh =
+    refreshToken && (!authToken || isTokenExpired(authToken));
 
   if (needsRefresh) {
-    if (!pendingRefreshPromise) {
-      pendingRefreshPromise = fetchNewTokens(refreshToken).finally(() => {
-        pendingRefreshPromise = null;
-      });
-    }
+    const setCookieHeaders = await fetchNewTokens(refreshToken);
 
-    // setCookieHeaders is now of type: string[] | null
-    const setCookieHeaders = await pendingRefreshPromise;
-
-    // 4. Ensure it's not null AND has length before parsing
     if (setCookieHeaders && setCookieHeaders.length > 0) {
       const parsedCookies = setCookieParser.parse(setCookieHeaders, {
         decodeValues: false,
       });
 
+      // Pass updated headers to the downstream Server Component render
+      const requestHeaders = new Headers(request.headers);
+      const cookieparts: string[] = [];
+
       parsedCookies.forEach((cookie) => {
-        const cookieOptions = {
+        request.cookies.set(cookie.name, cookie.value);
+        cookieparts.push(`${cookie.name}=${cookie.value}`);
+      });
+
+      // Merge new tokens into the Cookie header so apiFetch sees them
+      const existingCookies = requestHeaders.get("cookie") || "";
+      requestHeaders.set(
+        "cookie",
+        [existingCookies, ...cookieparts].filter(Boolean).join("; ")
+      );
+
+      const response = NextResponse.next({
+        request: { headers: requestHeaders },
+      });
+
+      // Write new tokens into the browser's cookies
+      parsedCookies.forEach((cookie) => {
+        response.cookies.set(cookie.name, cookie.value, {
           maxAge: cookie.maxAge,
           expires: cookie.expires,
           path: cookie.path || "/",
           domain: cookie.domain,
-          secure: cookie.secure,
+          secure: process.env.NODE_ENV === "production" ? cookie.secure : false,
           httpOnly: cookie.httpOnly,
           sameSite: cookie.sameSite as "lax" | "strict" | "none",
-        };
-
-        // Update the incoming request for Server Components
-        request.cookies.set(cookie.name, cookie.value);
-
-        response = NextResponse.next({
-          request: { headers: request.headers },
         });
-
-        // Update the outgoing response for the browser
-        response.cookies.set(cookie.name, cookie.value, cookieOptions);
       });
-    } else {
-      // If the refresh failed (or returned no cookies), wipe cookies and redirect
-      response.cookies.delete("authToken");
-      response.cookies.delete("refreshToken");
-      return NextResponse.redirect(new URL("/signin", request.url));
+
+      return response;
     }
+
+    // Refresh token is also invalid → force sign-in
+    const redirectResponse = NextResponse.redirect(
+      new URL("/signin", request.url)
+    );
+    redirectResponse.cookies.delete("authToken");
+    redirectResponse.cookies.delete("refreshToken");
+    return redirectResponse;
   }
 
-  // console.log("not need refresh");
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {
