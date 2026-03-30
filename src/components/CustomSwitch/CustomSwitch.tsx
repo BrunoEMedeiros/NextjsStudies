@@ -16,7 +16,7 @@ export default function CustomSwitch({
   lableClassName = "",
 }: CustomSwitch) {
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-2 gap-1">
       <Label
         htmlFor="airplane-mode"
         className={`text-sm font-light text-earth-yellow ${lableClassName}`}
@@ -25,7 +25,7 @@ export default function CustomSwitch({
       </Label>
       <Switch
         id="airplane-mode"
-        className="data-[state=checked]:bg-earth-yellow"
+        className="data-[state=checked]:bg-earth-yellow data-[state=unchecked]:bg-gray-400"
         checked={active}
         onCheckedChange={setActive}
       />

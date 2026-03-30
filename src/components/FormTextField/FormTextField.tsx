@@ -152,7 +152,7 @@ const FormTextField = forwardRef<HTMLInputElement, TextFieldProps>(
     };
 
     return (
-      <div className={`flex-col ${label ? "gap-1" : ""} ${className}`}>
+      <div className={`flex flex-col ${label ? "gap-1" : ""} ${className}`}>
         {label && (
           <label
             htmlFor={inputId}
@@ -165,8 +165,8 @@ const FormTextField = forwardRef<HTMLInputElement, TextFieldProps>(
         {/* Parent container – handles background, border, shadow, focus styles */}
         <div
           className={`
-            flex items-center w-full rounded-md border-1 shadow-sm transition-all
-            bg-rich_black dark:bg-midnight-black
+            flex items-center w-full rounded-md border shadow-sm transition-all
+            bg-rich-black dark:bg-midnight-black
             ${
               error
                 ? "border-danger"
@@ -181,7 +181,7 @@ const FormTextField = forwardRef<HTMLInputElement, TextFieldProps>(
             // Added inputClassName to merge custom styles with your defaults
             className={`
               w-full min-w-6 px-2 py-3 outline-none bg-transparent
-              placeholder:text-gray-500 text-sm
+              placeholder:text-gray-500 text-base
               dark:text-white text-white
               ${inputClassName}
             `}

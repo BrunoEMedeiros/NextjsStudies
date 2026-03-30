@@ -26,7 +26,7 @@ export default function FormTextArea({
   const inputId = `field-${label.replace(/\s+/g, "-").toLowerCase()}`;
 
   return (
-    <div className={`flex-col ${label ? "gap-1" : ""} ${className}`}>
+    <div className={`flex flex-col ${label ? "gap-1" : ""} ${className}`}>
       {label && (
         <label
           htmlFor={inputId}
@@ -40,7 +40,7 @@ export default function FormTextArea({
       <div
         className={`
           flex items-center w-full rounded-md border shadow-sm transition-all
-          bg-rich_black dark:bg-gray-800
+          bg-rich-black dark:bg-gray-800
           ${
             error
               ? "border-danger"
@@ -54,7 +54,7 @@ export default function FormTextArea({
           rows={5}
           className={`
             w-full min-w-6 px-2 py-3 outline-none bg-transparent
-            placeholder:text-gray-500 text-sm
+            placeholder:text-gray-500 text-base
             dark:text-white resize-none text-white
             ${inputClassName}
           `}

@@ -9,7 +9,7 @@ import RoleBadge from "../RoleBedge/RoleBadge";
 export default function DashBoardNavBar() {
   const { handleSignOut, name, role, profilePicture } = useDashBoardNavBar();
   return (
-    <nav className="w-1/6 min-w-50 bg-rich_black text-white pt-8 sticky top-0 h-screen border-r border-gray-800">
+    <nav className="w-1/6 min-w-50 bg-rich-black text-white pt-8 sticky top-0 h-screen border-r border-gray-800">
       <div className="flex justify-center items-center h-20">
         <Image
           src="/LogoZenrp.svg"

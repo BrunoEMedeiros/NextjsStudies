@@ -9,7 +9,7 @@ export default function PaymentRequireSwitch() {
       </Label>
       <Switch
         id="airplane-mode"
-        className="data-[state=checked]:bg-earth-yellow"
+        className="data-[state=checked]:bg-earth-yellow h-6! w-11! **:data-[slot=switch-thumb]:size-5!"
       />
     </div>
   );

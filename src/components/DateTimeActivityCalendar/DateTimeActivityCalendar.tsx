@@ -9,6 +9,8 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { FaPlus, FaClock } from "react-icons/fa";
 import { Field, FieldLabel } from "../ui/field";
+import { FaSave } from "react-icons/fa";
+
 import {
   InputGroup,
   InputGroupAddon,
@@ -34,7 +36,10 @@ export default function DateTimeActivityCalendar() {
 
   return (
     <div className="flex flex-col gap-3 col-span-1 w-full">
-      <Card size="sm" className="mx-auto w-fit overflow-visible rounded-lg">
+      <Card
+        size="default"
+        className="mx-auto w-fit overflow-visible rounded-lg"
+      >
         <CardContent className="p-0">
           <Calendar
             mode="range"
@@ -44,22 +49,20 @@ export default function DateTimeActivityCalendar() {
             month={currentMonth}
             onMonthChange={setCurrentMonth}
             locale={ptBR}
-            // className="p-0 rounded-b-lg
-            //   [&_table]:w-full
-            //   [&_td]:px-2 [&_td]:py-1
-            //   [&_td]:text-center
-            //   [&_.rdp-day]:w-12 [&_.rdp-day]:h-12
-            //   [&_.rdp-day]:mx-auto
-            //   [&_.rdp-day]:text-base
-            //   [&_.rdp-day:hover]:bg-transparent
-            //   [&_.rdp-day:hover]:text-inherit
-            //   [&_.rdp-day:hover]:cursor-default
-            //   [&_.rdp-caption_label]:text-xl
-            //   [&_.rdp-day.day-range-middle]:bg-accent
-            //   [&_.rdp-day.day-range-middle]:text-accent-foreground"
+            classNames={{
+              day: "w-12 h-12 text-lg mx-0.5 rounded-lg",
+              caption_label: "text-2xl",
+              selected:
+                "[&>button]:bg-white [&>button]:text-[#0e141b] [&>button]:rounded-lg",
+              today:
+                "[&>button]:border [&>button]:border-white [&>button]:text-light-coral",
+              range_start: "rounded-lg",
+              range_middle: "bg-white",
+              range_end: "rounded-lg",
+            }}
             modifiers={{ event: eventDays }}
             modifiersClassNames={{
-              event: "bg-earth-yellow text-black ",
+              event: "bg-white text-black rounded-lg",
             }}
           />
         </CardContent>
@@ -86,11 +89,11 @@ export default function DateTimeActivityCalendar() {
       <div className="flex justify-center gap-2 mt-2">
         <Button
           variant="outline"
-          className="w-30 bg-green-600 border-0 group hover:bg-white hover:cursor-pointer"
+          className="w-10 h-10 bg-green-600 border-0 group hover:bg-white hover:cursor-pointer p-4"
           onClick={handleAddDates}
         >
-          <FaPlus
-            size={14}
+          <FaSave
+            size={12}
             className="text-white group-hover:text-rich_black"
           />
         </Button>

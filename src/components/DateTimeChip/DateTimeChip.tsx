@@ -12,7 +12,7 @@ export function DateTimeChip({ label, id }: DateTimeChipProps) {
   const dispatch = useDispatch();
 
   return (
-    <Badge variant="outline" className="p-4 bg-rich_black text-white">
+    <Badge variant="outline" className="p-4 bg-rich-black text-white">
       {label}
       <button
         type="button" // Always specify type="button" so it doesn't accidentally submit forms
