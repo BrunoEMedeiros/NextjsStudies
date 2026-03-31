@@ -9,7 +9,7 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { FaPlus, FaClock } from "react-icons/fa";
 import { Field, FieldLabel } from "../ui/field";
-import { FaSave } from "react-icons/fa";
+import { FaSave, FaTrash } from "react-icons/fa";
 
 import {
   InputGroup,
@@ -89,12 +89,22 @@ export default function DateTimeActivityCalendar() {
       <div className="flex justify-center gap-2 mt-2">
         <Button
           variant="outline"
-          className="w-10 h-10 bg-green-600 border-0 group hover:bg-white hover:cursor-pointer p-4"
+          className="w-16 h-10 bg-green-600 border-0 group hover:bg-white hover:cursor-pointer p-4"
           onClick={handleAddDates}
         >
           <FaSave
             size={12}
-            className="text-white group-hover:text-rich_black"
+            className="text-white group-hover:text-rich-black"
+          />
+        </Button>
+        <Button
+          variant="outline"
+          className="w-16 h-10 bg-danger border-0 group hover:bg-white hover:cursor-pointer p-4"
+          onClick={handleAddDates}
+        >
+          <FaTrash
+            size={12}
+            className="text-white group-hover:text-rich-black"
           />
         </Button>
       </div>
