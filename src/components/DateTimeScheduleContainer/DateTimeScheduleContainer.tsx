@@ -7,10 +7,10 @@ export default function DateTimeSchedule() {
   const scheduleItems = useSelector((state: RootState) => state.schedule.items);
 
   return (
-    <>
+    <div className="col-span-2">
       <p className="text-lg font-light">Datas e Horários</p>
       <div
-        className={`w-full col-span-2 border rounded-md border-white p-4 flex flex-wrap gap-2 ${
+        className={`max-w-206.25 min-w-206.25 col-span-2 border rounded-md border-white p-4 flex flex-wrap gap-2 ${
           scheduleItems.length == 0 && "justify-center items-center"
         } `}
       >
@@ -18,7 +18,7 @@ export default function DateTimeSchedule() {
           scheduleItems.map((item) => {
             let splitTime = item.time.split(":");
             const [year, month, day] = item.date.split("-").map(Number);
-            const date = new Date(Date.UTC(year, month - 1, day));
+            const date = new Date(Date.UTC(year, month - 1, day + 1));
             const brazilianDate = date.toLocaleDateString("pt-BR");
             return (
               <DateTimeChip
@@ -34,6 +34,6 @@ export default function DateTimeSchedule() {
           </p>
         )}
       </div>
-    </>
+    </div>
   );
 }

@@ -1,4 +1,5 @@
 import DashBoardNavBar from "@/src/components/DashboardNavBar/DashboardNavBar";
+import { Toaster } from "@/src/components/ui/sonner";
 
 export default function AdminLayout({
   children,
@@ -10,6 +11,7 @@ export default function AdminLayout({
       <DashBoardNavBar />
       <div className="w-full flex justify-center items-center pt-6">
         {children}
+        <Toaster richColors position="top-right" />
       </div>
     </main>
   );

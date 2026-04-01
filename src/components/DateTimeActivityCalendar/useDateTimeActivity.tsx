@@ -1,3 +1,5 @@
+"use client";
+
 import { addScheduleItem } from "@/src/lib/feature/auth/scheduleSlice";
 import { fetchActivitiesByMonth } from "@/src/lib/service/activity.service";
 import { RootState } from "@/src/lib/store";
@@ -6,6 +8,7 @@ import { eachDayOfInterval } from "date-fns";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
 
 interface DateTimeActivityProps {
   date: string;
@@ -33,8 +36,8 @@ export function useDateTimeActivity() {
     dateRange?.from || new Date()
   );
 
-  console.log("date range: " + dateRange?.from);
-  console.log("currentMonth: " + currentMonth.getUTCMonth());
+  // console.log("date range: " + dateRange?.from);
+  // console.log("currentMonth: " + currentMonth.getUTCMonth());
 
   const {
     data: eventDays = [],
@@ -45,12 +48,28 @@ export function useDateTimeActivity() {
     queryFn: () => fetchActivitiesByMonth(currentMonth.getMonth()),
     staleTime: 1000 * 60 * 5,
     refetchOnReconnect: false,
+    select: (fetchedDates) =>
+      fetchedDates.map((date) => {
+        const d = new Date(date);
+        return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+      }),
   });
 
   const handleAddNewItem = ({ date, time }: DateTimeActivityProps) => {
+    console.log(date);
+    const test = scheduleItems.some((item) => item.id == date + time);
+
+    const data = new Date(date + "T00:00:00");
+
+    const formattedDate = new Intl.DateTimeFormat("pt-BR").format(data);
+    if (test) {
+      toast.warning(`A data ${formattedDate} às ${time} ja foi adicionada`);
+      return;
+    }
+
     dispatch(
       addScheduleItem({
-        id: crypto.randomUUID(),
+        id: date + time,
         date: date,
         time: time,
       })

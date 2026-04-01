@@ -8,6 +8,7 @@ import DateTimeActivityCalendar from "../DateTimeActivityCalendar/DateTimeActivi
 import { FaSave } from "react-icons/fa";
 import DateTimeSchedule from "../DateTimeScheduleContainer/DateTimeScheduleContainer";
 import ActivityTypeSelectOption from "../ActivityTypeSelectOption/ActivityTypeSelectOption";
+import FilterContainer from "../FIlterContainer/FilterContainer";
 
 const ActivityTypeOptions = [
   { label: "Evento", value: "event", key: "evento" },
@@ -101,6 +102,7 @@ export default function NewActivityForm() {
       </div>
       <DateTimeActivityCalendar />
       <DateTimeSchedule />
+      <FilterContainer />
       <button
         type="submit"
         disabled={isSubmitting}
