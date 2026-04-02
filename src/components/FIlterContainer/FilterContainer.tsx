@@ -11,7 +11,7 @@ export default function FilterContainer() {
     <div className="col-span-2">
       <p className="text-lg font-light">Filtros</p>
       <div
-        className={`max-w-197.5 min-w-197.5 col-span-2 border rounded-md border-white p-4 flex flex-col gap-4`}
+        className={`col-span-2 border rounded-md border-gray-700 p-4 flex flex-col gap-4 `}
       >
         <div className="flex gap-2 items-center">
           <FormTextField className="w-1/4" placeholder="Crie um novo filtro" />

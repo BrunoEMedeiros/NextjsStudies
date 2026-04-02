@@ -24,7 +24,7 @@ export default function ActivityTypeSelectOption({
       </label>
       <select
         id="ActivityTypeSelectOption"
-        className={`flex-1 text-base font-light bg-rich-black py-3 px-3 border border-white rounded-md text-white ${style}`}
+        className={`flex-1 text-base font-light bg-rich-black py-3 px-3 border border-gray-700 rounded-md text-white ${style}`}
       >
         {options.map((option) => {
           return (

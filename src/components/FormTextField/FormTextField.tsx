@@ -1,93 +1,4 @@
-// import React, { useState } from "react";
-// import { FieldError } from "react-hook-form";
-// import { FaEye } from "react-icons/fa";
-
-// export interface TextFieldProps
-//   extends React.InputHTMLAttributes<HTMLInputElement> {
-//   label?: string;
-//   placeholder: string;
-//   helperText?: string;
-//   error?: FieldError;
-//   type?: string;
-//   className?: string; // Targets the outer wrapper
-//   labelClassName?: string; // Targets the <label>
-//   inputClassName?: string; // Targets the <input>
-// }
-
-// export default function FormTextField({
-//   label = "",
-//   placeholder,
-//   helperText,
-//   error,
-//   className = "",
-//   labelClassName = "",
-//   inputClassName = "",
-//   type = "text",
-//   ...props
-// }: TextFieldProps) {
-//   const inputId = `field-${label.replace(/\s+/g, "-").toLowerCase()}`;
-
-//   const [passwordVisible, setPasswordVisible] = useState<string>(type);
-
-//   const togglePasswordVisibility = () => {
-//     setPasswordVisible(passwordVisible === "password" ? "text" : "password");
-//   };
-
-//   return (
-//     <div className={`flex-col ${label ? "gap-1" : ""} ${className}`}>
-//       {label && (
-//         <label
-//           htmlFor={inputId}
-//           // Added labelClassName to merge custom styles with your defaults
-//           className={`text-md font-light text-earth-yellow ${labelClassName}`}
-//         >
-//           {label}
-//         </label>
-//       )}
-//       {/* Parent container – handles background, border, shadow, focus styles */}
-//       <div
-//         className={`
-//           flex items-center w-full rounded-md border-2 shadow-sm transition-all
-//           bg-white dark:bg-gray-800
-//           ${
-//             error
-//               ? "border-danger"
-//               : "border-gray-300 dark:border-gray-700 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500"
-//           }
-//         `}
-//       >
-//         <input
-//           id={inputId}
-//           type={passwordVisible}
-//           // Added inputClassName to merge custom styles with your defaults
-//           className={`
-//             w-full min-w-6 px-2 py-3 outline-none bg-transparent
-//             placeholder:text-gray-400 text-sm
-//             dark:text-white
-//             ${inputClassName}
-//           `}
-//           placeholder={placeholder}
-//           {...props}
-//         />
-//         {type === "password" && (
-//           <div
-//             className="flex items-center justify-center px-3 cursor-pointer"
-//             onClick={togglePasswordVisibility}
-//           >
-//             <FaEye size={24} />
-//           </div>
-//         )}
-//       </div>
-//       {error && <p className="text-red-500 text-sm">{error.message}</p>}
-//       {helperText && (
-//         <p className={`text-xs ${error ? "text-danger" : "text-gray-500"}`}>
-//           {helperText}
-//         </p>
-//       )}
-//     </div>
-//   );
-// }
-
+import { cn } from "@/src/lib/utils";
 import React, { useState, forwardRef } from "react";
 import { FieldError } from "react-hook-form";
 import { FaEye } from "react-icons/fa";
@@ -100,11 +11,13 @@ export interface TextFieldProps
   helperText?: string;
   error?: FieldError;
   type?: string;
-  className?: string; // Targets the outer wrapper
-  labelClassName?: string; // Targets the <label>
-  inputClassName?: string; // Targets the <input>
-  mask?: string | string[]; // Added for use-mask-input
-  maskOptions?: Record<string, any>; // Added for advanced masks like currency
+  className?: string;
+  labelClassName?: string;
+  inputClassName?: string;
+  containerClassName?: string;
+  mask?: string | string[];
+  maskOptions?: Record<string, any>;
+  autoResize?: boolean; // 1. Added the new prop
 }
 
 const FormTextField = forwardRef<HTMLInputElement, TextFieldProps>(
@@ -117,37 +30,50 @@ const FormTextField = forwardRef<HTMLInputElement, TextFieldProps>(
       className = "",
       labelClassName = "",
       inputClassName = "",
+      containerClassName = "",
       type = "text",
       mask,
       maskOptions,
+      autoResize = false, // Default to false so it doesn't break other forms
       ...props
     },
     ref
   ) => {
     const inputId = `field-${label.replace(/\s+/g, "-").toLowerCase()}`;
 
-    // Note: Ensuring type falls back to "text" if undefined so state is strictly a string
     const [passwordVisible, setPasswordVisible] = useState<string>(
       type || "text"
+    );
+
+    // 2. Track the character length for dynamic resizing (falls back to placeholder)
+    const [contentLength, setContentLength] = useState(
+      (props.value || props.defaultValue || placeholder || "").toString().length
     );
 
     const togglePasswordVisibility = () => {
       setPasswordVisible(passwordVisible === "password" ? "text" : "password");
     };
 
-    // Custom ref handler to merge react-hook-form's ref and use-mask-input
     const handleRef = (element: HTMLInputElement | null) => {
       if (!element) return;
-
       if (mask) {
         const applyMask = withMask(mask, maskOptions);
         applyMask(element);
       }
-
       if (typeof ref === "function") {
         ref(element);
       } else if (ref) {
         ref.current = element;
+      }
+    };
+
+    // 3. Hijack onChange slightly to update width as user types, without breaking react-hook-form
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (autoResize) {
+        setContentLength(e.target.value.length || placeholder?.length || 0);
+      }
+      if (props.onChange) {
+        props.onChange(e);
       }
     };
 
@@ -156,36 +82,36 @@ const FormTextField = forwardRef<HTMLInputElement, TextFieldProps>(
         {label && (
           <label
             htmlFor={inputId}
-            // Added labelClassName to merge custom styles with your defaults
             className={`text-md font-light text-earth-yellow ${labelClassName}`}
           >
             {label}
           </label>
         )}
-        {/* Parent container – handles background, border, shadow, focus styles */}
+
         <div
-          className={`
-            flex items-center w-full rounded-md border shadow-sm transition-all
-            bg-rich-black dark:bg-midnight-black
-            ${
-              error
-                ? "border-danger"
-                : "border-gray-300 dark:border-gray-700 focus-within:border-blue-500 focus-within:ring-blue-500"
-            }
-          `}
+          className={cn(
+            "flex items-center rounded-md border shadow-sm transition-all",
+            autoResize ? "w-fit" : "w-full", // 4. Remove w-full if autoResizing
+            "bg-rich-black dark:bg-midnight-black",
+            error
+              ? "border-danger"
+              : "border-gray-700 dark:border-gray-700 focus-within:border-blue-500 focus-within:ring-blue-500",
+            containerClassName
+          )}
         >
           <input
             id={inputId}
             type={passwordVisible}
-            ref={handleRef} // Applied the merged ref handler here
-            // Added inputClassName to merge custom styles with your defaults
-            className={`
-              w-full min-w-6 px-2 py-3 outline-none bg-transparent
-              placeholder:text-gray-500 text-base
-              dark:text-white text-white
-              ${inputClassName}
-            `}
+            ref={handleRef}
+            onChange={handleChange}
+            className={cn(
+              "min-w-6 px-2 py-3 outline-none bg-transparent placeholder:text-gray-500 text-base dark:text-white text-white",
+              autoResize ? "" : "w-full", // 5. Remove w-full from input if autoResizing
+              inputClassName
+            )}
             placeholder={placeholder}
+            // 6. Apply dynamic width using the 'ch' (character) unit. We add +2 to prevent text clipping from font variations.
+            style={autoResize ? { width: `${contentLength + 2}ch` } : undefined}
             {...props}
           />
           {type === "password" && (

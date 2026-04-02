@@ -10,7 +10,7 @@ export default function DateTimeSchedule() {
     <div className="col-span-2">
       <p className="text-lg font-light">Datas e Horários</p>
       <div
-        className={`max-w-206.25 min-w-206.25 col-span-2 border rounded-md border-white p-4 flex flex-wrap gap-2 ${
+        className={`col-span-2 border rounded-md border-gray-700 px-4 py-5 flex  content-start flex-wrap gap-4 ${
           scheduleItems.length == 0 && "justify-center items-center"
         } `}
       >
@@ -23,7 +23,8 @@ export default function DateTimeSchedule() {
             return (
               <DateTimeChip
                 key={`${item.date}-${item.time}`}
-                label={`${brazilianDate} às ${splitTime[0]}:${splitTime[1]}`}
+                date={`${brazilianDate}`}
+                time={`${splitTime[0]}:${splitTime[1]}`}
                 id={item.id}
               />
             );

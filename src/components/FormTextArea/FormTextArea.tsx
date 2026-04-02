@@ -44,7 +44,7 @@ export default function FormTextArea({
           ${
             error
               ? "border-danger"
-              : "border-gray-300 dark:border-gray-700 focus-within:border-blue-500 focus-within:ring-blue-500"
+              : "border-gray-700 dark:border-gray-700 focus-within:border-blue-500 focus-within:ring-blue-500"
           }
         `}
       >
