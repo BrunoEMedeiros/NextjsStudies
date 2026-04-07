@@ -1,7 +1,5 @@
-// useSigninViewModel.ts
 import { Resolver, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { handleLoginUser } from "@/src/lib/service/user.service";
 import { ApiError } from "@/src/lib/ApiError";
@@ -10,9 +8,9 @@ import {
   SigninUserSchema,
 } from "@/src/lib/schemas/user-signin.schema";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export function useSigninViewModel() {
-  // const dispatch = useDispatch();
   const router = useRouter();
 
   const {
@@ -30,31 +28,33 @@ export function useSigninViewModel() {
     mutationKey: ["auth"],
     mutationFn: async ({ email, password }: SigninUserSchema) =>
       await handleLoginUser(email, password),
-    onSuccess: async () => {
-      router.push("/dashboard/activities");
-      return;
-    },
-    onError: (error: any) => {
-      if (error instanceof ApiError && error.status === 401) {
-        setError("email", {
-          type: "manual",
-          message: "E-mail ou senha incorretos",
-        });
-        setError("password", {
-          type: "manual",
-          message: "E-mail ou senha incorretos",
-        });
-      } else {
-        console.error(error);
-        alert("Erro inesperado. Verifique sua conexão.");
+    onSuccess: (result) => {
+      if (!result.ok) {
+        if (result.status === 401) {
+          setError("email", {
+            type: "manual",
+            message: "E-mail ou senha incorretos",
+          });
+          setError("password", {
+            type: "manual",
+            message: "E-mail ou senha incorretos",
+          });
+
+          return;
+        }
+        if (result.status === 500) {
+          toast.error(
+            `Ocorreu um erro inesperado, por favor verifique sua conexão com a internet`
+          );
+          return;
+        }
       }
+      router.push("/dashboard/activities");
     },
   });
 
   const onSubmit = async (data: SigninUserSchema) => {
-    try {
-      await authUser.mutateAsync(data);
-    } catch (error: any) {}
+    await authUser.mutateAsync(data);
   };
 
   return {

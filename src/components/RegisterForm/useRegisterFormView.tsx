@@ -1,4 +1,3 @@
-// useRegisterViewModel.ts
 import { Resolver, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -6,7 +5,8 @@ import {
   createAccountSchema,
 } from "@/src/lib/schemas/user-register.schema";
 import { handleCreateUser } from "@/src/lib/service/user.service";
-import { ApiError } from "@/src/lib/ApiError";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export function useRegisterViewModel() {
   const {
@@ -20,13 +20,15 @@ export function useRegisterViewModel() {
     ) as unknown as Resolver<CreateAccountSchema>,
   });
 
-  const onSubmit = async (data: CreateAccountSchema) => {
-    try {
-      await handleCreateUser(data);
-    } catch (error: any) {
-      if (error instanceof ApiError) {
-        if (error.status === 409) {
-          if (error.message === "E-mail em uso") {
+  const createAccount = useMutation({
+    mutationKey: ["createAccount"],
+    mutationFn: async (data: CreateAccountSchema) =>
+      await handleCreateUser(data),
+    onSuccess: (result) => {
+      console.log(result);
+      if (!result.ok) {
+        if (result.status === 409) {
+          if (result.message === "E-mail já em uso") {
             setError("email", {
               type: "manual",
               message: "Este e-mail ja esta sendo usado",
@@ -34,7 +36,7 @@ export function useRegisterViewModel() {
             return;
           }
 
-          if (error.message === "Telefone em uso") {
+          if (result.message === "Telefone já em uso") {
             setError("phone", {
               type: "manual",
               message: "Telefone em uso",
@@ -42,15 +44,18 @@ export function useRegisterViewModel() {
             return;
           }
         }
-        setError("root", {
-          type: "server",
-          message: error.message || "Erro no servidor.",
-        });
-      } else {
-        console.error(error);
-        alert("Erro inesperado. Verifique sua conexão.");
+        if (result.status === 500) {
+          toast.error(
+            `Ocorreu um erro inesperado, por favor verifique sua conexão com a internet`
+          );
+          return;
+        }
       }
-    }
+    },
+  });
+
+  const onSubmit = async (data: CreateAccountSchema) => {
+    await createAccount.mutateAsync(data);
   };
 
   return {

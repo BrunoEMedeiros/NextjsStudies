@@ -28,9 +28,15 @@ async function fetchNewTokens(refreshToken: string): Promise<string[] | null> {
 function getTokenExpiry(token: string): number | null {
   try {
     const payload = token.split(".")[1];
-    const decoded = JSON.parse(atob(payload));
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+
+    const pad = base64.length % 4;
+    const paddedBase64 = pad ? base64 + "=".repeat(4 - pad) : base64;
+
+    const decoded = JSON.parse(atob(paddedBase64));
     return typeof decoded.exp === "number" ? decoded.exp : null;
-  } catch {
+  } catch (error) {
+    console.error("[Middleware] Failed to decode JWT:", error);
     return null;
   }
 }
@@ -58,27 +64,21 @@ export async function proxy(request: NextRequest) {
         decodeValues: false,
       });
 
-      // Pass updated headers to the downstream Server Component render
-      const requestHeaders = new Headers(request.headers);
-      const cookieparts: string[] = [];
-
+      // 1. Update the NextRequest's internal cookie store directly
       parsedCookies.forEach((cookie) => {
         request.cookies.set(cookie.name, cookie.value);
-        cookieparts.push(`${cookie.name}=${cookie.value}`);
       });
 
-      // Merge new tokens into the Cookie header so apiFetch sees them
-      const existingCookies = requestHeaders.get("cookie") || "";
-      requestHeaders.set(
-        "cookie",
-        [existingCookies, ...cookieparts].filter(Boolean).join("; ")
-      );
+      // 2. Clone headers and use the UPDATED cookie store to generate the string
+      // This prevents the "authToken=OLD; authToken=NEW" duplication bug
+      const requestHeaders = new Headers(request.headers);
+      requestHeaders.set("cookie", request.cookies.toString());
 
       const response = NextResponse.next({
         request: { headers: requestHeaders },
       });
 
-      // Write new tokens into the browser's cookies
+      // 3. Write new tokens into the browser's cookies
       parsedCookies.forEach((cookie) => {
         response.cookies.set(cookie.name, cookie.value, {
           maxAge: cookie.maxAge,

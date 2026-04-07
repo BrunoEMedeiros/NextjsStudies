@@ -45,7 +45,6 @@ const FormTextField = forwardRef<HTMLInputElement, TextFieldProps>(
       type || "text"
     );
 
-    // 2. Track the character length for dynamic resizing (falls back to placeholder)
     const [contentLength, setContentLength] = useState(
       (props.value || props.defaultValue || placeholder || "").toString().length
     );
@@ -110,7 +109,6 @@ const FormTextField = forwardRef<HTMLInputElement, TextFieldProps>(
               inputClassName
             )}
             placeholder={placeholder}
-            // 6. Apply dynamic width using the 'ch' (character) unit. We add +2 to prevent text clipping from font variations.
             style={autoResize ? { width: `${contentLength + 2}ch` } : undefined}
             {...props}
           />

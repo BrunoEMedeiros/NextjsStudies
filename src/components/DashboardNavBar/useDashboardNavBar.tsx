@@ -1,3 +1,4 @@
+// useDashBoardNavBar.ts
 "use client";
 import { logOff, signin } from "@/src/lib/feature/auth/authSlice";
 import { UserProfileType } from "@/src/lib/schemas/user-profile.schema";
@@ -22,14 +23,17 @@ export function useDashBoardNavBar() {
   });
 
   useEffect(() => {
-    if (profileQuery.isError) {
-      const error = profileQuery.error as any;
-      if (error?.status === 401) {
-        handleSignOut();
-        router.push("/signin");
-      }
+    if (!profileQuery.isError) return;
+
+    const error = profileQuery.error as any;
+    const isAuthFailure =
+      error?.status === 401 || error?.isAuthExpired === true; // ✅ catches the AuthExpiredError path
+
+    if (isAuthFailure) {
+      handleSignOut();
+      router.push("/signin");
     }
-  }, [profileQuery.isError, profileQuery.error, router]);
+  }, [profileQuery.isError, profileQuery.error]);
 
   useEffect(() => {
     if (profileQuery.data) {

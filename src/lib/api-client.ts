@@ -1,11 +1,12 @@
+// apiFetch.ts
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import * as setCookieParser from "set-cookie-parser";
 import { ApiError } from "./ApiError";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
+const AUTH_ROUTES = ["/accounts/sessions/signin", "/accounts/sessions/signup"];
 
-// A typed sentinel so callers can re-throw it cleanly
 export class AuthExpiredError extends Error {
   constructor() {
     super("SESSION_EXPIRED");
@@ -59,65 +60,52 @@ export async function apiFetch<T = any>(
 
   let response = await fetch(url, buildOptions(authToken));
 
-  // --- 1. REACTIVE REFRESH INTERCEPTOR ---
-  if (response.status === 401 && !_isRetry && !url.includes("/refresh")) {
+  if (
+    response.status === 401 &&
+    !_isRetry &&
+    !url.includes("/refresh") &&
+    !AUTH_ROUTES.some((route) => url.includes(route))
+  ) {
     const refreshToken = cookieStore.get("refreshToken")?.value;
 
-    if (refreshToken) {
-      const refreshResponse = await fetch(
-        `${BASE_URL}/accounts/sessions/refresh`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Cookie: `refreshToken=${refreshToken}`,
-          },
-        }
-      );
+    if (!refreshToken) {
+      redirect("/signin");
+    }
 
-      if (refreshResponse.ok) {
-        // Persist new token pair into the cookie store
-        const newCookies = refreshResponse.headers.getSetCookie();
-        await applySetCookies(newCookies, cookieStore);
+    console.log(refreshToken);
 
-        // Extract the new authToken for the immediate retry
-        const parsed = setCookieParser.parse(newCookies, {
-          decodeValues: false,
-        });
-        const newAuthToken =
-          parsed.find((c) => c.name === "authToken")?.value || "";
-
-        // Retry the original request with the new token
-        response = await fetch(url, buildOptions(newAuthToken));
-      } else {
-        // Refresh token is also dead → clear cookies and bounce to signin
-        cookieStore.delete("authToken");
-        cookieStore.delete("refreshToken");
-        // ⚠️  redirect() MUST NOT be inside a try/catch in your caller
-        redirect("/signin");
+    const refreshResponse = await fetch(
+      `${BASE_URL}/accounts/sessions/refresh`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `refreshToken=${refreshToken}`,
+        },
       }
+    );
+
+    if (refreshResponse.ok) {
+      const newCookies = refreshResponse.headers.getSetCookie();
+      await applySetCookies(newCookies, cookieStore);
+      const parsed = setCookieParser.parse(newCookies, { decodeValues: false });
+      const newAuthToken =
+        parsed.find((c) => c.name === "authToken")?.value || "";
+      response = await fetch(url, buildOptions(newAuthToken));
     } else {
-      // No refresh token at all → treat as logged out
+      // ✅ refresh rejected — redirect, never throw
+      cookieStore.delete("authToken");
+      cookieStore.delete("refreshToken");
       redirect("/signin");
     }
   }
 
-  // --- 2. ERROR HANDLING ---
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new ApiError(response.status, errorData);
-  }
-
   const data = await response.json().catch(() => null);
-
-  // --- 3. COOKIE SAVING (for login and token refresh) ---
   await applySetCookies(response.headers.getSetCookie(), cookieStore);
 
   const headersObject: Record<string, string> = {};
   response.headers.forEach((value, key) => {
-    if (key.toLowerCase() !== "set-cookie") {
-      headersObject[key] = value;
-    }
+    if (key.toLowerCase() !== "set-cookie") headersObject[key] = value;
   });
 
   return { data, headers: headersObject };

@@ -1,9 +1,13 @@
 "use server";
 import { CreateAccountSchema, UserRole } from "../schemas/user-register.schema";
-import { apiFetch } from "../api-client";
-import { ApiError } from "../ApiError";
+import { apiFetch, AuthExpiredError } from "../api-client";
+import { ApiError, isApiError } from "../ApiError";
 import { UserProfileType } from "../schemas/user-profile.schema";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
+
+export type ServiceResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; status: number; code?: string; message: string };
 
 export const handleCreateUser = async (
   user: CreateAccountSchema
@@ -21,13 +25,20 @@ export const handleCreateUser = async (
       cache: "no-store",
     });
 
-    if (data.statusCode == 409) {
-      throw new ApiError(data.statusCode, data);
-    }
-
-    return data;
+    return { ok: true, data };
   } catch (error) {
     if (isRedirectError(error)) throw error;
+
+    if (isApiError(error)) {
+      return {
+        ok: false,
+        status: error.status,
+        code: error.data.code,
+        message: error.data.message,
+      };
+    }
+
+    return { ok: false, status: 500, message: "Erro inesperado" };
   }
 };
 
@@ -38,16 +49,25 @@ export const handleLoginUser = async (
   try {
     const { data } = await apiFetch("/accounts/sessions/signin", {
       method: "POST",
-      body: JSON.stringify({
-        email: email,
-        password: password,
-      }),
+      body: JSON.stringify({ email, password }),
       credentials: "include",
     });
 
-    return data;
+    return { ok: true, data };
   } catch (error) {
     if (isRedirectError(error)) throw error;
+
+    if (isApiError(error)) {
+      console.log(error);
+      return {
+        ok: false,
+        status: error.status,
+        code: error.data.code,
+        message: error.data.message,
+      };
+    }
+
+    return { ok: false, status: 500, message: "Erro inesperado" };
   }
 };
 
@@ -55,6 +75,5 @@ export const fetchProfile = async (): Promise<UserProfileType> => {
   const { data } = await apiFetch<UserProfileType>("/accounts/profile", {
     method: "GET",
   });
-
   return data;
 };

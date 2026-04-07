@@ -8,6 +8,7 @@ export function FilterChip({ id, descricao }: FilterType) {
     <Badge
       variant="outline"
       className="pl-6 py-6 pr-3 bg-rich-black text-white text-base font-light"
+      key={id}
     >
       <FormTextField
         placeholder={descricao}
