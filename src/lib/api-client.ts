@@ -93,7 +93,6 @@ export async function apiFetch<T = any>(
         parsed.find((c) => c.name === "authToken")?.value || "";
       response = await fetch(url, buildOptions(newAuthToken));
     } else {
-      // ✅ refresh rejected — redirect, never throw
       cookieStore.delete("authToken");
       cookieStore.delete("refreshToken");
       redirect("/signin");
@@ -107,6 +106,10 @@ export async function apiFetch<T = any>(
   response.headers.forEach((value, key) => {
     if (key.toLowerCase() !== "set-cookie") headersObject[key] = value;
   });
+
+  if (!response.ok) {
+    throw new ApiError(response.status, data);
+  }
 
   return { data, headers: headersObject };
 }

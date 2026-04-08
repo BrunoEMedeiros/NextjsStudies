@@ -30,7 +30,7 @@
   --popover: var(--rich-black);
   --popover-foreground: var(--anti-flash-white);
 
-  --primary: var(--earth-yellow);
+  --primary: var(--color-blue-500);
   --primary-foreground: var(--night);
 
   --secondary: var(--grey-400);
@@ -92,6 +92,8 @@
   --font-weight-light: 300;
   --font-weight-normal: 400;
   --font-weight-bold: 700;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui;
 
   /* Radii */
   --radius-sm: calc(var(--radius) * 0.6);

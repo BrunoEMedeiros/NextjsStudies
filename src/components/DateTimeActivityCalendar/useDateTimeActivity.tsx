@@ -36,9 +36,6 @@ export function useDateTimeActivity() {
     dateRange?.from || new Date()
   );
 
-  // console.log("date range: " + dateRange?.from);
-  // console.log("currentMonth: " + currentMonth.getUTCMonth());
-
   const {
     data: eventDays = [],
     isLoading,

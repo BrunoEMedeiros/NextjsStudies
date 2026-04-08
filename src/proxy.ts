@@ -15,7 +15,6 @@ async function fetchNewTokens(refreshToken: string): Promise<string[] | null> {
     });
 
     if (response.ok) {
-      // 2. USE getSetCookie() HERE! This correctly returns an array of individual cookies
       return response.headers.getSetCookie();
     }
     return null;
@@ -44,7 +43,6 @@ function getTokenExpiry(token: string): number | null {
 function isTokenExpired(token: string): boolean {
   const exp = getTokenExpiry(token);
   if (!exp) return true;
-  // Add a 10-second buffer to account for clock skew / network latency
   return Date.now() / 1000 >= exp - 10;
 }
 
@@ -52,7 +50,6 @@ export async function proxy(request: NextRequest) {
   const authToken = request.cookies.get("authToken")?.value;
   const refreshToken = request.cookies.get("refreshToken")?.value;
 
-  // ✅ THE KEY CHANGE: refresh if token is absent OR expired
   const needsRefresh =
     refreshToken && (!authToken || isTokenExpired(authToken));
 
@@ -64,13 +61,10 @@ export async function proxy(request: NextRequest) {
         decodeValues: false,
       });
 
-      // 1. Update the NextRequest's internal cookie store directly
       parsedCookies.forEach((cookie) => {
         request.cookies.set(cookie.name, cookie.value);
       });
 
-      // 2. Clone headers and use the UPDATED cookie store to generate the string
-      // This prevents the "authToken=OLD; authToken=NEW" duplication bug
       const requestHeaders = new Headers(request.headers);
       requestHeaders.set("cookie", request.cookies.toString());
 
@@ -78,7 +72,6 @@ export async function proxy(request: NextRequest) {
         request: { headers: requestHeaders },
       });
 
-      // 3. Write new tokens into the browser's cookies
       parsedCookies.forEach((cookie) => {
         response.cookies.set(cookie.name, cookie.value, {
           maxAge: cookie.maxAge,
@@ -94,10 +87,10 @@ export async function proxy(request: NextRequest) {
       return response;
     }
 
-    // Refresh token is also invalid → force sign-in
     const redirectResponse = NextResponse.redirect(
       new URL("/signin", request.url)
     );
+
     redirectResponse.cookies.delete("authToken");
     redirectResponse.cookies.delete("refreshToken");
     return redirectResponse;

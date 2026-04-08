@@ -1,6 +1,8 @@
 "use server";
 
 import { apiFetch } from "../api-client";
+import { isApiError } from "../ApiError";
+import { ServiceResult } from "./user.service";
 
 export type FilterType = {
   id: number;
@@ -14,3 +16,47 @@ export const fetchAllFilters = async () => {
 
   return data;
 };
+
+export async function handleCreateNewFilter(
+  descricao: string
+): Promise<ServiceResult<FilterType>> {
+  try {
+    const { data } = await apiFetch<FilterType>("/filters", {
+      method: "POST",
+      body: JSON.stringify({ descricao }),
+    });
+    return { ok: true, data };
+  } catch (err) {
+    if (isApiError(err)) {
+      return {
+        ok: false,
+        status: err.status,
+        message: err.data.message,
+        code: err.data.code,
+      };
+    }
+    return { ok: false, status: 500, message: "Unexpected error" };
+  }
+}
+
+export async function handleDeleteFilter(
+  id: number
+): Promise<ServiceResult<FilterType>> {
+  try {
+    const { data } = await apiFetch<FilterType>(`/filters/${id}`, {
+      method: "DELETE",
+    });
+
+    return { ok: true, data };
+  } catch (err) {
+    if (isApiError(err)) {
+      return {
+        ok: false,
+        status: err.status,
+        message: err.data.message,
+        code: err.data.code,
+      };
+    }
+    return { ok: false, status: 500, message: "Unexpected error" };
+  }
+}

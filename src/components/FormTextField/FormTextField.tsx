@@ -66,7 +66,6 @@ const FormTextField = forwardRef<HTMLInputElement, TextFieldProps>(
       }
     };
 
-    // 3. Hijack onChange slightly to update width as user types, without breaking react-hook-form
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (autoResize) {
         setContentLength(e.target.value.length || placeholder?.length || 0);
@@ -90,7 +89,7 @@ const FormTextField = forwardRef<HTMLInputElement, TextFieldProps>(
         <div
           className={cn(
             "flex items-center rounded-md border shadow-sm transition-all",
-            autoResize ? "w-fit" : "w-full", // 4. Remove w-full if autoResizing
+            autoResize ? "w-fit" : "w-full",
             "bg-rich-black dark:bg-midnight-black",
             error
               ? "border-danger"
@@ -104,8 +103,8 @@ const FormTextField = forwardRef<HTMLInputElement, TextFieldProps>(
             ref={handleRef}
             onChange={handleChange}
             className={cn(
-              "min-w-6 px-2 py-3 outline-none bg-transparent placeholder:text-gray-500 text-base dark:text-white text-white",
-              autoResize ? "" : "w-full", // 5. Remove w-full from input if autoResizing
+              "min-w-4 px-2 py-3 outline-none bg-transparent placeholder:text-gray-500 text-base dark:text-white text-white",
+              autoResize ? "" : "w-full",
               inputClassName
             )}
             placeholder={placeholder}
