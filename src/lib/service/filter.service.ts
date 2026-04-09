@@ -60,3 +60,26 @@ export async function handleDeleteFilter(
     return { ok: false, status: 500, message: "Unexpected error" };
   }
 }
+
+export async function handleUpdateFilter({
+  id,
+  descricao,
+}: FilterType): Promise<ServiceResult<FilterType>> {
+  try {
+    const { data } = await apiFetch<FilterType>(`/filters/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ descricao }), // 👈 wrap in object
+    });
+    return { ok: true, data };
+  } catch (err) {
+    if (isApiError(err)) {
+      return {
+        ok: false,
+        status: err.status,
+        message: err.data.message,
+        code: err.data.code,
+      };
+    }
+    return { ok: false, status: 500, message: "Unexpected error" };
+  }
+}

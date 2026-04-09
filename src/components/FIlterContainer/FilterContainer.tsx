@@ -7,8 +7,16 @@ import { FilterChip } from "../FilterChip/FilterChip";
 import { RotatingLines } from "react-loader-spinner";
 
 export default function FilterContainer() {
-  const { filters, onSubmit, isSubmitting, register, handleSubmit, errors } =
-    useFiltersHook();
+  const {
+    filters,
+    onSubmit,
+    isSubmitting,
+    register,
+    handleSubmit,
+    errors,
+    onDelete,
+    onUpdate,
+  } = useFiltersHook();
   return (
     <div className="col-span-2">
       <p className="text-lg font-light">Filtros</p>
@@ -61,6 +69,8 @@ export default function FilterContainer() {
                   key={item.id}
                   id={item.id}
                   descricao={item.descricao}
+                  onDelete={onDelete}
+                  onUpdate={onUpdate}
                 />
               );
             })

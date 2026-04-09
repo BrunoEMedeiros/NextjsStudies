@@ -9,6 +9,7 @@ import {
   FilterType,
   handleCreateNewFilter,
   handleDeleteFilter,
+  handleUpdateFilter,
 } from "@/src/lib/service/filter.service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -73,6 +74,27 @@ export function useFiltersHook() {
     },
   });
 
+  const updateFilter = useMutation({
+    mutationKey: ["updateFilter"],
+    mutationFn: ({ id, descricao }: FilterType) =>
+      handleUpdateFilter({ id, descricao }),
+    onSuccess: (result) => {
+      if (!result.ok) {
+        if (result.status === 409) {
+          toast.error("Já existe um filtro com este nome");
+        }
+
+        return;
+      }
+      toast.success("Filtro atualizado com sucesso");
+      queryClient.invalidateQueries({ queryKey: ["filters"] });
+    },
+  });
+
+  const onUpdate = async ({ id, descricao }: FilterType) => {
+    await updateFilter.mutateAsync({ id, descricao });
+  };
+
   const onDelete = async (id: number) => {
     await deleteFilter.mutateAsync(id);
   };
@@ -89,5 +111,6 @@ export function useFiltersHook() {
     handleSubmit,
     errors,
     onDelete,
+    onUpdate,
   };
 }
