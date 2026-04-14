@@ -1,13 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { ptBR } from "date-fns/locale";
-import { eachDayOfInterval } from "date-fns"; // added eachDayOfInterval and format
-import { type DateRange } from "react-day-picker";
 import { Calendar } from "@/src/components/ui/calendar";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter } from "../ui/card";
-import { FaPlus, FaClock } from "react-icons/fa";
+import { FaClock } from "react-icons/fa";
 import { Field, FieldLabel } from "../ui/field";
 import { FaSave, FaTrash } from "react-icons/fa";
 
@@ -17,6 +14,7 @@ import {
   InputGroupInput,
 } from "../ui/input-group";
 import { useDateTimeActivity } from "./useDateTimeActivity";
+import { DateTimeActivityCalendarSkeleton } from "./DateTimeActivityCalendarSkeleton";
 
 export default function DateTimeActivityCalendar() {
   const {
@@ -33,6 +31,8 @@ export default function DateTimeActivityCalendar() {
     currentMonth,
     setCurrentMonth,
   } = useDateTimeActivity();
+
+  if (isLoading) return <DateTimeActivityCalendarSkeleton />;
 
   return (
     <div className="flex flex-col gap-3 col-span-1 w-full">

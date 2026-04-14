@@ -5,9 +5,14 @@ import { PiFlowerLotusThin } from "react-icons/pi";
 import NavBarItems from "../NavBarItems/NavBaritems";
 import { useDashBoardNavBar } from "./useDashboardNavBar";
 import RoleBadge from "../RoleBedge/RoleBadge";
+import { DashBoardNavBarSkeleton } from "./DashBoardNavBarSkeleton"; // ← import
 
 export default function DashBoardNavBar() {
-  const { handleSignOut, name, role, profilePicture } = useDashBoardNavBar();
+  const { handleSignOut, name, role, profilePicture, isLoading } =
+    useDashBoardNavBar();
+
+  if (isLoading) return <DashBoardNavBarSkeleton />;
+
   return (
     <nav className="w-1/6 min-w-50 bg-rich-black text-white pt-8 sticky top-0 h-screen border-r border-gray-800">
       <div className="flex justify-center items-center h-20">

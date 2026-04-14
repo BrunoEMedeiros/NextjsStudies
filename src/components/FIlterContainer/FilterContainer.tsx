@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { useFiltersHook } from "./useFilterHook";
 import { FilterChip } from "../FilterChip/FilterChip";
 import { RotatingLines } from "react-loader-spinner";
+import { FilterContainerSkeleton } from "./FilterContainerSkeleton"; // ← import
 
 export default function FilterContainer() {
   const {
@@ -15,8 +16,13 @@ export default function FilterContainer() {
     handleSubmit,
     errors,
     onDelete,
+    isLoading,
     onUpdate,
+    isUpdating,
   } = useFiltersHook();
+
+  if (isLoading) return <FilterContainerSkeleton />;
+
   return (
     <div className="col-span-2">
       <p className="text-lg font-light">Filtros</p>
@@ -71,6 +77,7 @@ export default function FilterContainer() {
                   descricao={item.descricao}
                   onDelete={onDelete}
                   onUpdate={onUpdate}
+                  isAnyMutating={isUpdating}
                 />
               );
             })

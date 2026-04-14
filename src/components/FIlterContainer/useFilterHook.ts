@@ -112,5 +112,7 @@ export function useFiltersHook() {
     errors,
     onDelete,
     onUpdate,
+    isLoading,
+    isUpdating: updateFilter.isPending,
   };
 }

@@ -49,6 +49,7 @@ export function useDashBoardNavBar() {
 
   return {
     handleSignOut,
+    isLoading: profileQuery.isLoading,
     name: profileQuery.data?.name || "",
     role: profileQuery.data?.role || "",
     profilePicture: profileQuery.data?.profilePicture || "",
