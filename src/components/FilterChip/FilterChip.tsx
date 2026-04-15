@@ -11,6 +11,12 @@ import {
 } from "@/src/lib/schemas/newFilter.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RotatingLines } from "react-loader-spinner";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/src/lib/store";
+import {
+  addFilterItem,
+  removeFilterItem,
+} from "@/src/lib/feature/filter/filterSlice";
 
 type FilterChipProps = FilterType & {
   onDelete: (id: number) => Promise<void>;
@@ -26,6 +32,9 @@ export function FilterChip({
   isAnyMutating,
 }: FilterChipProps) {
   const [editMode, setEditMode] = useState<boolean>(true);
+
+  const dispatch = useDispatch();
+  const filterItems = useSelector((state: RootState) => state.filter.filters);
 
   const {
     register,
@@ -47,14 +56,13 @@ export function FilterChip({
   const enterEditMode = () => {
     if (isAnyMutating) return;
     setEditMode(false);
-    // Wait one tick for the input to become enabled, then focus it
     setTimeout(() => setFocus("descricao"), 0);
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
     if (e.currentTarget.contains(e.relatedTarget as Node)) return; // focus stayed inside
     setEditMode(true);
-    reset({ descricao }); // discard unsaved changes
+    reset({ descricao });
   };
 
   const handleSave = handleSubmit(async (data) => {
@@ -62,19 +70,29 @@ export function FilterChip({
     setEditMode(true);
   });
 
+  const handleSelectFilter = () => {
+    const test = filterItems.find((item) => item.id == id);
+    if (test) {
+      dispatch(removeFilterItem(id));
+      return;
+    }
+    dispatch(addFilterItem({ id, description: descricao }));
+  };
+
   const isFrozen = isSubmitting || isAnyMutating;
 
   return (
-    <div className="flex flex-col">
+    <div className={`flex flex-col`}>
       {errors.descricao && (
         <p className="text-red-500 text-sm px-1">{errors.descricao.message}</p>
       )}
       <div onBlur={handleBlur} tabIndex={-1} className="outline-none">
         <Badge
+          onClick={handleSelectFilter}
           variant="outline"
           className={`
           pl-6 py-6 pr-3 bg-rich-black text-white text-base font-light
-          transition-all duration-300
+          transition-all duration-300 border-2
           ${
             isSubmitting
               ? "ring-2 ring-light-coral animate-pulse opacity-80"
@@ -85,16 +103,20 @@ export function FilterChip({
               ? "opacity-40 pointer-events-none"
               : ""
           }
-        `}
+             ${
+               filterItems.find((item) => item.id == id)
+                 ? `border-earth-yellow`
+                 : `border-transparent`
+             }`}
         >
           <FormTextField
             placeholder={descricao}
             disabled={editMode || isFrozen}
             containerClassName="border-none"
             autoResize
+            className={editMode ? "pointer-events-none select-none" : ""}
             {...register("descricao")}
           />
-
           <div className="ml-4 flex items-center gap-1">
             {isSubmitting ? (
               // Saving spinner replaces both buttons while mutating
@@ -108,7 +130,10 @@ export function FilterChip({
             ) : editMode ? (
               <button
                 type="button"
-                onClick={enterEditMode}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  enterEditMode();
+                }}
                 disabled={isFrozen}
                 className="cursor-pointer hover:opacity-80 transition-opacity disabled:cursor-not-allowed"
               >
@@ -117,7 +142,10 @@ export function FilterChip({
             ) : (
               <button
                 type="button"
-                onClick={handleSave}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSave();
+                }}
                 disabled={isFrozen}
                 className="cursor-pointer hover:opacity-80 transition-opacity"
               >

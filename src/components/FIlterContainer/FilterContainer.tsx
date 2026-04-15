@@ -38,7 +38,7 @@ export default function FilterContainer() {
           />
           <Button
             variant="outline"
-            type="submit"
+            type="button"
             disabled={isSubmitting}
             onClick={handleSubmit(onSubmit)}
             className={`${

@@ -1,3 +1,139 @@
+// "use client";
+// import { RotatingLines } from "react-loader-spinner";
+// import FormTextField from "../FormTextField/FormTextField";
+// import { useNewActivityForm } from "./useNewActivityForm";
+// import FormTextArea from "../FormTextArea/FormTextArea";
+// import CustomSwitch from "../CustomSwitch/CustomSwitch";
+// import DateTimeActivityCalendar from "../DateTimeActivityCalendar/DateTimeActivityCalendar";
+// import { FaSave } from "react-icons/fa";
+// import DateTimeSchedule from "../DateTimeScheduleContainer/DateTimeScheduleContainer";
+// import ActivityTypeSelectOption from "../ActivityTypeSelectOption/ActivityTypeSelectOption";
+// import FilterContainer from "../FIlterContainer/FilterContainer";
+// import FormInputPhoto from "../FormInputPhoto/FormInputPhoto";
+
+// const ActivityTypeOptions = [
+//   { label: "Evento", value: "event", key: "evento" },
+//   { label: "Cerimônia", value: "ceremony", key: "cerimonia" },
+//   { label: "Curso", value: "course", key: "curso" },
+// ];
+// export default function NewActivityForm() {
+//   const {
+//     onSubmit,
+//     handleSubmit,
+//     isSubmitting,
+//     register,
+//     errors,
+//     paymentRequired,
+//     setPaymentRequired,
+//   } = useNewActivityForm();
+
+//   return (
+//     <div
+//       onSubmit={handleSubmit(onSubmit)}
+//       className="grid gap-5 grid-cols-[400px_400px] w-full max-w-5xl mx-auto p-4"
+//     >
+//       <div className="flex flex-col gap-3">
+//         <FormTextField
+//           label="Titulo"
+//           placeholder="Titulo da atividade"
+//           labelClassName="text-base text-earth-yellow font-bold"
+//           helperText=""
+//           type="text"
+//           error={errors.title}
+//           className="w-full"
+//           {...register("title")}
+//         />
+
+//         <FormTextField
+//           label="Link para rede social"
+//           placeholder="Link para rede social"
+//           labelClassName="text-base text-earth-yellow font-bold"
+//           type="text"
+//           minLength={6}
+//           className="w-full"
+//           error={errors.social_media_url}
+//           {...register("social_media_url")}
+//         />
+//         <div className="flex w-full gap-4 items-end">
+//           <div className="flex-1 flex flex-col gap-2">
+//             <FormTextField
+//               label="Contribuição"
+//               labelClassName="text-base text-earth-yellow font-bold"
+//               type="text"
+//               className="w-36"
+//               placeholder="R$ 0.00"
+//               mask="currency"
+//               maskOptions={{
+//                 prefix: "R$ ",
+//                 groupSeparator: ".",
+//                 radixPoint: ",",
+//                 digits: 2,
+//                 digitsOptional: true,
+//                 rightAlign: false,
+//                 autoGroup: true,
+//                 showMaskOnHover: false,
+//                 allowMinus: false,
+//                 autoUnmask: true,
+//               }}
+//               {...register("payment_sugestion", {
+//                 setValueAs: (value) => (value ? parseFloat(value) : 0),
+//               })}
+//               error={errors.payment_sugestion}
+//             />
+//             <CustomSwitch
+//               label="Obrigatória ?"
+//               setActive={setPaymentRequired}
+//               active={paymentRequired}
+//             />
+//           </div>
+//           <div className="flex-1 self-start">
+//             <ActivityTypeSelectOption options={ActivityTypeOptions} />
+//           </div>
+//         </div>
+//         <FormTextArea
+//           label="Descrição"
+//           placeholder="Descrição da atividade"
+//           labelClassName="text-base text-earth-yellow font-bold"
+//           type="text"
+//           minLength={6}
+//           className="w-full col-span-2"
+//           error={errors.description}
+//           {...register("description")}
+//         />
+//       </div>
+//       <DateTimeActivityCalendar />
+//       <DateTimeSchedule />
+//       <FilterContainer />
+//       <FormInputPhoto />
+//       <button
+//         type="submit"
+//         disabled={isSubmitting}
+//         className={`${
+//           isSubmitting ? "bg-gray-600" : "bg-blue-500"
+//         } text-white p-4 w-1/4 rounded-md col-span-2 mt-4 max-h-14 mx-auto flex items-center justify-center`}
+//       >
+//         {isSubmitting ? (
+//           <div className="flex justify-center items-center">
+//             <RotatingLines
+//               visible={true}
+//               height="30"
+//               width="30"
+//               color="grey"
+//               strokeWidth="5"
+//               animationDuration="0.75"
+//               ariaLabel="rotating-lines-loading"
+//             />
+//           </div>
+//         ) : (
+//           <p className="text-lg font-light">
+//             <FaSave />
+//           </p>
+//         )}
+//       </button>
+//     </div>
+//   );
+// }
+
 "use client";
 import { RotatingLines } from "react-loader-spinner";
 import FormTextField from "../FormTextField/FormTextField";
@@ -9,12 +145,14 @@ import { FaSave } from "react-icons/fa";
 import DateTimeSchedule from "../DateTimeScheduleContainer/DateTimeScheduleContainer";
 import ActivityTypeSelectOption from "../ActivityTypeSelectOption/ActivityTypeSelectOption";
 import FilterContainer from "../FIlterContainer/FilterContainer";
+import FormInputPhoto from "../FormInputPhoto/FormInputPhoto";
 
 const ActivityTypeOptions = [
   { label: "Evento", value: "event", key: "evento" },
   { label: "Cerimônia", value: "ceremony", key: "cerimonia" },
   { label: "Curso", value: "course", key: "curso" },
 ];
+
 export default function NewActivityForm() {
   const {
     onSubmit,
@@ -24,11 +162,14 @@ export default function NewActivityForm() {
     errors,
     paymentRequired,
     setPaymentRequired,
+    setValue,
   } = useNewActivityForm();
 
   return (
-    <div
-      onSubmit={handleSubmit(onSubmit)}
+    <form
+      onSubmit={handleSubmit(onSubmit, (validationErrors) =>
+        console.log("Zod Blocked Submit. Errors:", validationErrors)
+      )}
       className="grid gap-5 grid-cols-[400px_400px] w-full max-w-5xl mx-auto p-4"
     >
       <div className="flex flex-col gap-3">
@@ -36,7 +177,6 @@ export default function NewActivityForm() {
           label="Titulo"
           placeholder="Titulo da atividade"
           labelClassName="text-base text-earth-yellow font-bold"
-          helperText=""
           type="text"
           error={errors.title}
           className="w-full"
@@ -45,14 +185,25 @@ export default function NewActivityForm() {
 
         <FormTextField
           label="Link para rede social"
-          placeholder="Link para rede social"
+          placeholder="https://..."
           labelClassName="text-base text-earth-yellow font-bold"
           type="text"
-          minLength={6}
           className="w-full"
           error={errors.social_media_url}
           {...register("social_media_url")}
         />
+
+        {/* Color caption — required by schema, needs an input */}
+        {/* <FormTextField
+          label="Cor da legenda"
+          placeholder="#FF5733"
+          labelClassName="text-base text-earth-yellow font-bold"
+          type="text"
+          className="w-full"
+          error={errors.color_caption}
+          {...register("color_caption")}
+        /> */}
+
         <div className="flex w-full gap-4 items-end">
           <div className="flex-1 flex flex-col gap-2">
             <FormTextField
@@ -75,7 +226,7 @@ export default function NewActivityForm() {
                 autoUnmask: true,
               }}
               {...register("payment_sugestion", {
-                setValueAs: (value) => (value ? parseFloat(value) : 0),
+                setValueAs: (value) => (value ? parseFloat(value) : undefined),
               })}
               error={errors.payment_sugestion}
             />
@@ -85,10 +236,16 @@ export default function NewActivityForm() {
               active={paymentRequired}
             />
           </div>
+          {/*
+            ✅ ActivityTypeSelectOption — if you add `activity_type` to the
+            schema, replace with {...register("activity_type")}. For now it's
+            uncontrolled (cosmetic only).
+          */}
           <div className="flex-1 self-start">
             <ActivityTypeSelectOption options={ActivityTypeOptions} />
           </div>
         </div>
+
         <FormTextArea
           label="Descrição"
           placeholder="Descrição da atividade"
@@ -100,9 +257,32 @@ export default function NewActivityForm() {
           {...register("description")}
         />
       </div>
+
       <DateTimeActivityCalendar />
       <DateTimeSchedule />
       <FilterContainer />
+
+      {/*
+        ✅ Two photo inputs — card image and publicity image.
+        Each calls setValue so react-hook-form owns the URL.
+      */}
+      <FormInputPhoto
+        label="Imagem da atividade"
+        onFileSelect={(file) => {
+          setValue("card_image_url", file, {
+            shouldValidate: true, // Triggers Zod to clear the error instantly
+          });
+        }}
+        // 2. Pass the Zod error message to the component
+        error={errors.card_image_url?.message as string}
+      />
+
+      {errors.root && (
+        <p className="col-span-2 text-red-500 text-sm text-center">
+          {errors.root.message}
+        </p>
+      )}
+
       <button
         type="submit"
         disabled={isSubmitting}
@@ -111,23 +291,19 @@ export default function NewActivityForm() {
         } text-white p-4 w-1/4 rounded-md col-span-2 mt-4 max-h-14 mx-auto flex items-center justify-center`}
       >
         {isSubmitting ? (
-          <div className="flex justify-center items-center">
-            <RotatingLines
-              visible={true}
-              height="30"
-              width="30"
-              color="grey"
-              strokeWidth="5"
-              animationDuration="0.75"
-              ariaLabel="rotating-lines-loading"
-            />
-          </div>
+          <RotatingLines
+            visible
+            height="30"
+            width="30"
+            color="grey"
+            strokeWidth="5"
+            animationDuration="0.75"
+            ariaLabel="rotating-lines-loading"
+          />
         ) : (
-          <p className="text-lg font-light">
-            <FaSave />
-          </p>
+          <FaSave className="text-lg" />
         )}
       </button>
-    </div>
+    </form>
   );
 }

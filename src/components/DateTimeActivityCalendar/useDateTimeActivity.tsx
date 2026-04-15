@@ -1,6 +1,6 @@
 "use client";
 
-import { addScheduleItem } from "@/src/lib/feature/auth/scheduleSlice";
+import { addScheduleItem } from "@/src/lib/feature/schedule/scheduleSlice";
 import { fetchActivitiesByMonth } from "@/src/lib/service/activity.service";
 import { RootState } from "@/src/lib/store";
 import { useQuery, useQueryClient } from "@tanstack/react-query";

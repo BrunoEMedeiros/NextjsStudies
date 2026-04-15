@@ -88,6 +88,7 @@ export default function DateTimeActivityCalendar() {
 
       <div className="flex justify-center gap-2 mt-2">
         <Button
+          type="button"
           variant="outline"
           className="w-16 h-10 bg-green-600 border-0 group hover:bg-white hover:cursor-pointer p-4"
           onClick={handleAddDates}

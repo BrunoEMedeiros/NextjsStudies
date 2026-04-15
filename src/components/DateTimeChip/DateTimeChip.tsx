@@ -1,5 +1,5 @@
 import { Badge } from "@/src/components/ui/badge";
-import { removeScheduleItem } from "@/src/lib/feature/auth/scheduleSlice";
+import { removeScheduleItem } from "@/src/lib/feature/schedule/scheduleSlice";
 import { FaTrash, FaCalendar, FaClock } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 

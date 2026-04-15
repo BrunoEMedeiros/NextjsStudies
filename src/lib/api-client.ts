@@ -49,14 +49,21 @@ export async function apiFetch<T = any>(
   const cookieStore = await cookies();
   const authToken = cookieStore.get("authToken")?.value || "";
 
-  const buildOptions = (token: string): RequestInit => ({
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
-  });
+  const buildOptions = (token: string): RequestInit => {
+    const headers = new Headers(options.headers);
+    if (!headers.has("Content-Type") && !(options.body instanceof FormData)) {
+      headers.set("Content-Type", "application/json");
+    }
+
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+
+    return {
+      ...options,
+      headers,
+    };
+  };
 
   let response = await fetch(url, buildOptions(authToken));
 
