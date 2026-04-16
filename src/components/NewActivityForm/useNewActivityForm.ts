@@ -74,10 +74,8 @@ export function useNewActivityForm() {
       return;
     }
 
-    // 1. Separate the physical file from the text/array data
     const { card_image_url, publicity_image_url, ...restOfData } = data;
 
-    // 2. Build the payload without the files
     const payload: ActivityPayload = {
       ...restOfData,
       payment_required: paymentRequired,
@@ -88,7 +86,6 @@ export function useNewActivityForm() {
       filters: selectedFilters.map((f) => ({ id: f.id })),
     };
 
-    // 3. Mutate passing the payload and the extracted file separately
     await createActivity.mutateAsync({
       payload,
       file: card_image_url as File,
