@@ -25,7 +25,6 @@ export function useRegisterViewModel() {
     mutationFn: async (data: CreateAccountSchema) =>
       await handleCreateUser(data),
     onSuccess: (result) => {
-      console.log(result);
       if (!result.ok) {
         if (result.status === 409) {
           if (result.message === "E-mail já em uso") {

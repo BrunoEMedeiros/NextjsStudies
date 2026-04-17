@@ -58,7 +58,6 @@ export const handleLoginUser = async (
     if (isRedirectError(error)) throw error;
 
     if (isApiError(error)) {
-      console.log(error);
       return {
         ok: false,
         status: error.status,

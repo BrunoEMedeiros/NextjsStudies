@@ -79,8 +79,6 @@ export async function apiFetch<T = any>(
       redirect("/signin");
     }
 
-    console.log(refreshToken);
-
     const refreshResponse = await fetch(
       `${BASE_URL}/accounts/sessions/refresh`,
       {
@@ -115,6 +113,7 @@ export async function apiFetch<T = any>(
   });
 
   if (!response.ok) {
+    console.log(response);
     throw new ApiError(response.status, data);
   }
 

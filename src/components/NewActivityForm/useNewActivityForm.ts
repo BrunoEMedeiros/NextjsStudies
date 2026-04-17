@@ -49,6 +49,11 @@ export function useNewActivityForm() {
       handleCreateNewActivity(payload, file),
     onSuccess: (result) => {
       if (!result.ok) {
+        if (result.status === 409) {
+          toast.error(result.message || "Conflito: Esta atividade já existe.");
+          return;
+        }
+
         toast.error(
           "Ocorreu um erro inesperado, por favor verifique sua conexão."
         );
@@ -68,7 +73,6 @@ export function useNewActivityForm() {
       return;
     }
 
-    // Zod already validates this, but this is a good safety net
     if (!data.card_image_url) {
       toast.info("Por favor, selecione uma imagem para a atividade.");
       return;

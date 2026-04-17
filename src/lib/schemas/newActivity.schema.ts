@@ -46,7 +46,7 @@ export const createActivitySchema = z.object({
     .optional(),
   description: z
     .string()
-    .min(10, "Descrição muito curta, minimo de 5 caracteres")
+    .min(10, "Descrição muito curta, minimo de 10 caracteres")
     .max(500, "Description too long (max 225 chars)")
     .trim()
     .toLowerCase()

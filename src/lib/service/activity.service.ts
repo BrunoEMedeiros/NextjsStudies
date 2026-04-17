@@ -4,20 +4,17 @@ import { ActivitiesByMonthType } from "@/src/components/DateTimeActivityCalendar
 import { apiFetch } from "../api-client";
 import { isApiError } from "../ApiError";
 import { CreateActivity } from "../schemas/newActivity.schema";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export const fetchActivitiesByMonth = async (
   month: number
 ): Promise<Date[]> => {
-  console.log(month);
-
   const { data } = await apiFetch<ActivitiesByMonthType[]>(
     `/activity/month/${month}`,
     {
       method: "GET",
     }
   );
-
-  console.log(data);
 
   return data.map((item) => {
     const [year, month, day] = item.date.split("T")[0].split("-");
@@ -52,20 +49,21 @@ export const handleCreateNewActivity = async (
     const { data } = await apiFetch<CreateActivity>("/activity", {
       method: "POST",
       body: formData,
-      // Note: We deliberately DO NOT set {"Content-Type": "multipart/form-data"} here.
-      // The browser will set it automatically with the correct boundary string.
     });
 
     return { ok: true, data };
-  } catch (err: any) {
-    if (err.status) {
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+
+    if (isApiError(error)) {
       return {
         ok: false,
-        status: err.status,
-        message: err.data?.message || "Error",
-        code: err.data?.code,
+        status: error.status,
+        code: error.data.code,
+        message: error.data.message,
       };
     }
-    return { ok: false, status: 500, message: "Unexpected error" };
+
+    return { ok: false, status: 500, message: "Erro inesperado" };
   }
 };

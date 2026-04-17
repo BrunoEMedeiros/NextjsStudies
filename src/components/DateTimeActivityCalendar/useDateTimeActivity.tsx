@@ -53,7 +53,6 @@ export function useDateTimeActivity() {
   });
 
   const handleAddNewItem = ({ date, time }: DateTimeActivityProps) => {
-    console.log(date);
     const test = scheduleItems.some((item) => item.id == date + time);
 
     const data = new Date(date + "T00:00:00");
