@@ -242,7 +242,10 @@ export default function NewActivityForm() {
             uncontrolled (cosmetic only).
           */}
           <div className="flex-1 self-start">
-            <ActivityTypeSelectOption options={ActivityTypeOptions} />
+            <ActivityTypeSelectOption
+              options={ActivityTypeOptions}
+              {...register("type")}
+            />
           </div>
         </div>
 

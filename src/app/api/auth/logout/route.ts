@@ -4,11 +4,9 @@ import { cookies } from "next/headers";
 export async function GET() {
   const cookieStore = await cookies();
 
-  // Clear server-side cookie store
   cookieStore.delete("authToken");
   cookieStore.delete("refreshToken");
 
-  // Also instruct the browser to clear them via Set-Cookie headers
   const response = NextResponse.redirect(
     new URL(
       "/signin",

@@ -22,9 +22,6 @@ export function useNewActivityForm() {
   const dispatch = useDispatch();
   const [paymentRequired, setPaymentRequired] = useState(false);
 
-  // ❌ REMOVED: const [activityImage, setActivityImage] = useState<File | null>(null);
-  // React Hook Form now holds this state!
-
   const scheduleItems = useSelector((state: RootState) => state.schedule.items);
   const selectedFilters = useSelector(
     (state: RootState) => state.filter.filters
@@ -94,7 +91,6 @@ export function useNewActivityForm() {
       payload,
       file: card_image_url as File,
     });
-    // console.log(selectedFilters.map((f) => ({ id: f.id })));
   };
 
   return {

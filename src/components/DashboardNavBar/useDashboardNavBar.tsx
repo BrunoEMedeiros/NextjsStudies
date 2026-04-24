@@ -41,10 +41,22 @@ export function useDashBoardNavBar() {
     }
   }, [profileQuery.data, dispatch]);
 
-  const handleSignOut = () => {
+  const handleSignOut = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
     dispatch(logOff());
     Cookies.remove("authToken", { path: "/" });
     Cookies.remove("refreshToken", { path: "/" });
+
+    try {
+      await fetch("/api/auth/logout", {
+        method: "GET",
+      });
+    } catch (error) {
+      console.error("Failed to log out on the server", error);
+    }
+
+    router.push("/signin");
+    router.refresh();
   };
 
   return {

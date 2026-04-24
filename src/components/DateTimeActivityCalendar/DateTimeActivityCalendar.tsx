@@ -30,6 +30,7 @@ export default function DateTimeActivityCalendar() {
     error,
     currentMonth,
     setCurrentMonth,
+    handleCleanAllScheduleDates,
   } = useDateTimeActivity();
 
   if (isLoading) return <DateTimeActivityCalendarSkeleton />;
@@ -100,8 +101,9 @@ export default function DateTimeActivityCalendar() {
         </Button>
         <Button
           variant="outline"
+          type="button"
           className="w-16 h-10 bg-danger border-0 group hover:bg-white hover:cursor-pointer p-4"
-          onClick={handleAddDates}
+          onClick={handleCleanAllScheduleDates}
         >
           <FaTrash
             size={12}

@@ -77,6 +77,7 @@ export const createActivitySchema = z.object({
     .optional(),
   payment_required: z.boolean().default(false).optional(),
   payment_sugestion: z.number().positive().optional(),
+  type: z.enum(["event", "course", "ceremony"]).default("event"),
 });
 
 // Infer TypeScript type from schema

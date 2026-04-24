@@ -35,7 +35,6 @@ export const handleCreateNewActivity = async (
     const formData = new FormData();
     formData.append("file", file);
 
-    // 2. Append the rest of the text/array data
     Object.entries(payload).forEach(([key, value]) => {
       if (value === undefined || value === null) return;
 

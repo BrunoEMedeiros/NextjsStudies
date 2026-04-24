@@ -1,6 +1,9 @@
 "use client";
 
-import { addScheduleItem } from "@/src/lib/feature/schedule/scheduleSlice";
+import {
+  addScheduleItem,
+  clearSchedule,
+} from "@/src/lib/feature/schedule/scheduleSlice";
 import { fetchActivitiesByMonth } from "@/src/lib/service/activity.service";
 import { RootState } from "@/src/lib/store";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -101,6 +104,10 @@ export function useDateTimeActivity() {
     queryClient.invalidateQueries({ queryKey: ["activitiesByMonth"] });
   };
 
+  const handleCleanAllScheduleDates = () => {
+    dispatch(clearSchedule());
+  };
+
   return {
     scheduleItems,
     handleAddNewItem,
@@ -114,5 +121,6 @@ export function useDateTimeActivity() {
     error,
     currentMonth,
     setCurrentMonth,
+    handleCleanAllScheduleDates,
   };
 }
