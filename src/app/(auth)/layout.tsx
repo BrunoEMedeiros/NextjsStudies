@@ -9,7 +9,7 @@ export default function AuthLayout({
     <main className="flex min-h-screen w-full">
       <div className="hidden w-1/2 relative lg:block">
         <Image
-          src="/buda.svg"
+          src="/buda.webp"
           alt="Imagem da estatua de buda em frente a entrada do templo"
           fill
           className="object-cover"
@@ -20,7 +20,13 @@ export default function AuthLayout({
       </div>
       <div className="flex w-full items-center justify-center p-4 lg:w-1/2">
         <div className="max-w-140 flex flex-col items-center justify-center rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-md">
-          <img src="/zenjuiji.svg" alt="logotipo do templo" />
+          <Image
+            src="/Logo_Zenrp.png"
+            alt="logotipo do templo"
+            unoptimized
+            width={100}
+            height={100}
+          />
           {children}
         </div>
       </div>

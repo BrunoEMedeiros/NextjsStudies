@@ -40,7 +40,7 @@ export const createActivitySchema = z.object({
   title: z
     .string()
     .min(5, "Titulo muito curto, minimo de 5 caracteres")
-    .max(50, "Titulo muito longo, maximo de 20 caracteres")
+    .max(20, "Titulo muito longo, maximo de 20 caracteres")
     .trim()
     .toLowerCase()
     .optional(),

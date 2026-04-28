@@ -3,18 +3,23 @@
 import { apiFetch } from "../api-client";
 import { isApiError } from "../ApiError";
 import { ServiceResult } from "./user.service";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export type FilterType = {
   id: number;
   descricao: string;
 };
 
-export const fetchAllFilters = async () => {
-  const { data } = await apiFetch<FilterType[]>("/filters", {
-    method: "GET",
-  });
-
-  return data;
+export const fetchAllFilters = async (): Promise<FilterType[]> => {
+  try {
+    const { data } = await apiFetch<FilterType[]>("/filters", {
+      method: "GET",
+    });
+    return data;
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    throw error;
+  }
 };
 
 export async function handleCreateNewFilter(

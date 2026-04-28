@@ -99,7 +99,7 @@ export function useNewActivityForm() {
     isSubmitting,
     errors,
     register,
-    setValue, // You will pass this to onFileSelect in FormInputPhoto
+    setValue,
     paymentRequired,
     setPaymentRequired,
     scheduleItems,

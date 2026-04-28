@@ -4,7 +4,7 @@ import Image from "next/image";
 import { PiFlowerLotusThin } from "react-icons/pi";
 import NavBarItems from "../NavBarItems/NavBaritems";
 import { useDashBoardNavBar } from "./useDashboardNavBar";
-import RoleBadge from "../RoleBedge/RoleBadge";
+import RoleBadge from "../RoleBadge/RoleBadge";
 import { DashBoardNavBarSkeleton } from "./DashBoardNavBarSkeleton"; // ← import
 
 export default function DashBoardNavBar() {
@@ -17,7 +17,7 @@ export default function DashBoardNavBar() {
     <nav className="w-1/6 min-w-50 bg-rich-black text-white pt-8 sticky top-0 h-screen border-r border-gray-800">
       <div className="flex justify-center items-center h-20">
         <Image
-          src="/LogoZenrp.svg"
+          src="/Logo_Zenrp.png"
           width={75}
           height={75}
           alt="Logotipo da comunidade zen budista de Ribeirão Preto"

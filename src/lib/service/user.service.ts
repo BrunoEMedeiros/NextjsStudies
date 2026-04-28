@@ -71,8 +71,13 @@ export const handleLoginUser = async (
 };
 
 export const fetchProfile = async (): Promise<UserProfileType> => {
-  const { data } = await apiFetch<UserProfileType>("/accounts/profile", {
-    method: "GET",
-  });
-  return data;
+  try {
+    const { data } = await apiFetch<UserProfileType>("/accounts/profile", {
+      method: "GET",
+    });
+    return data;
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    throw error;
+  }
 };

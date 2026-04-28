@@ -21,7 +21,7 @@ export default function ActivitiesList({ activities }: ActivitiesListProps) {
   return (
     <div>
       {activities.map((activity) => {
-        return <p>{activity.title}</p>;
+        return <p key={activity.id}>{activity.title}</p>;
       })}
     </div>
   );

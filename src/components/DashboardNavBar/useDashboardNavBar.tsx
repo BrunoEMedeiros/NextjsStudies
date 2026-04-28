@@ -16,7 +16,7 @@ export function useDashBoardNavBar() {
   const profileQuery = useQuery<UserProfileType>({
     queryKey: ["profile"],
     queryFn: fetchProfile,
-    staleTime: 6000,
+    staleTime: 60000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     retry: false,
@@ -44,13 +44,9 @@ export function useDashBoardNavBar() {
   const handleSignOut = async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
     dispatch(logOff());
-    Cookies.remove("authToken", { path: "/" });
-    Cookies.remove("refreshToken", { path: "/" });
 
     try {
-      await fetch("/api/auth/logout", {
-        method: "GET",
-      });
+      await fetch("/api/auth/logout", { method: "GET" });
     } catch (error) {
       console.error("Failed to log out on the server", error);
     }
