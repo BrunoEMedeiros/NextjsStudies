@@ -97,6 +97,7 @@ export default function NewActivityForm() {
           <div className="flex-1 self-start">
             <ActivityTypeSelectOption
               options={ActivityTypeOptions}
+              label="Tipo de atividade"
               {...register("type")}
             />
           </div>

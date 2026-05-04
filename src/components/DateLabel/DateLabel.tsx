@@ -1,0 +1,41 @@
+import React, { HTMLAttributes } from "react";
+
+export type ActivityAvaliableDates = {
+  date: string;
+  time: string;
+};
+export type DateLabelProps = HTMLAttributes<Text> & {
+  avaliable_activities: ActivityAvaliableDates[];
+};
+
+const DateLabel = ({ avaliable_activities }: DateLabelProps) => {
+  const firstDate = avaliable_activities[0].date;
+  const dateEquals = avaliable_activities.every(
+    (item) => item.date === firstDate
+  );
+
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString("pt-BR");
+
+  if (dateEquals) {
+    return (
+      <p className="text-earth_yellow font-light text-center italic text-base">
+        Somente no dia {formatDate(avaliable_activities[0].date)}
+      </p>
+    );
+  }
+
+  return (
+    <p
+      className="text-earth_yellow font-light text-center text-base italic truncate"
+      title={`${formatDate(avaliable_activities[0].date)} até ${formatDate(
+        avaliable_activities[avaliable_activities.length - 1].date
+      )}`}
+    >
+      {formatDate(avaliable_activities[0].date)} até{" "}
+      {formatDate(avaliable_activities[avaliable_activities.length - 1].date)}
+    </p>
+  );
+};
+
+export default DateLabel;

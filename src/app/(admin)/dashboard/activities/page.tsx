@@ -1,11 +1,13 @@
+import ActivityContainer from "@/src/components/ActivitiesContainer/ActivitiesContainer";
 import NewActivityForm from "@/src/components/NewActivityForm/NewActivityForm";
 
 export default function ActivityPage() {
   return (
-    <>
-      <h1 className="flex justify-center items-center text-2xl text-earth-yellow bg-midnight-black">
+    <div className="flex flex-col pb-20">
+      <div className="flex justify-center items-center text-2xl text-earth-yellow bg-midnight-black mb-10">
         <NewActivityForm />
-      </h1>
-    </>
+      </div>
+      <ActivityContainer />
+    </div>
   );
 }

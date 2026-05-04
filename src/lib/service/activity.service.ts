@@ -5,6 +5,7 @@ import { apiFetch } from "../api-client";
 import { isApiError } from "../ApiError";
 import { CreateActivity } from "../schemas/newActivity.schema";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { ActivityCardProps } from "@/src/components/ActivitiesList/ActivitiesList";
 
 type QueryValue = string | number | boolean | Date | null | undefined;
 
@@ -26,6 +27,40 @@ export async function buildQueryParams(
   const query = searchParams.toString();
   return query ? `?${query}` : "";
 }
+
+export type ActivityType = "event" | "course" | "ceremony";
+
+interface FetchAllActivitiesParams {
+  type?: ActivityType;
+  filterId?: number;
+  paymentRequired?: boolean;
+  dateFrom?: string | Date;
+  dateTo?: string | Date;
+  title?: string;
+}
+
+export const fetchAllActivities = async ({
+  type,
+  filterId,
+  paymentRequired,
+  dateFrom,
+  dateTo,
+  title,
+}: FetchAllActivitiesParams = {}): Promise<ActivityCardProps[]> => {
+  const query = await buildQueryParams({
+    type,
+    filterId,
+    paymentRequired,
+    dateFrom: dateFrom ? new Date(dateFrom) : undefined,
+    dateTo: dateTo ? new Date(dateTo) : undefined,
+    title,
+  });
+
+  const { data } = await apiFetch<{ data: ActivityCardProps[] }>(
+    `/activity${query}`
+  );
+  return data.data;
+};
 
 type ActivityPayload = Omit<
   CreateActivity,
@@ -86,50 +121,6 @@ export const handleCreateNewActivity = async (
       };
     }
 
-    return { ok: false, status: 500, message: "Erro inesperado" };
-  }
-};
-
-interface FetchAllActivitiesParams {
-  type?: string;
-  filterId?: number;
-  paymentRequired?: boolean;
-  dateFrom?: string | Date;
-  dateTo?: string | Date;
-  title?: string;
-}
-
-export const fetchAllActivities = async ({
-  type,
-  filterId,
-  paymentRequired,
-  dateFrom,
-  dateTo,
-  title,
-}: FetchAllActivitiesParams = {}) => {
-  try {
-    const query = buildQueryParams({
-      type,
-      filterId,
-      paymentRequired,
-      dateFrom: dateFrom ? new Date(dateFrom) : undefined,
-      dateTo: dateTo ? new Date(dateTo) : undefined,
-      title,
-    });
-
-    const { data } = await apiFetch(`/activities/all${query}`);
-
-    return { ok: true, data };
-  } catch (error) {
-    if (isRedirectError(error)) throw error;
-    if (isApiError(error)) {
-      return {
-        ok: false,
-        status: error.status,
-        code: error.data.code,
-        message: error.data.message,
-      };
-    }
     return { ok: false, status: 500, message: "Erro inesperado" };
   }
 };

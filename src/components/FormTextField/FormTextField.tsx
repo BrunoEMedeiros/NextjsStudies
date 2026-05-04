@@ -1,3 +1,4 @@
+"use client";
 import { cn } from "@/src/lib/utils";
 import React, { useState, forwardRef } from "react";
 import { FieldError } from "react-hook-form";

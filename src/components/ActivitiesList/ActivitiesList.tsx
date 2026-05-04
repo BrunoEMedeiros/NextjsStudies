@@ -1,28 +1,45 @@
 import { FilterType } from "@/src/lib/service/filter.service";
+import ActivityCard from "../ActivityCard/ActivityCard";
 
 type ScheduleDates = {
   date: string;
   time: string;
 };
 
-type ActivityCard = {
+export type ActivityCardProps = {
   id: number;
   title: string;
-  dates: ScheduleDates[];
+  Dates: ScheduleDates[];
   card_image_url: string;
+  type: "event" | "course" | "ceremony";
+  status: number;
   filters: FilterType[];
 };
 
 type ActivitiesListProps = {
-  activities: ActivityCard[];
+  activities: ActivityCardProps[];
+  isLoading?: boolean;
 };
 
-export default function ActivitiesList({ activities }: ActivitiesListProps) {
+export default function ActivitiesList({
+  activities,
+  isLoading,
+}: ActivitiesListProps) {
+  if (isLoading) return <p>Carregando...</p>;
   return (
     <div>
-      {activities.map((activity) => {
-        return <p key={activity.id}>{activity.title}</p>;
-      })}
+      {activities.map((activity) => (
+        <ActivityCard
+          id={activity.id}
+          key={activity.id.toString()}
+          title={activity.title}
+          type={activity.type}
+          status={activity.status}
+          Dates={activity.Dates}
+          filters={activity.filters}
+          card_image_url={activity.card_image_url}
+        />
+      ))}
     </div>
   );
 }

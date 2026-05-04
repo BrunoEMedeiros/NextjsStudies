@@ -4,14 +4,14 @@ import { Dispatch, SetStateAction } from "react";
 
 interface CustomSwitch {
   label: string;
-  setActive: Dispatch<SetStateAction<boolean>>;
+  setActive?: Dispatch<SetStateAction<boolean>>;
   active: boolean;
   lableClassName?: string;
 }
 
 export default function CustomSwitch({
   label,
-  setActive,
+  setActive = () => {},
   active,
   lableClassName = "",
 }: CustomSwitch) {
