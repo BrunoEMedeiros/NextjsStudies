@@ -17,19 +17,29 @@ export default function ActivityContainer() {
   } = useActivityContainer();
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 w-4/5">
       <form onSubmit={handleSubmit(onSearch)} className="flex gap-4 items-end">
         <div className="w-2/4 flex flex-col gap-1">
-          <label htmlFor="searchByTitle">Procurar atividade</label>
+          <label
+            className="text-earth-yellow font-thin"
+            htmlFor="searchByTitle"
+          >
+            Procurar atividade
+          </label>
           <FormTextField
             id="searchByTitle"
             placeholder="Procure pelo titulo..."
+            containerClassName="min-w-8"
+            inputClassName="min-w-8"
             {...register("title")}
           />
         </div>
 
         <ActivityTypeSelectOption
-          options={filterOptions}
+          options={[
+            { label: "Sem filtro", value: "", key: "" },
+            ...filterOptions,
+          ]}
           label="Filtros"
           {...register("filterId")}
         />
@@ -41,19 +51,33 @@ export default function ActivityContainer() {
         />
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="startDate">Data de inicio</label>
-          <input id="startDate" type="date" {...register("dateFrom")} />
+          <label className="text-earth-yellow font-thin" htmlFor="startDate">
+            Data de inicio
+          </label>
+          <input
+            className="bg-rich-black py-2.5 px-3 border border-gray-700 rounded-md text-white"
+            id="startDate"
+            type="date"
+            {...register("dateFrom")}
+          />
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="endDate">Data de fim</label>
-          <input id="endDate" type="date" {...register("dateTo")} />
+          <label className="text-earth-yellow font-thin" htmlFor="endDate">
+            Data de fim
+          </label>
+          <input
+            className="bg-rich-black py-2.5 px-3 border border-gray-700 rounded-md text-white"
+            id="endDate"
+            type="date"
+            {...register("dateTo")}
+          />
         </div>
 
         <Button
           variant="outline"
           type="submit"
-          className="bg-green-600 w-16 h-full border-0 group hover:bg-white hover:cursor-pointer p-4"
+          className="bg-green-600 w-16 h-14 border-0 group hover:bg-white hover:cursor-pointer p-4"
         >
           <FaSearch size={12} />
         </Button>

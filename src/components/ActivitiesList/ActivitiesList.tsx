@@ -27,7 +27,7 @@ export default function ActivitiesList({
 }: ActivitiesListProps) {
   if (isLoading) return <p>Carregando...</p>;
   return (
-    <div>
+    <div className="flex flex-wrap gap-3">
       {activities.map((activity) => (
         <ActivityCard
           id={activity.id}

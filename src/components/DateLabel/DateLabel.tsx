@@ -19,7 +19,7 @@ const DateLabel = ({ avaliable_activities }: DateLabelProps) => {
 
   if (dateEquals) {
     return (
-      <p className="text-earth_yellow font-light text-center italic text-base">
+      <p className="text-earth_yellow font-light text-center italic text-sm">
         Somente no dia {formatDate(avaliable_activities[0].date)}
       </p>
     );
@@ -27,7 +27,7 @@ const DateLabel = ({ avaliable_activities }: DateLabelProps) => {
 
   return (
     <p
-      className="text-earth_yellow font-light text-center text-base italic truncate"
+      className="text-earth_yellow font-light text-center text-sm italic truncate"
       title={`${formatDate(avaliable_activities[0].date)} até ${formatDate(
         avaliable_activities[avaliable_activities.length - 1].date
       )}`}

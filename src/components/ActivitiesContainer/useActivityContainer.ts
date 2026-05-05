@@ -81,7 +81,7 @@ export type ActivityFilterForm = {
 };
 
 export const ACTIVITY_TYPE_OPTIONS = [
-  { label: "Todos", key: "all", value: "" },
+  { label: "Todos", key: "", value: "" },
   { label: "Evento", key: "event", value: "event" },
   { label: "Curso", key: "course", value: "course" },
   { label: "Cerimônia", key: "ceremony", value: "ceremony" },
@@ -92,6 +92,8 @@ export default function useActivityContainer() {
     ActivityTypeSelectOptionProps[]
   >([]);
   const [appliedParams, setAppliedParams] = useState({});
+
+  const today = new Date().toISOString().split("T")[0]; // e.g. "2026-05-05"
 
   const { register, handleSubmit } = useForm<ActivityFilterForm>({
     defaultValues: {
@@ -133,6 +135,7 @@ export default function useActivityContainer() {
     const params = Object.fromEntries(
       Object.entries(data).filter(([, v]) => v !== "")
     );
+    console.log(params);
     setAppliedParams(params);
   };
 

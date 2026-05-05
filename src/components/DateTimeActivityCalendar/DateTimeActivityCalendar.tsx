@@ -15,6 +15,7 @@ import {
 } from "../ui/input-group";
 import { useDateTimeActivity } from "./useDateTimeActivity";
 import { DateTimeActivityCalendarSkeleton } from "./DateTimeActivityCalendarSkeleton";
+import { startOfMonth } from "date-fns";
 
 export default function DateTimeActivityCalendar() {
   const {
@@ -48,6 +49,8 @@ export default function DateTimeActivityCalendar() {
             selected={dateRange}
             onSelect={setDateRange}
             month={currentMonth}
+            startMonth={startOfMonth(new Date())}
+            disabled={{ before: new Date() }}
             onMonthChange={setCurrentMonth}
             locale={ptBR}
             classNames={{

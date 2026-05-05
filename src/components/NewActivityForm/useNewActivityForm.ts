@@ -8,7 +8,7 @@ import { useState } from "react";
 import { Resolver, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/src/lib/store";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { handleCreateNewActivity } from "@/src/lib/service/activity.service";
 import { toast } from "sonner";
 
@@ -19,6 +19,8 @@ type ActivityPayload = Omit<
 >;
 
 export function useNewActivityForm() {
+  const queryClient = useQueryClient();
+
   const dispatch = useDispatch();
   const [paymentRequired, setPaymentRequired] = useState(false);
 
@@ -57,6 +59,7 @@ export function useNewActivityForm() {
         return;
       }
       toast.success("Atividade criada com sucesso");
+      queryClient.invalidateQueries({ queryKey: ["activities"] });
     },
   });
 

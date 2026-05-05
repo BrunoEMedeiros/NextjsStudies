@@ -11,12 +11,12 @@ const ActivityTypeBadge = ({ label }: ActivityTypeBadgeProps) => {
         label == "event"
           ? "secondary"
           : label == "ceremony"
-          ? "ghost"
+          ? "outline"
           : "default"
       }
       className="px-5 py-3"
     >
-      <p className="font-light text-base">
+      <p className="font-light text-sm">
         {label == "event"
           ? "Evento"
           : label == "ceremony"
