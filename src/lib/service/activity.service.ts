@@ -30,7 +30,16 @@ export async function buildQueryParams(
 
 export type ActivityType = "event" | "course" | "ceremony";
 
+export type PaginatedActivitiesResponse = {
+  currentPage: number;
+  activityCount: number;
+  totalPages: number;
+  hasMore: boolean;
+  data: ActivityCardProps[];
+};
+
 interface FetchAllActivitiesParams {
+  page?: number;
   type?: ActivityType;
   filterId?: number;
   paymentRequired?: boolean;
@@ -40,26 +49,20 @@ interface FetchAllActivitiesParams {
 }
 
 export const fetchAllActivities = async ({
-  type,
-  filterId,
-  paymentRequired,
-  dateFrom,
-  dateTo,
-  title,
-}: FetchAllActivitiesParams = {}): Promise<ActivityCardProps[]> => {
+  page,
+  ...rest
+}: FetchAllActivitiesParams = {}): Promise<PaginatedActivitiesResponse> => {
   const query = await buildQueryParams({
-    type,
-    filterId,
-    paymentRequired,
-    dateFrom: dateFrom ? new Date(dateFrom) : undefined,
-    dateTo: dateTo ? new Date(dateTo) : undefined,
-    title,
+    ...rest,
+    ...(page && { page }),
+    dateFrom: rest.dateFrom ? new Date(rest.dateFrom) : undefined,
+    dateTo: rest.dateTo ? new Date(rest.dateTo) : undefined,
   });
 
-  const { data } = await apiFetch<{ data: ActivityCardProps[] }>(
-    `/activity${query}`
-  );
-  return data.data;
+  const url = `/activity${query}`;
+
+  const { data } = await apiFetch<PaginatedActivitiesResponse>(url);
+  return data;
 };
 
 type ActivityPayload = Omit<

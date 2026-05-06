@@ -64,6 +64,7 @@
 import {
   ActivityType,
   fetchAllActivities,
+  PaginatedActivitiesResponse,
 } from "@/src/lib/service/activity.service";
 import { fetchAllFilters, FilterType } from "@/src/lib/service/filter.service";
 import { useQuery } from "@tanstack/react-query";
@@ -92,8 +93,7 @@ export default function useActivityContainer() {
     ActivityTypeSelectOptionProps[]
   >([]);
   const [appliedParams, setAppliedParams] = useState({});
-
-  const today = new Date().toISOString().split("T")[0]; // e.g. "2026-05-05"
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { register, handleSubmit } = useForm<ActivityFilterForm>({
     defaultValues: {
@@ -112,9 +112,9 @@ export default function useActivityContainer() {
     refetchOnReconnect: false,
   });
 
-  const activities = useQuery<ActivityCardProps[]>({
-    queryKey: ["activities", appliedParams],
-    queryFn: () => fetchAllActivities(appliedParams),
+  const activities = useQuery<PaginatedActivitiesResponse>({
+    queryKey: ["activities", appliedParams, currentPage],
+    queryFn: () => fetchAllActivities({ ...appliedParams, page: currentPage }),
     staleTime: 1000 * 60 * 5,
     refetchOnReconnect: true,
   });
@@ -135,8 +135,8 @@ export default function useActivityContainer() {
     const params = Object.fromEntries(
       Object.entries(data).filter(([, v]) => v !== "")
     );
-    console.log(params);
     setAppliedParams(params);
+    setCurrentPage(1);
   };
 
   return {
@@ -146,5 +146,7 @@ export default function useActivityContainer() {
     register,
     handleSubmit,
     onSearch,
+    currentPage,
+    setCurrentPage,
   };
 }

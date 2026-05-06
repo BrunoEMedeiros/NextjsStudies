@@ -1,5 +1,6 @@
 import { FilterType } from "@/src/lib/service/filter.service";
 import ActivityCard from "../ActivityCard/ActivityCard";
+import ActivityCardSkeleton from "../ActivityCard/ActivityCardSkeleton";
 
 type ScheduleDates = {
   date: string;
@@ -25,7 +26,14 @@ export default function ActivitiesList({
   activities,
   isLoading,
 }: ActivitiesListProps) {
-  if (isLoading) return <p>Carregando...</p>;
+  if (isLoading)
+    return (
+      <div className="flex flex-wrap gap-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <ActivityCardSkeleton key={i} />
+        ))}
+      </div>
+    );
   return (
     <div className="flex flex-wrap gap-3">
       {activities.map((activity) => (

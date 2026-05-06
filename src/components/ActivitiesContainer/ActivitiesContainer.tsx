@@ -14,12 +14,16 @@ export default function ActivityContainer() {
     register,
     handleSubmit,
     onSearch,
+    currentPage,
+    setCurrentPage,
   } = useActivityContainer();
+
+  const pagination = activities.data;
 
   return (
     <div className="flex flex-col gap-4 w-4/5">
       <form onSubmit={handleSubmit(onSearch)} className="flex gap-4 items-end">
-        <div className="w-2/4 flex flex-col gap-1">
+        <div className="w-1/4 flex flex-col gap-1 shrink-0">
           <label
             className="text-earth-yellow font-thin"
             htmlFor="searchByTitle"
@@ -29,8 +33,8 @@ export default function ActivityContainer() {
           <FormTextField
             id="searchByTitle"
             placeholder="Procure pelo titulo..."
-            containerClassName="min-w-8"
-            inputClassName="min-w-8"
+            className="w-full"
+            containerClassName="w-full"
             {...register("title")}
           />
         </div>
@@ -84,9 +88,35 @@ export default function ActivityContainer() {
       </form>
 
       <ActivitiesList
-        activities={activities.data ?? []}
+        activities={activities.data?.data ?? []}
         isLoading={activities.isLoading}
       />
+
+      {pagination && (
+        <div className="flex items-center gap-4 self-center">
+          <Button
+            variant="outline"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+            className="border-gray-700 bg-rich-black text-white hover:bg-gray-800 disabled:opacity-40"
+          >
+            Anterior
+          </Button>
+
+          <span className="text-white text-sm">
+            {currentPage} / {pagination.totalPages}
+          </span>
+
+          <Button
+            variant="outline"
+            disabled={!pagination.hasMore}
+            onClick={() => setCurrentPage((p) => p + 1)}
+            className="border-gray-700 bg-rich-black text-white hover:bg-gray-800 disabled:opacity-40"
+          >
+            Próximo
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
