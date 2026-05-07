@@ -1,10 +1,34 @@
 "use client";
-import ActivitiesList from "../ActivitiesList/ActivitiesList";
+import { FilterType } from "@/src/lib/service/filter.service";
+// import ActivitiesList from "../ActivitiesList/ActivitiesList";
+import ActivityCard from "../ActivityCard/ActivityCard";
+import ActivityCardSkeleton from "../ActivityCard/ActivityCardSkeleton";
 import ActivityTypeSelectOption from "../ActivityTypeSelectOption/ActivityTypeSelectOption";
 import FormTextField from "../FormTextField/FormTextField";
 import { Button } from "../ui/button";
 import useActivityContainer from "./useActivityContainer";
 import { FaSearch } from "react-icons/fa";
+
+type ScheduleDates = {
+  date: string;
+  time: string;
+};
+
+export type ActivityCardProps = {
+  id: number;
+  title: string;
+  Dates: ScheduleDates[];
+  card_image_url: string;
+  type: "event" | "course" | "ceremony";
+  status: number;
+  filters: FilterType[];
+  onDelete: (id: number) => Promise<void>;
+};
+
+type ActivitiesListProps = {
+  activities: ActivityCardProps[];
+  isLoading?: boolean;
+};
 
 export default function ActivityContainer() {
   const {
@@ -16,12 +40,13 @@ export default function ActivityContainer() {
     onSearch,
     currentPage,
     setCurrentPage,
+    onDelete,
   } = useActivityContainer();
 
   const pagination = activities.data;
 
   return (
-    <div className="flex flex-col gap-4 w-4/5">
+    <div className="flex flex-col gap-4 max-w-250">
       <form onSubmit={handleSubmit(onSearch)} className="flex gap-4 items-end">
         <div className="w-1/4 flex flex-col gap-1 shrink-0">
           <label
@@ -86,12 +111,33 @@ export default function ActivityContainer() {
           <FaSearch size={12} />
         </Button>
       </form>
-
-      <ActivitiesList
+      {/* <ActivitiesList
         activities={activities.data?.data ?? []}
         isLoading={activities.isLoading}
-      />
-
+      /> */}
+      {activities.isLoading ? (
+        <div className="flex flex-wrap gap-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ActivityCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-3">
+          {activities.data?.data.map((activity) => (
+            <ActivityCard
+              id={activity.id}
+              key={activity.id.toString()}
+              title={activity.title}
+              type={activity.type}
+              status={activity.status}
+              Dates={activity.Dates}
+              filters={activity.filters}
+              card_image_url={activity.card_image_url}
+              onDelete={onDelete}
+            />
+          ))}
+        </div>
+      )}
       {pagination && (
         <div className="flex items-center gap-4 self-center">
           <Button

@@ -5,7 +5,7 @@ import { apiFetch } from "../api-client";
 import { isApiError } from "../ApiError";
 import { CreateActivity } from "../schemas/newActivity.schema";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { ActivityCardProps } from "@/src/components/ActivitiesList/ActivitiesList";
+import { ActivityCardProps } from "@/src/components/ActivitiesContainer/ActivitiesContainer";
 
 type QueryValue = string | number | boolean | Date | null | undefined;
 
@@ -125,5 +125,25 @@ export const handleCreateNewActivity = async (
     }
 
     return { ok: false, status: 500, message: "Erro inesperado" };
+  }
+};
+
+export const handleDeleteActivity = async (id: number) => {
+  try {
+    const { data } = await apiFetch(`/activity/${id}`, {
+      method: "DELETE",
+    });
+
+    return { ok: true, data };
+  } catch (err) {
+    if (isApiError(err)) {
+      return {
+        ok: false,
+        status: err.status,
+        message: err.data.message,
+        code: err.data.code,
+      };
+    }
+    return { ok: false, status: 500, message: "Unexpected error" };
   }
 };

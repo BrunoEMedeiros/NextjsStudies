@@ -7,7 +7,7 @@ export default function ActivityPage() {
       <div className="flex w-full justify-center items-center text-2xl text-earth-yellow  mb-10">
         <NewActivityForm />
       </div>
-      <div className="flex justify-center w-full">
+      <div className="flex justify-center">
         <ActivityContainer />
       </div>
     </div>

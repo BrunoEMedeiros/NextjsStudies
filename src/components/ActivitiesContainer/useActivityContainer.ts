@@ -64,14 +64,16 @@
 import {
   ActivityType,
   fetchAllActivities,
+  handleDeleteActivity,
   PaginatedActivitiesResponse,
 } from "@/src/lib/service/activity.service";
 import { fetchAllFilters, FilterType } from "@/src/lib/service/filter.service";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { ActivityCardProps } from "../ActivitiesList/ActivitiesList";
+// import { ActivityCardProps } from "../ActivitiesList/ActivitiesList";
 import { ActivityTypeSelectOptionProps } from "../ActivityTypeSelectOption/ActivityTypeSelectOption";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 export type ActivityFilterForm = {
   title: string;
@@ -89,6 +91,8 @@ export const ACTIVITY_TYPE_OPTIONS = [
 ] satisfies ActivityTypeSelectOptionProps[];
 
 export default function useActivityContainer() {
+  const queryClient = useQueryClient();
+
   const [filterOptions, setFilterOptions] = useState<
     ActivityTypeSelectOptionProps[]
   >([]);
@@ -119,6 +123,20 @@ export default function useActivityContainer() {
     refetchOnReconnect: true,
   });
 
+  const deleteActivity = useMutation({
+    mutationKey: ["deleteActivity"],
+    mutationFn: (id: number) => handleDeleteActivity(id),
+    onSuccess: (result) => {
+      if (!result.ok) {
+        toast.error("Erro ao excluir atividade");
+
+        return;
+      }
+      toast.success("Atividade excluida com sucesso");
+      queryClient.invalidateQueries({ queryKey: ["activities"] });
+    },
+  });
+
   useEffect(() => {
     if (filters.data) {
       setFilterOptions(
@@ -139,6 +157,10 @@ export default function useActivityContainer() {
     setCurrentPage(1);
   };
 
+  const onDelete = async (id: number) => {
+    await deleteActivity.mutateAsync(id);
+  };
+
   return {
     filterOptions,
     activityTypeOptions: ACTIVITY_TYPE_OPTIONS,
@@ -148,5 +170,6 @@ export default function useActivityContainer() {
     onSearch,
     currentPage,
     setCurrentPage,
+    onDelete,
   };
 }

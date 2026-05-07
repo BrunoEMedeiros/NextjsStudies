@@ -1,16 +1,19 @@
 import Image from "next/image";
 import DateLabel, { ActivityAvaliableDates } from "../DateLabel/DateLabel";
-import { ActivityCardProps } from "../ActivitiesList/ActivitiesList";
 import CustomSwitch from "../CustomSwitch/CustomSwitch";
 import ActivityTypeBadge from "../ActivityTypeBadge/ActivityTypeBadge";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import DeleteDialog from "../DeleteDialog/DeleteDialog";
+import { ActivityCardProps } from "../ActivitiesContainer/ActivitiesContainer";
 
 const ActivityCard = ({
+  id,
   title,
   type,
   status,
   card_image_url,
   Dates,
+  onDelete,
 }: ActivityCardProps) => {
   return (
     <div className="bg-rich-black w-60 border rounded-md border-gray-700 flex flex-col items-center justify-between p-4 gap-3">
@@ -41,12 +44,16 @@ const ActivityCard = ({
         >
           <FaEdit size={16} color="#f2f3f4" />
         </button>
-        <button
-          type="button"
-          className="flex justify-center items-center rounded-md px-3 py-4 w-16 h-4 bg-danger cursor-pointer hover:opacity-80 transition-opacity disabled:cursor-not-allowed"
-        >
-          <FaTrash size={16} color="#f2f3f4" />
-        </button>
+        <DeleteDialog
+          style="flex justify-center items-center rounded-md px-2 py-4 w-16 h-4 bg-danger cursor-pointer hover:opacity-80 transition-opacity disabled:cursor-not-allowed"
+          buttonStyle="bg-danger hover:bg-danger"
+          iconColor="#f2f3f4"
+          id={id}
+          label="Excluir a atividade: "
+          itemName={title}
+          text="Esta atividade será inativada dentro do sistemas, serão desfeitos os agendamentos dos usuários ja feitos e novos agendamentos não poderão ser feitos"
+          deleteFunction={onDelete}
+        />
       </div>
     </div>
   );

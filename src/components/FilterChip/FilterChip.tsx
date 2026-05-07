@@ -154,6 +154,7 @@ export function FilterChip({
             )}
 
             <DeleteDialog
+              buttonStyle="bg-rich-black hover:bg-rich-black"
               id={id}
               label="Excluir o filtro: "
               itemName={descricao}
