@@ -8,6 +8,7 @@ import FormTextField from "../FormTextField/FormTextField";
 import { Button } from "../ui/button";
 import useActivityContainer from "./useActivityContainer";
 import { FaSearch } from "react-icons/fa";
+import { ActivityDetails } from "@/src/lib/service/activity.service";
 
 type ScheduleDates = {
   date: string;
@@ -25,12 +26,11 @@ export type ActivityCardProps = {
   onDelete: (id: number) => Promise<void>;
 };
 
-type ActivitiesListProps = {
-  activities: ActivityCardProps[];
-  isLoading?: boolean;
+type ActivityContainerProps = {
+  onEdit: (activity: ActivityDetails) => void;
 };
 
-export default function ActivityContainer() {
+export default function ActivityContainer({ onEdit }: ActivityContainerProps) {
   const {
     filterOptions,
     activityTypeOptions,
@@ -134,6 +134,7 @@ export default function ActivityContainer() {
               filters={activity.filters}
               card_image_url={activity.card_image_url}
               onDelete={onDelete}
+              onEdit={onEdit}
             />
           ))}
         </div>

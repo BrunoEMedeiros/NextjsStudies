@@ -10,6 +10,12 @@ import DateTimeSchedule from "../DateTimeScheduleContainer/DateTimeScheduleConta
 import ActivityTypeSelectOption from "../ActivityTypeSelectOption/ActivityTypeSelectOption";
 import FilterContainer from "../FIlterContainer/FilterContainer";
 import FormInputPhoto from "../FormInputPhoto/FormInputPhoto";
+import { ActivityDetails } from "@/src/lib/service/activity.service";
+
+type NewActivityFormProps = {
+  editingActivity?: ActivityDetails | null;
+  onEditComplete?: () => void;
+};
 
 const ActivityTypeOptions = [
   { label: "Evento", value: "event", key: "evento" },
@@ -17,7 +23,10 @@ const ActivityTypeOptions = [
   { label: "Curso", value: "course", key: "curso" },
 ];
 
-export default function NewActivityForm() {
+export default function NewActivityForm({
+  editingActivity,
+  onEditComplete,
+}: NewActivityFormProps) {
   const {
     onSubmit,
     handleSubmit,
@@ -27,7 +36,7 @@ export default function NewActivityForm() {
     paymentRequired,
     setPaymentRequired,
     setValue,
-  } = useNewActivityForm();
+  } = useNewActivityForm({ editingActivity, onEditComplete });
 
   return (
     <div>
@@ -91,11 +100,6 @@ export default function NewActivityForm() {
                 active={paymentRequired}
               />
             </div>
-            {/*
-            ✅ ActivityTypeSelectOption — if you add `activity_type` to the
-            schema, replace with {...register("activity_type")}. For now it's
-            uncontrolled (cosmetic only).
-          */}
             <div className="flex-1 self-start">
               <ActivityTypeSelectOption
                 options={ActivityTypeOptions}
@@ -121,18 +125,13 @@ export default function NewActivityForm() {
         <DateTimeSchedule />
         <FilterContainer />
 
-        {/*
-        ✅ Two photo inputs — card image and publicity image.
-        Each calls setValue so react-hook-form owns the URL.
-      */}
         <div className="col-span-1">
           <FormInputPhoto
             label="Imagem da atividade"
-            onFileSelect={(file) => {
-              setValue("card_image_url", file, {
-                shouldValidate: true, // Triggers Zod to clear the error instantly
-              });
-            }}
+            initialPreviewUrl={editingActivity?.card_image_url}
+            onFileSelect={(file) =>
+              setValue("card_image_url", file, { shouldValidate: true })
+            }
             error={errors.card_image_url?.message as string}
           />
         </div>

@@ -1,18 +1,26 @@
 "use client";
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
 
 interface FormInputPhotoProps {
   label: string;
-  onFileSelect: (file: File) => void; // Send the file back to the parent
+  onFileSelect: (file: File) => void;
   error?: string;
+  initialPreviewUrl?: string;
 }
 
 export default function FormInputPhoto({
   label,
   onFileSelect,
   error,
+  initialPreviewUrl,
 }: FormInputPhotoProps) {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    initialPreviewUrl ?? null
+  );
+
+  useEffect(() => {
+    setPreviewUrl(initialPreviewUrl ?? null);
+  }, [initialPreviewUrl]);
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

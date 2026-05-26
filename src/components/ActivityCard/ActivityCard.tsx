@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import DateLabel, { ActivityAvaliableDates } from "../DateLabel/DateLabel";
 import CustomSwitch from "../CustomSwitch/CustomSwitch";
@@ -5,6 +6,11 @@ import ActivityTypeBadge from "../ActivityTypeBadge/ActivityTypeBadge";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import DeleteDialog from "../DeleteDialog/DeleteDialog";
 import { ActivityCardProps } from "../ActivitiesContainer/ActivitiesContainer";
+import {
+  ActivityDetails,
+  fetchActivityById,
+} from "@/src/lib/service/activity.service";
+import { toast } from "sonner";
 
 const ActivityCard = ({
   id,
@@ -14,7 +20,19 @@ const ActivityCard = ({
   card_image_url,
   Dates,
   onDelete,
-}: ActivityCardProps) => {
+  onEdit,
+  filters,
+}: ActivityCardProps & { onEdit: (activity: ActivityDetails) => void }) => {
+  const handleEditClick = async () => {
+    try {
+      const activity = await fetchActivityById(id);
+      onEdit(activity);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {
+      toast.error("Erro ao carregar atividade.");
+    }
+  };
+
   return (
     <div className="bg-rich-black w-60 border rounded-md border-gray-700 flex flex-col items-center justify-between p-4 gap-3">
       <Image
@@ -40,6 +58,7 @@ const ActivityCard = ({
       <div className="flex gap-4">
         <button
           type="button"
+          onClick={handleEditClick}
           className="flex justify-center items-center rounded-md px-2 py-4 w-16 h-4 bg-earth-yellow cursor-pointer hover:opacity-80 transition-opacity disabled:cursor-not-allowed"
         >
           <FaEdit size={16} color="#f2f3f4" />

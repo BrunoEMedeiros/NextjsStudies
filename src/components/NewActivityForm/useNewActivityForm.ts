@@ -11,14 +11,36 @@ import { RootState } from "@/src/lib/store";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { handleCreateNewActivity } from "@/src/lib/service/activity.service";
 import { toast } from "sonner";
+import { useEffect } from "react";
+import {
+  clearSchedule,
+  setScheduleItems,
+} from "@/src/lib/feature/schedule/scheduleSlice";
+import {
+  clearFilter,
+  setFilterItem,
+} from "@/src/lib/feature/filter/filterSlice";
+import {
+  ActivityDetails,
+  handleUpdateActivity,
+} from "@/src/lib/service/activity.service";
+import { UpdateActivity } from "@/src/lib/schemas/updateActivity.schema";
+import { isEqual, cloneDeep } from "lodash-es";
 
-// Create a type for the payload that excludes the file fields
 type ActivityPayload = Omit<
   CreateActivity,
   "card_image_url" | "publicity_image_url"
 >;
 
-export function useNewActivityForm() {
+type NewActivityFormOptions = {
+  editingActivity?: ActivityDetails | null;
+  onEditComplete?: () => void;
+};
+
+export function useNewActivityForm({
+  editingActivity,
+  onEditComplete,
+}: NewActivityFormOptions = {}) {
   const queryClient = useQueryClient();
 
   const dispatch = useDispatch();
@@ -29,12 +51,20 @@ export function useNewActivityForm() {
     (state: RootState) => state.filter.filters
   );
 
+  const resetForm = () => {
+    reset(); // clears react-hook-form fields
+    setPaymentRequired(false);
+    dispatch(clearSchedule()); // clears DateTimeSchedule chips
+    dispatch(clearFilter()); // clears FilterChip selections
+  };
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
-    setValue, // Ensure this is exported so the UI can use it
+    reset,
+    setValue,
     control,
   } = useForm<CreateActivity>({
     resolver: zodResolver(
@@ -60,12 +90,74 @@ export function useNewActivityForm() {
       }
       toast.success("Atividade criada com sucesso");
       queryClient.invalidateQueries({ queryKey: ["activities"] });
+      resetForm();
+      return;
+    },
+  });
+
+  useEffect(() => {
+    if (!editingActivity) return;
+
+    reset({
+      title: editingActivity.title,
+      description: editingActivity.description,
+      social_media_url: editingActivity.social_media_url,
+      payment_sugestion: editingActivity.payment_sugestion,
+      type: editingActivity.type,
+    });
+
+    setPaymentRequired(editingActivity.payment_required);
+
+    dispatch(
+      setScheduleItems(
+        (editingActivity.Dates ?? []).map((d) => {
+          const dateOnly = d.date.split("T")[0];
+          return {
+            id: dateOnly + d.time,
+            date: dateOnly,
+            time: d.time,
+          };
+        })
+      )
+    );
+
+    dispatch(
+      setFilterItem(
+        (editingActivity.filters ?? []).map((f) => ({
+          id: f.id,
+          descricao: f.descricao,
+        }))
+      )
+    );
+  }, [editingActivity, reset, dispatch]);
+
+  const updateActivity = useMutation({
+    mutationKey: ["updateActivity"],
+    mutationFn: ({
+      id,
+      payload,
+      file,
+    }: {
+      id: number;
+      payload: UpdateActivity;
+      file?: File;
+    }) => handleUpdateActivity(id, payload, file),
+    onSuccess: (result) => {
+      if (!result.ok) {
+        toast.error(result.message || "Erro ao atualizar.");
+        return;
+      }
+      toast.success("Atividade atualizada!");
+      queryClient.invalidateQueries({ queryKey: ["activities"] });
+      onEditComplete?.();
+      resetForm();
+      return;
     },
   });
 
   const onSubmit = async (data: CreateActivity) => {
     if (scheduleItems.length === 0) {
-      toast.info("Adicione pelo menos uma data e horário.");
+      toast.info("Adicione pelo menos uma data.");
       return;
     }
     if (selectedFilters.length === 0) {
@@ -73,8 +165,90 @@ export function useNewActivityForm() {
       return;
     }
 
+    if (editingActivity) {
+      const newFile =
+        data.card_image_url instanceof File ? data.card_image_url : undefined;
+
+      let payload = {};
+      if (data.title != editingActivity.title) {
+        payload = { title: data.title };
+      }
+
+      if (data.description != editingActivity.description) {
+        payload = { ...payload, description: data.description };
+      }
+
+      if (data.social_media_url != editingActivity.social_media_url) {
+        payload = { ...payload, social_media_url: data.social_media_url };
+      }
+
+      if (data.payment_required != editingActivity.payment_required) {
+        payload = {
+          ...payload,
+          payment_required: paymentRequired,
+        };
+      }
+
+      if (data.payment_sugestion != editingActivity.payment_sugestion) {
+        payload = { ...payload, payment_sugestion: data.payment_sugestion };
+      }
+
+      if (data.type != editingActivity.type) {
+        payload = {
+          ...payload,
+          type: data.type,
+        };
+      }
+
+      const activities_dates = scheduleItems.map((i) => ({
+        date: i.date,
+        time: i.time,
+      }));
+
+      const editing_dates = editingActivity.Dates.map((d) => {
+        const dateOnly = d.date.split("T")[0];
+        return {
+          date: dateOnly,
+          time: d.time,
+        };
+      });
+
+      if (!isEqual(activities_dates, editing_dates)) {
+        payload = {
+          ...payload,
+          activities_dates: scheduleItems.map((i) => ({
+            date: i.date,
+            time: i.time,
+          })),
+        };
+      }
+      const form_filters = selectedFilters.map((f) => ({
+        id: f.id,
+        descricao: f.descricao,
+      }));
+
+      if (!isEqual(form_filters, editingActivity.filters)) {
+        payload = {
+          ...payload,
+          filters: selectedFilters.map((f) => ({ id: f.id })),
+        };
+      }
+
+      if (Object.keys(payload).length === 0 && newFile == undefined) {
+        onEditComplete?.();
+        return;
+      }
+
+      await updateActivity.mutateAsync({
+        id: editingActivity.id,
+        payload,
+        file: newFile,
+      });
+      return;
+    }
+
     if (!data.card_image_url) {
-      toast.info("Por favor, selecione uma imagem para a atividade.");
+      toast.info("Selecione uma imagem.");
       return;
     }
 
@@ -90,10 +264,7 @@ export function useNewActivityForm() {
       filters: selectedFilters.map((f) => ({ id: f.id })),
     };
 
-    await createActivity.mutateAsync({
-      payload,
-      file: card_image_url as File,
-    });
+    await createActivity.mutateAsync({ payload, file: card_image_url as File });
   };
 
   return {
@@ -105,7 +276,5 @@ export function useNewActivityForm() {
     setValue,
     paymentRequired,
     setPaymentRequired,
-    scheduleItems,
-    selectedFilters,
   };
 }

@@ -1,40 +1,12 @@
 import { z } from "zod";
+import {
+  ACCEPTED_IMAGE_TYPES,
+  createActivityDateSchema,
+  FilterSchema,
+  MAX_FILE_SIZE,
+} from "./newActivity.schema";
 
-export const MAX_FILE_SIZE = 2 * 1024 * 1024;
-export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
-
-export const createActivityDateSchema = z.object({
-  date: z.string().refine(
-    (value) => {
-      // Try to parse the date - be more flexible with formats
-      const date = new Date(value);
-      return !isNaN(date.getTime());
-    },
-    {
-      message: "Invalid datetime format",
-    }
-  ),
-  time: z.string().refine(
-    (value) => {
-      return /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/.test(value);
-    },
-    {
-      message: "Time must be in HH:MM:SS format (00:00:00 to 23:59:59)",
-    }
-  ),
-});
-
-// Main activity schema
-export const FilterSchema = z.object({
-  id: z.int().positive(),
-});
-
-export const createActivityFilterSchema = z.object({
-  filterId: z.int().positive(),
-  activityId: z.int().positive(),
-});
-
-export const createActivitySchema = z.object({
+export const updateActivitySchema = z.object({
   activities_dates: z.array(createActivityDateSchema).optional(),
   filters: z.array(FilterSchema).optional(),
   title: z
@@ -53,7 +25,7 @@ export const createActivitySchema = z.object({
     .optional(),
   card_image_url: z
     .any()
-    .refine((file) => !!file, "A imagem é obrigatória.") // Check if it exists
+    .refine((file) => !!file, "A imagem é obrigatória.")
     .refine(
       (file) => typeof window !== "undefined" && file instanceof File,
       "O arquivo selecionado é inválido."
@@ -81,7 +53,4 @@ export const createActivitySchema = z.object({
   type: z.enum(["event", "course", "ceremony"]).default("event").optional(),
 });
 
-// Infer TypeScript type from schema
-export type CreateActivity = z.infer<typeof createActivitySchema>;
-
-export type ActivityAvaliableDates = z.infer<typeof createActivityDateSchema>;
+export type UpdateActivity = z.infer<typeof updateActivitySchema>;

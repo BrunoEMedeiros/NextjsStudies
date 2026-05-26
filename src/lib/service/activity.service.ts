@@ -6,6 +6,7 @@ import { isApiError } from "../ApiError";
 import { CreateActivity } from "../schemas/newActivity.schema";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { ActivityCardProps } from "@/src/components/ActivitiesContainer/ActivitiesContainer";
+import { UpdateActivity } from "../schemas/updateActivity.schema";
 
 type QueryValue = string | number | boolean | Date | null | undefined;
 
@@ -147,5 +148,63 @@ export const handleDeleteActivity = async (id: number) => {
       };
     }
     return { ok: false, status: 500, message: "Unexpected error" };
+  }
+};
+
+export type ActivityDetails = {
+  id: number;
+  title: string;
+  description: string;
+  type: "event" | "course" | "ceremony";
+  status: number;
+  card_image_url: string;
+  social_media_url?: string;
+  payment_required: boolean;
+  payment_sugestion?: number;
+  Dates: { date: string; time: string }[];
+  filters: { id: number; descricao: string }[];
+};
+
+export const fetchActivityById = async (
+  id: number
+): Promise<ActivityDetails> => {
+  const { data } = await apiFetch<ActivityDetails>(`/activity/${id}`);
+  return data;
+};
+
+export const handleUpdateActivity = async (
+  id: number,
+  payload: UpdateActivity,
+  file?: File
+) => {
+  try {
+    let body: FormData | string;
+    const headers: Record<string, string> = {};
+
+    if (file) {
+      const form = new FormData();
+      form.append("file", file);
+      Object.entries(payload).forEach(([k, v]) => {
+        if (v === undefined) return;
+        form.append(k, typeof v === "object" ? JSON.stringify(v) : String(v));
+      });
+      body = form;
+    } else {
+      body = JSON.stringify(payload);
+      headers["Content-Type"] = "application/json";
+    }
+
+    const { data } = await apiFetch(`/activity/${id}`, {
+      method: "PATCH",
+      body,
+      headers,
+    });
+
+    return { ok: true, data };
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    if (isApiError(error))
+      return { ok: false, status: error.status, message: error.data.message };
+    return { ok: false, status: 500, message: "Erro inesperado" };
   }
 };
