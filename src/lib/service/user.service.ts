@@ -1,9 +1,10 @@
 "use server";
 import { CreateAccountSchema, UserRole } from "../schemas/user-register.schema";
-import { apiFetch, AuthExpiredError } from "../api-client";
+import { apiFetch, AuthExpiredError, BASE_URL } from "../api-client";
 import { ApiError, isApiError } from "../ApiError";
 import { UserProfileType } from "../schemas/user-profile.schema";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { cookies } from "next/headers";
 
 export type ServiceResult<T> =
   | { ok: true; data: T }
@@ -79,5 +80,32 @@ export const fetchProfile = async (): Promise<UserProfileType> => {
   } catch (error) {
     if (isRedirectError(error)) throw error;
     throw error;
+  }
+};
+
+export const handleLogOff = async (): Promise<ServiceResult<void>> => {
+  try {
+    const cookieStore = await cookies();
+    const refreshToken = cookieStore.get("refreshToken")?.value ?? "";
+
+    const { data } = await apiFetch("/accounts/logout", {
+      method: "DELETE",
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    cookieStore.delete("authToken");
+    cookieStore.delete("refreshToken");
+
+    return { ok: true, data };
+  } catch (err) {
+    if (isApiError(err)) {
+      return {
+        ok: false,
+        status: err.status,
+        message: err.data.message,
+        code: err.data.code,
+      };
+    }
+    return { ok: false, status: 500, message: "Unexpected error" };
   }
 };

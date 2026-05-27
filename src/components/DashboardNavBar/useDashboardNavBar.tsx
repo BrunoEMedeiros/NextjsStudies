@@ -2,12 +2,13 @@
 "use client";
 import { logOff, signin } from "@/src/lib/feature/auth/authSlice";
 import { UserProfileType } from "@/src/lib/schemas/user-profile.schema";
-import { fetchProfile } from "@/src/lib/service/user.service";
-import { useQuery } from "@tanstack/react-query";
+import { fetchProfile, handleLogOff } from "@/src/lib/service/user.service";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function useDashBoardNavBar() {
   const dispatch = useDispatch();
@@ -20,6 +21,23 @@ export function useDashBoardNavBar() {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     retry: false,
+  });
+
+  const signOut = useMutation({
+    mutationKey: ["deleteFilter"],
+    mutationFn: () => handleLogOff(),
+    onSuccess: (result) => {
+      if (!result.ok) {
+        toast.error("Erro ao sair da conta");
+        return;
+      }
+
+      toast.success("Até logo 🙏🏻");
+      dispatch(logOff());
+      router.push("/signin");
+      router.refresh();
+      return;
+    },
   });
 
   useEffect(() => {
@@ -43,16 +61,8 @@ export function useDashBoardNavBar() {
 
   const handleSignOut = async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
-    dispatch(logOff());
 
-    try {
-      await fetch("/api/auth/logout", { method: "GET" });
-    } catch (error) {
-      console.error("Failed to log out on the server", error);
-    }
-
-    router.push("/signin");
-    router.refresh();
+    await signOut.mutateAsync();
   };
 
   return {

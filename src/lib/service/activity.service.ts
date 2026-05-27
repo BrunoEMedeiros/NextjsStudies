@@ -10,6 +10,45 @@ import { UpdateActivity } from "../schemas/updateActivity.schema";
 
 type QueryValue = string | number | boolean | Date | null | undefined;
 
+export type ActivityType = "event" | "course" | "ceremony";
+
+export type PaginatedActivitiesResponse = {
+  currentPage: number;
+  activityCount: number;
+  totalPages: number;
+  hasMore: boolean;
+  data: ActivityCardProps[];
+};
+
+type ActivityPayload = Omit<
+  CreateActivity,
+  "card_image_url" | "publicity_image_url"
+>;
+
+interface FetchAllActivitiesParams {
+  page?: number;
+  type?: ActivityType;
+  filterId?: number;
+  paymentRequired?: boolean;
+  dateFrom?: string | Date;
+  dateTo?: string | Date;
+  title?: string;
+}
+
+export type ActivityDetails = {
+  id: number;
+  title: string;
+  description: string;
+  type: "event" | "course" | "ceremony";
+  status: number;
+  card_image_url: string;
+  social_media_url?: string;
+  payment_required: boolean;
+  payment_sugestion?: number;
+  Dates: { date: string; time: string }[];
+  filters: { id: number; descricao: string }[];
+};
+
 export async function buildQueryParams(
   params: Record<string, QueryValue>
 ): Promise<string> {
@@ -27,26 +66,6 @@ export async function buildQueryParams(
 
   const query = searchParams.toString();
   return query ? `?${query}` : "";
-}
-
-export type ActivityType = "event" | "course" | "ceremony";
-
-export type PaginatedActivitiesResponse = {
-  currentPage: number;
-  activityCount: number;
-  totalPages: number;
-  hasMore: boolean;
-  data: ActivityCardProps[];
-};
-
-interface FetchAllActivitiesParams {
-  page?: number;
-  type?: ActivityType;
-  filterId?: number;
-  paymentRequired?: boolean;
-  dateFrom?: string | Date;
-  dateTo?: string | Date;
-  title?: string;
 }
 
 export const fetchAllActivities = async ({
@@ -67,11 +86,6 @@ export const fetchAllActivities = async ({
   const { data } = await apiFetch<PaginatedActivitiesResponse>(url);
   return data;
 };
-
-type ActivityPayload = Omit<
-  CreateActivity,
-  "card_image_url" | "publicity_image_url"
->;
 
 export const fetchActivitiesByMonth = async (
   month: number
@@ -151,20 +165,6 @@ export const handleDeleteActivity = async (id: number) => {
   }
 };
 
-export type ActivityDetails = {
-  id: number;
-  title: string;
-  description: string;
-  type: "event" | "course" | "ceremony";
-  status: number;
-  card_image_url: string;
-  social_media_url?: string;
-  payment_required: boolean;
-  payment_sugestion?: number;
-  Dates: { date: string; time: string }[];
-  filters: { id: number; descricao: string }[];
-};
-
 export const fetchActivityById = async (
   id: number
 ): Promise<ActivityDetails> => {
@@ -198,6 +198,21 @@ export const handleUpdateActivity = async (
       method: "PATCH",
       body,
       headers,
+    });
+
+    return { ok: true, data };
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    if (isApiError(error))
+      return { ok: false, status: error.status, message: error.data.message };
+    return { ok: false, status: 500, message: "Erro inesperado" };
+  }
+};
+
+export const handleActivateActivity = async (id: number) => {
+  try {
+    const { data } = await apiFetch(`/activity/activate/${id}`, {
+      method: "PATCH",
     });
 
     return { ok: true, data };

@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import * as setCookieParser from "set-cookie-parser";
 import { ApiError } from "./ApiError";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
+export const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
 const AUTH_ROUTES = ["/accounts/sessions/signin", "/accounts/sessions/signup"];
 
 export class AuthExpiredError extends Error {

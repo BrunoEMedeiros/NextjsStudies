@@ -11,6 +11,7 @@ import {
   fetchActivityById,
 } from "@/src/lib/service/activity.service";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
 
 const ActivityCard = ({
   id,
@@ -21,8 +22,14 @@ const ActivityCard = ({
   Dates,
   onDelete,
   onEdit,
-  filters,
+  onActivate,
 }: ActivityCardProps & { onEdit: (activity: ActivityDetails) => void }) => {
+  const [active, setActive] = useState<boolean>(status === 1);
+
+  useEffect(() => {
+    setActive(status === 1);
+  }, [status]);
+
   const handleEditClick = async () => {
     try {
       const activity = await fetchActivityById(id);
@@ -30,6 +37,19 @@ const ActivityCard = ({
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       toast.error("Erro ao carregar atividade.");
+    }
+  };
+
+  const handleToggleActive = async (value: React.SetStateAction<boolean>) => {
+    const nextValue = typeof value === "function" ? value(active) : value;
+    if (!active && nextValue) {
+      try {
+        await onActivate(id);
+      } catch {
+        setActive(false);
+      }
+    } else {
+      setActive(nextValue);
     }
   };
 
@@ -52,6 +72,7 @@ const ActivityCard = ({
           lableClassName="text-base"
           label="Ativo"
           active={status == 1 ? true : false}
+          setActive={handleToggleActive}
         />
       </div>
       <DateLabel avaliable_activities={Dates} />

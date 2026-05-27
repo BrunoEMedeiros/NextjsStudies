@@ -64,6 +64,7 @@
 import {
   ActivityType,
   fetchAllActivities,
+  handleActivateActivity,
   handleDeleteActivity,
   PaginatedActivitiesResponse,
 } from "@/src/lib/service/activity.service";
@@ -137,6 +138,19 @@ export default function useActivityContainer() {
     },
   });
 
+  const activateActivity = useMutation({
+    mutationKey: ["activateActivity"],
+    mutationFn: (id: number) => handleActivateActivity(id),
+    onSuccess: (result) => {
+      if (!result.ok) {
+        toast.error("Erro ao ativar atividade");
+        return;
+      }
+      toast.success("Atividade reativada");
+      queryClient.invalidateQueries({ queryKey: ["activities"] });
+    },
+  });
+
   useEffect(() => {
     if (filters.data) {
       setFilterOptions(
@@ -161,6 +175,10 @@ export default function useActivityContainer() {
     await deleteActivity.mutateAsync(id);
   };
 
+  const onActivate = async (id: number) => {
+    await activateActivity.mutateAsync(id);
+  };
+
   return {
     filterOptions,
     activityTypeOptions: ACTIVITY_TYPE_OPTIONS,
@@ -171,5 +189,6 @@ export default function useActivityContainer() {
     currentPage,
     setCurrentPage,
     onDelete,
+    onActivate,
   };
 }
