@@ -8,9 +8,9 @@ export interface TextFieldProps
   placeholder: string;
   helperText?: string;
   error?: FieldError;
-  className?: string; // Targets the outer wrapper
-  labelClassName?: string; // Targets the <label>
-  inputClassName?: string; // Targets the <input>
+  className?: string;
+  labelClassName?: string;
+  inputClassName?: string;
 }
 
 export default function FormTextArea({
@@ -30,13 +30,11 @@ export default function FormTextArea({
       {label && (
         <label
           htmlFor={inputId}
-          // Added labelClassName to merge custom styles with your defaults
           className={`text-md font-light text-earth-yellow ${labelClassName}`}
         >
           {label}
         </label>
       )}
-      {/* Parent container – handles background, border, shadow, focus styles */}
       <div
         className={`
           flex items-center w-full rounded-md border shadow-sm transition-all
@@ -51,7 +49,7 @@ export default function FormTextArea({
         <textarea
           id={inputId}
           placeholder={placeholder}
-          rows={5}
+          rows={10}
           className={`
             w-full min-w-6 px-2 py-3 outline-none bg-transparent
             placeholder:text-gray-500 text-base
