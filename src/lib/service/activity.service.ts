@@ -81,7 +81,7 @@ export const fetchAllActivities = async ({
 
   const url = `/activity${query}`;
 
-  console.log(url);
+  // console.log(url);
 
   const { data } = await apiFetch<PaginatedActivitiesResponse>(url);
   return data;

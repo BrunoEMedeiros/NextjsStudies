@@ -36,6 +36,7 @@ export default function NewActivityForm({
     paymentRequired,
     setPaymentRequired,
     setValue,
+    resetKey,
   } = useNewActivityForm({ editingActivity, onEditComplete });
 
   return (
@@ -127,6 +128,7 @@ export default function NewActivityForm({
 
         <div className="col-span-1">
           <FormInputPhoto
+            key={resetKey}
             label="Imagem da atividade"
             initialPreviewUrl={editingActivity?.card_image_url}
             onFileSelect={(file) =>

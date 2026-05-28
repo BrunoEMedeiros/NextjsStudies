@@ -46,18 +46,19 @@ export const handleCreateUser = async (
 export const handleLoginUser = async (
   email: string,
   password: string
-): Promise<any> => {
+): Promise<ServiceResult<{ role: string }>> => {
   try {
-    const { data } = await apiFetch("/accounts/sessions/signin", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-      credentials: "include",
-    });
-
-    return { ok: true, data };
+    const { data } = await apiFetch<{ message: string; role: string }>(
+      "/accounts/sessions/signin",
+      {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        credentials: "include",
+      }
+    );
+    return { ok: true, data: { role: data.role } };
   } catch (error) {
     if (isRedirectError(error)) throw error;
-
     if (isApiError(error)) {
       return {
         ok: false,
@@ -66,7 +67,6 @@ export const handleLoginUser = async (
         message: error.data.message,
       };
     }
-
     return { ok: false, status: 500, message: "Erro inesperado" };
   }
 };

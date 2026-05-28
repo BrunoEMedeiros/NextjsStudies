@@ -45,6 +45,7 @@ export function useNewActivityForm({
 
   const dispatch = useDispatch();
   const [paymentRequired, setPaymentRequired] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
 
   const scheduleItems = useSelector((state: RootState) => state.schedule.items);
   const selectedFilters = useSelector(
@@ -56,6 +57,7 @@ export function useNewActivityForm({
     setPaymentRequired(false);
     dispatch(clearSchedule()); // clears DateTimeSchedule chips
     dispatch(clearFilter()); // clears FilterChip selections
+    setResetKey((k) => k + 1); // ← forces FormInputPhoto remount
   };
 
   const {
@@ -276,5 +278,6 @@ export function useNewActivityForm({
     setValue,
     paymentRequired,
     setPaymentRequired,
+    resetKey,
   };
 }

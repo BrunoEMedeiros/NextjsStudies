@@ -10,6 +10,12 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+const ROLE_REDIRECT: Record<string, string> = {
+  administrative: "/dashboard/activities",
+  maintainer: "/dashboard/activities",
+  regular: "/dashboard/activities",
+};
+
 export function useSigninViewModel() {
   const router = useRouter();
 
@@ -39,7 +45,6 @@ export function useSigninViewModel() {
             type: "manual",
             message: "E-mail ou senha incorretos",
           });
-
           return;
         }
         if (result.status === 500) {
@@ -48,7 +53,15 @@ export function useSigninViewModel() {
           );
           return;
         }
+        return;
       }
+      const { role } = result.data;
+
+      if (role !== "administrative") {
+        toast.error("Você não tem permissão para acessar esta aplicação.");
+        return;
+      }
+
       router.push("/dashboard/activities");
     },
   });

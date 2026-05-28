@@ -4,6 +4,32 @@ import * as setCookieParser from "set-cookie-parser";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
 
+//Futuramente no site ------------------------------------------------------
+
+// const ROLE_ALLOWED_PATHS: Record<string, string[]> = {
+//   administrative: [
+//     "/dashboard/activities",
+//     "/dashboard/members",
+//     "/dashboard/reports",
+//   ],
+//   maintainer: ["/dashboard/activities", "/dashboard/members"],
+//   regular: ["/dashboard/activities"],
+// };
+
+function getTokenRole(token: string): string | null {
+  try {
+    const payload = token.split(".")[1];
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const pad = base64.length % 4;
+    const decoded = JSON.parse(
+      atob(pad ? base64 + "=".repeat(4 - pad) : base64)
+    );
+    return decoded.role ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function fetchNewTokens(refreshToken: string): Promise<string[] | null> {
   try {
     const response = await fetch(`${BASE_URL}/accounts/sessions/refresh`, {
@@ -95,6 +121,25 @@ export async function proxy(request: NextRequest) {
     redirectResponse.cookies.delete("refreshToken");
     return redirectResponse;
   }
+
+  // Futuramente no site
+
+  // const currentAuthToken = request.cookies.get("authToken")?.value;
+  // if (currentAuthToken) {
+  //   const role = getTokenRole(currentAuthToken);
+  //   const pathname = request.nextUrl.pathname;
+
+  //   const allowed = ROLE_ALLOWED_PATHS[role ?? ""] ?? [];
+  //   const isProtectedDashboard = pathname.startsWith("/dashboard");
+  //   const canAccess = allowed.some((p) => pathname.startsWith(p));
+
+  //   if (isProtectedDashboard && !canAccess) {
+  //     return NextResponse.redirect(
+  //       new URL("/dashboard/activities", request.url)
+  //     );
+  //   }
+
+  // }
 
   return NextResponse.next();
 }

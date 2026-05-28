@@ -114,7 +114,7 @@ export async function apiFetch<T = any>(
   });
 
   if (!response.ok) {
-    console.log(response);
+    // console.log(response);
     throw new ApiError(response.status, data);
   }
 

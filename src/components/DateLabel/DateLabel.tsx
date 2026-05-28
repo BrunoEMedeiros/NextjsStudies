@@ -14,8 +14,18 @@ const DateLabel = ({ avaliable_activities }: DateLabelProps) => {
     (item) => item.date === firstDate
   );
 
-  const formatDate = (dateString: string) =>
-    new Date(dateString).toLocaleDateString("pt-BR");
+  const formatDate = (dateString: string) => {
+    let date = new Date(dateString);
+
+    const formatoBR = new Intl.DateTimeFormat("pt-BR", {
+      timeZone: "UTC",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+
+    return formatoBR.format(date);
+  };
 
   if (dateEquals) {
     return (
