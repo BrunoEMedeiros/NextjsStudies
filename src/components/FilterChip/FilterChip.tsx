@@ -76,7 +76,7 @@ export function FilterChip({
       dispatch(removeFilterItem(id));
       return;
     }
-    dispatch(addFilterItem({ id, description: descricao }));
+    dispatch(addFilterItem({ id, descricao: descricao }));
   };
 
   const isFrozen = isSubmitting || isAnyMutating;
