@@ -48,6 +48,7 @@ export function useSigninViewModel() {
           return;
         }
         if (result.status === 500) {
+          console.error(result);
           toast.error(
             `Ocorreu um erro inesperado, por favor verifique sua conexão com a internet`
           );
