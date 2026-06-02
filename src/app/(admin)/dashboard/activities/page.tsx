@@ -1,4 +1,4 @@
-"use client"; // ← add this
+"use client";
 
 import { useState } from "react";
 import ActivityContainer from "@/src/components/ActivitiesContainer/ActivitiesContainer";

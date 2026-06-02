@@ -5,6 +5,7 @@ import { ApiError, isApiError } from "../ApiError";
 import { UserProfileType } from "../schemas/user-profile.schema";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { cookies } from "next/headers";
+import { UserType } from "../schemas/users.schema";
 
 export type ServiceResult<T> =
   | { ok: true; data: T }
@@ -107,5 +108,47 @@ export const handleLogOff = async (): Promise<ServiceResult<void>> => {
       };
     }
     return { ok: false, status: 500, message: "Unexpected error" };
+  }
+};
+
+export type PaginatedUsersResponse = {
+  currentPage: number;
+  usersCount: number;
+  totalPages: number;
+  hasMore: boolean;
+  data: UserType[];
+};
+
+export const fetchUsers = async (
+  name?: string,
+  email?: string,
+  role?: string,
+  phone?: string,
+  status?: number,
+  page?: number
+): Promise<PaginatedUsersResponse> => {
+  try {
+    const params = new URLSearchParams({ page: String(page) });
+
+    if (name) params.set("name", name);
+
+    if (email) params.set("email", email);
+
+    if (role) params.set("role", role);
+
+    if (phone) params.set("phone", phone);
+
+    if (status !== undefined) params.set("status", String(status));
+
+    const { data } = await apiFetch<PaginatedUsersResponse>(
+      `/accounts/users?${params}`,
+      {
+        method: "GET",
+      }
+    );
+    return data;
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    throw error;
   }
 };
