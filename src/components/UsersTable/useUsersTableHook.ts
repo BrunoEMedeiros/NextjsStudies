@@ -1,9 +1,11 @@
 import {
   fetchUsers,
+  handleInactivateUser,
   PaginatedUsersResponse,
 } from "@/src/lib/service/user.service";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export type UserFilters = {
   name?: string;
@@ -16,6 +18,8 @@ export type UserFilters = {
 export default function useUsersListHook() {
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<UserFilters>({});
+
+  const queryClient = useQueryClient();
 
   const users = useQuery<PaginatedUsersResponse>({
     queryKey: ["users", currentPage, filters],
@@ -32,6 +36,20 @@ export default function useUsersListHook() {
     refetchOnReconnect: true,
   });
 
+  const inactivateUser = useMutation({
+    mutationKey: ["inactivateUser"],
+    mutationFn: (id: string) => handleInactivateUser(id),
+    onSuccess: (result) => {
+      if (!result.ok) {
+        toast.error("Erro ao inativar usuário");
+        return;
+      }
+      toast.success("Usuário inativado com sucesso");
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      return;
+    },
+  });
+
   const applyFilters = (newFilters: UserFilters) => {
     setFilters(newFilters);
     setCurrentPage(1);
@@ -40,6 +58,10 @@ export default function useUsersListHook() {
   const resetFilters = () => {
     setFilters({});
     setCurrentPage(1);
+  };
+
+  const onSubmit = async (id: string) => {
+    await inactivateUser.mutateAsync(id);
   };
 
   return {
@@ -51,5 +73,6 @@ export default function useUsersListHook() {
     filters,
     applyFilters,
     resetFilters,
+    onSubmit,
   };
 }

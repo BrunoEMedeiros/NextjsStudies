@@ -24,7 +24,7 @@ export function useDashBoardNavBar() {
   });
 
   const signOut = useMutation({
-    mutationKey: ["deleteFilter"],
+    mutationKey: ["signOut"],
     mutationFn: () => handleLogOff(),
     onSuccess: (result) => {
       if (!result.ok) {

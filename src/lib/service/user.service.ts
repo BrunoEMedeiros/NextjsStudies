@@ -6,10 +6,19 @@ import { UserProfileType } from "../schemas/user-profile.schema";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { cookies } from "next/headers";
 import { UserType } from "../schemas/users.schema";
+import { RouteModule } from "next/dist/server/route-modules/route-module";
 
 export type ServiceResult<T> =
   | { ok: true; data: T }
   | { ok: false; status: number; code?: string; message: string };
+
+export type PaginatedUsersResponse = {
+  currentPage: number;
+  usersCount: number;
+  totalPages: number;
+  hasMore: boolean;
+  data: UserType[];
+};
 
 export const handleCreateUser = async (
   user: CreateAccountSchema
@@ -111,14 +120,6 @@ export const handleLogOff = async (): Promise<ServiceResult<void>> => {
   }
 };
 
-export type PaginatedUsersResponse = {
-  currentPage: number;
-  usersCount: number;
-  totalPages: number;
-  hasMore: boolean;
-  data: UserType[];
-};
-
 export const fetchUsers = async (
   name?: string,
   email?: string,
@@ -152,3 +153,68 @@ export const fetchUsers = async (
     throw error;
   }
 };
+
+export const alterUserRole = async (
+  role: UserRole,
+  id: string
+): Promise<ServiceResult<void>> => {
+  try {
+    if (role == UserRole.REGULAR) {
+      const { data } = await apiFetch("/accounts/unpromote", {
+        method: "PATCH",
+        body: JSON.stringify({ id }),
+      });
+
+      return { ok: true, data };
+    }
+
+    if (role == UserRole.MAINTAINER) {
+      const { data } = await apiFetch("/accounts/promote/maintener", {
+        method: "PATCH",
+        body: JSON.stringify({ id }),
+      });
+
+      return { ok: true, data };
+    }
+
+    const { data } = await apiFetch("/accounts/promote/admin", {
+      method: "PATCH",
+      body: JSON.stringify({ id }),
+    });
+
+    return { ok: true, data };
+  } catch (err) {
+    if (isApiError(err)) {
+      return {
+        ok: false,
+        status: err.status,
+        message: err.data.message,
+        code: err.data.code,
+      };
+    }
+    return { ok: false, status: 500, message: "Unexpected error" };
+  }
+};
+
+export async function handleInactivateUser(
+  id: string
+): Promise<ServiceResult<void>> {
+  try {
+    const { data } = await apiFetch(`/accounts/inactivate`, {
+      method: "DELETE",
+      body: JSON.stringify({ id }),
+    });
+
+    return { ok: true, data };
+  } catch (err) {
+    if (isApiError(err)) {
+      return {
+        ok: false,
+        status: err.status,
+        message: err.data.message,
+        code: err.data.code,
+      };
+    }
+    return { ok: false, status: 500, message: "Unexpected error" };
+  }
+}

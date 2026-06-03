@@ -28,25 +28,30 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-import useUsersListHook, { UserFilters } from "./useUsersListHook";
+import useUsersListHook, { UserFilters } from "./useUsersTableHook";
 import { UserType } from "@/src/lib/schemas/users.schema";
 import { FaEdit } from "react-icons/fa";
 import DeleteDialog from "../DeleteDialog/DeleteDialog";
 import { PromoteUserModal } from "../PromoteUserModal/PromoteUserModal";
+import { UserRole } from "@/src/lib/schemas/user-register.schema";
+import UsersItems from "../UsersItems/UsersItems";
 
-const ROLE_LABELS: Record<string, string> = {
+export const ROLE_LABELS: Record<string, string> = {
   regular: "Padrão",
   maintainer: "Mantenedor",
   administrative: "Administrador",
 };
 
-const ROLE_VARIANTS: Record<string, "default" | "secondary" | "outline"> = {
+export const ROLE_VARIANTS: Record<
+  string,
+  "default" | "secondary" | "outline"
+> = {
   administrative: "default",
   maintainer: "secondary",
   regular: "outline",
 };
 
-const STATUS_LABELS: Record<number, string> = {
+export const STATUS_LABELS: Record<number, string> = {
   1: "Ativo",
   0: "Inativo",
 };
@@ -61,6 +66,7 @@ export default function UsersTable() {
     filters,
     applyFilters,
     resetFilters,
+    onSubmit,
   } = useUsersListHook();
 
   const [draft, setDraft] = useState<UserFilters>({});
@@ -81,14 +87,14 @@ export default function UsersTable() {
       <div className="flex flex-wrap gap-2 items-end">
         <Input
           placeholder="Nome"
-          className="w-40 py-5 bg-night outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-blue-500"
+          className="w-60 py-5 bg-night outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-blue-500"
           value={draft.name ?? ""}
           onChange={(e) => setDraft((p) => ({ ...p, name: e.target.value }))}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         />
         <Input
           placeholder="E-mail"
-          className="w-40 py-5 bg-night outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-blue-500"
+          className="w-60 py-5 bg-night outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-blue-500"
           value={draft.email ?? ""}
           onChange={(e) => setDraft((p) => ({ ...p, email: e.target.value }))}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -179,14 +185,14 @@ export default function UsersTable() {
                 Editar
               </TableHead>
               <TableHead className="text-base text-earth-yellow p-6">
-                Inativar
+                Inativar | Ativar
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isUsersLoading && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-10">
+                <TableCell colSpan={8} className="text-center py-10">
                   <Loader2 className="w-5 h-5 animate-spin mx-auto text-muted-foreground" />
                 </TableCell>
               </TableRow>
@@ -194,7 +200,7 @@ export default function UsersTable() {
             {isUsersError && (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={8}
                   className="text-center py-10 text-destructive"
                 >
                   <div className="flex items-center justify-center gap-2">
@@ -207,7 +213,7 @@ export default function UsersTable() {
             {!isUsersLoading && !isUsersError && users?.data?.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={8}
                   className="text-center py-10 text-muted-foreground"
                 >
                   Nenhum usuário encontrado.
@@ -216,45 +222,11 @@ export default function UsersTable() {
             )}
             {!isUsersLoading &&
               users?.data?.map((user: UserType) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium p-6">{user.name}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {user.dharmaName ?? "—"}
-                  </TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.phone}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={ROLE_VARIANTS[user.role] ?? "outline"}
-                      className="text-white p-4"
-                    >
-                      {ROLE_LABELS[user.role] ?? user.role}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={user.status === 1 ? "default" : "secondary"}
-                      className="text-white p-4"
-                    >
-                      {STATUS_LABELS[user.status] ?? user.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <PromoteUserModal />
-                  </TableCell>
-                  <TableCell>
-                    <DeleteDialog
-                      style="flex justify-center items-center rounded-md px-2 py-4 w-16 h-4 bg-danger cursor-pointer hover:opacity-80 transition-opacity disabled:cursor-not-allowed"
-                      buttonStyle="bg-danger hover:bg-danger"
-                      iconColor="#f2f3f4"
-                      id={1}
-                      label="Inativar o usuario: "
-                      itemName={""}
-                      text="Esta atividade será inativada dentro do sistemas, serão desfeitos os agendamentos dos usuários ja feitos e novos agendamentos não poderão ser feitos"
-                      deleteFunction={() => {}}
-                    />
-                  </TableCell>
-                </TableRow>
+                <UsersItems
+                  key={user.id}
+                  user={user}
+                  inactivateFunction={onSubmit}
+                />
               ))}
           </TableBody>
         </Table>
