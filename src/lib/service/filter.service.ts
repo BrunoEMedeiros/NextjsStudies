@@ -26,6 +26,7 @@ export async function handleCreateNewFilter(
   descricao: string
 ): Promise<ServiceResult<FilterType>> {
   try {
+    console.log(descricao);
     const { data } = await apiFetch<FilterType>("/filters", {
       method: "POST",
       body: JSON.stringify({ descricao }),

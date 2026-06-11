@@ -101,6 +101,7 @@ export function useFiltersHook() {
 
   const onSubmit = async (data: NewFilterType) => {
     await createNewFilter.mutateAsync(data.descricao);
+    return;
   };
 
   return {
