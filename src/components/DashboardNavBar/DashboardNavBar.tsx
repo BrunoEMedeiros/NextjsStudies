@@ -45,6 +45,7 @@ export default function DashBoardNavBar() {
       </div>
       <NavBarItems
         items={[
+          { label: "Agendamentos", href: "/dashboard/schedules" },
           { label: "Atividades", href: "/dashboard/activities" },
           { label: "Membros", href: "/dashboard/members" },
           { label: "Relatórios", href: "/dashboard/reports" },

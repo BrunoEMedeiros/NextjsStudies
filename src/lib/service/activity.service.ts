@@ -221,3 +221,24 @@ export const handleActivateActivity = async (id: number) => {
     return { ok: false, status: 500, message: "Erro inesperado" };
   }
 };
+
+export type CalendarActivity = {
+  id: number;
+  title: string;
+  type: "event" | "course" | "ceremony";
+  card_image_url: string;
+  start: string;
+  end: string;
+};
+
+export const fetchActivitiesForCalendar = async (): Promise<
+  CalendarActivity[]
+> => {
+  try {
+    const { data } = await apiFetch<CalendarActivity[]>("/activity/calendar");
+    return data;
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    throw error;
+  }
+};
