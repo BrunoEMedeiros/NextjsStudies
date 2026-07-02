@@ -242,3 +242,17 @@ export const fetchActivitiesForCalendar = async (): Promise<
     throw error;
   }
 };
+
+export const fetchActivitiesForCalendarRange = async (
+  start: Date,
+  end: Date
+): Promise<CalendarActivity[]> => {
+  try {
+    const { data } = await apiFetch<CalendarActivity[]>(
+      `/activity/calendar/range?start=${start.toISOString()}&end=${end.toISOString()}`
+    );
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};

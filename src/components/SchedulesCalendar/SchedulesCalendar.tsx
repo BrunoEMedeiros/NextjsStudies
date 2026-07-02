@@ -8,9 +8,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import "@/src/styles/calendar.css";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Badge } from "@/src/components/ui/badge";
-import useSchedulesCalendarHook, {
-  CalendarEvent,
-} from "./useSchedulesCalendarHook";
+import useScheduleCalendar, { CalendarEvent } from "./useSchedulesCalendar";
 
 const localizer = dateFnsLocalizer({
   format,
@@ -50,11 +48,11 @@ function EventDetailDialog({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       onClick={onClose}
     >
       <div
-        className="bg-midnight-black rounded-xl shadow-xl p-6 w-80 space-y-4"
+        className="bg-night rounded-xl shadow-xl p-6 w-80 space-y-4"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-2">
@@ -110,7 +108,17 @@ function CalendarLegend() {
 }
 
 export default function ScheduleCalendar() {
-  const { events, isLoading, isError } = useSchedulesCalendarHook();
+  const {
+    events,
+    view,
+    date,
+    onView,
+    onNavigate,
+    onDrillDown,
+    onRangeChange,
+    isLoading,
+    isError,
+  } = useScheduleCalendar();
   const [selected, setSelected] = useState<CalendarEvent | null>(null);
 
   if (isLoading)
@@ -128,15 +136,22 @@ export default function ScheduleCalendar() {
     );
 
   return (
-    <div className="flex flex-col gap-6">
+    <div>
+      <CalendarLegend />
       <div style={{ height: 680 }}>
         <Calendar
           localizer={localizer}
           events={events}
-          defaultView={Views.MONTH}
           views={[Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA]}
           messages={messages}
           culture="pt-BR"
+          view={view as any}
+          date={date}
+          onView={onView}
+          onNavigate={onNavigate}
+          selectable
+          onSelectSlot={({ start }) => onDrillDown(start)}
+          onRangeChange={onRangeChange}
           onSelectEvent={(e) => setSelected(e as CalendarEvent)}
           eventPropGetter={(e) => {
             const ev = e as CalendarEvent;
@@ -157,9 +172,6 @@ export default function ScheduleCalendar() {
       {selected && (
         <EventDetailDialog event={selected} onClose={() => setSelected(null)} />
       )}
-      <div className="flex justify-center">
-        <CalendarLegend />
-      </div>
     </div>
   );
 }

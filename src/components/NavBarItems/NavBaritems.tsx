@@ -9,34 +9,32 @@ type ListItemsProps = {
 
 interface NavBarItemsProps {
   items: ListItemsProps[];
+  onItemClick?: () => void;
 }
 
-export default function NavBarItems({ items }: NavBarItemsProps) {
+export default function NavBarItems({ items, onItemClick }: NavBarItemsProps) {
   return (
-    <ul className="flex-1 flex flex-col justify-around">
-      {items.map((item) => {
-        // If the item has an href, render it as a Next.js Link
-        if (item.href) {
-          return (
-            <Link key={item.label} href={item.href}>
-              <li className="flex py-5 px-4 justify-center items-center hover:bg-earth-yellow hover:text-rich-black text-base text-light-coral font-light hover:cursor-pointer">
-                <p>{item.label}</p>
-              </li>
-            </Link>
-          );
-        }
-
-        // If the item has NO href (like our "Sair" option), render it as a clickable action
-        return (
+    <ul className="flex-1 flex flex-col">
+      {items.map((item) =>
+        item.href ? (
+          <Link key={item.label} href={item.href} onClick={onItemClick}>
+            <li className="flex py-5 px-4 justify-center items-center hover:bg-earth-yellow hover:text-rich-black text-base text-light-coral font-light hover:cursor-pointer">
+              <p>{item.label}</p>
+            </li>
+          </Link>
+        ) : (
           <li
             key={item.label}
-            onClick={item.onClick}
+            onClick={(e) => {
+              item.onClick?.(e);
+              onItemClick?.();
+            }}
             className="flex py-5 px-4 justify-center items-center hover:bg-earth-yellow hover:text-rich-black text-base text-light-coral font-light hover:cursor-pointer"
           >
             <p>{item.label}</p>
           </li>
-        );
-      })}
+        )
+      )}
     </ul>
   );
 }
