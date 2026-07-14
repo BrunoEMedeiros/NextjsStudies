@@ -21,19 +21,35 @@ export type CalendarEvent = {
   start: Date;
   end: Date;
   color: string;
+  occurrenceDate: string;
+  occurrenceTime: string;
 };
 
 export type CalendarRange = { start: Date; end: Date } | null;
 
+const pad = (n: number) => String(n).padStart(2, "0");
+
 function toEvents(data: CalendarActivity[]): CalendarEvent[] {
-  return data.map((a) => ({
-    id: a.id,
-    title: a.title,
-    type: a.type,
-    start: new Date(a.start),
-    end: new Date(a.end),
-    color: TYPE_COLOR[a.type] ?? "#888",
-  }));
+  return data.map((a) => {
+    const start = new Date(a.start);
+    const occurrenceDate = new Date(
+      Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate())
+    ).toISOString();
+    const occurrenceTime = `${pad(start.getUTCHours())}:${pad(
+      start.getUTCMinutes()
+    )}:${pad(start.getUTCSeconds())}`;
+
+    return {
+      id: a.id,
+      title: a.title,
+      type: a.type,
+      start,
+      end: new Date(a.end),
+      color: TYPE_COLOR[a.type] ?? "#888",
+      occurrenceDate,
+      occurrenceTime,
+    };
+  });
 }
 
 export default function useScheduleCalendar() {
