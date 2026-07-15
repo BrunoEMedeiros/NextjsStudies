@@ -67,7 +67,7 @@ export default function UsersReport() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
       <Card className="bg-rich-black ring-grey-400/40">
         <CardContent className="space-y-4">
           <h2 className="text-lg font-semibold text-white">

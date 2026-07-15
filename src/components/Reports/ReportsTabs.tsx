@@ -14,7 +14,7 @@ import DashboardReport from "./DashboardReport/DashboardReport";
 export default function ReportsTabs() {
   return (
     <Tabs defaultValue="users" className="w-full">
-      <TabsList>
+      <TabsList className="sticky top-0 z-10 bg-background">
         <TabsTrigger value="users">Usuários</TabsTrigger>
         <TabsTrigger value="activities">Atividades</TabsTrigger>
         <TabsTrigger value="schedules">Agendamentos</TabsTrigger>

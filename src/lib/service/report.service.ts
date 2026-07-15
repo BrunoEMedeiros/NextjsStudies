@@ -90,6 +90,10 @@ export type DashboardReport = {
   activeUsersCount: number;
   activityTypeBreakdown: { type: ActivityType; count: number }[];
   activitiesPerMonth: { month: string; count: number }[];
+  schedulesPerMonth: { month: string; count: number }[];
+  expectedRevenuePerMonth: { month: string; revenue: number }[];
+  schedulesByActivityType: { type: ActivityType; count: number }[];
+  schedulesByFilter: { filterId: number; descricao: string; count: number }[];
 };
 
 export const fetchSchedulesByUserReport = async (

@@ -41,6 +41,9 @@ export default function NewActivityForm({
 
   return (
     <div>
+      <div className="flex justify-center mb-5">
+        <p className="font-thin text-white">Nova atividade</p>
+      </div>
       <form
         onSubmit={handleSubmit(onSubmit, (validationErrors) =>
           console.log("Zod Blocked Submit. Errors:", validationErrors)
@@ -162,7 +165,10 @@ export default function NewActivityForm({
               ariaLabel="rotating-lines-loading"
             />
           ) : (
-            <FaSave className="text-lg" />
+            <div className="flex gap-5">
+              <p className="text-sm">Criar atividade</p>
+              <FaSave className="text-lg" />
+            </div>
           )}
         </button>
       </form>
