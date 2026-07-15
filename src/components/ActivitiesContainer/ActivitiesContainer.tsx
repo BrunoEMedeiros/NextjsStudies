@@ -25,6 +25,7 @@ export type ActivityCardProps = {
   filters: FilterType[];
   onDelete: (id: number) => Promise<void>;
   onActivate: (id: number) => Promise<void>;
+  onPermanentDelete: (id: number) => Promise<void>;
 };
 
 type ActivityContainerProps = {
@@ -43,6 +44,7 @@ export default function ActivityContainer({ onEdit }: ActivityContainerProps) {
     setCurrentPage,
     onDelete,
     onActivate,
+    onPermanentDelete,
   } = useActivityContainer();
 
   const pagination = activities.data;
@@ -138,6 +140,7 @@ export default function ActivityContainer({ onEdit }: ActivityContainerProps) {
               onDelete={onDelete}
               onEdit={onEdit}
               onActivate={onActivate}
+              onPermanentDelete={onPermanentDelete}
             />
           ))}
         </div>

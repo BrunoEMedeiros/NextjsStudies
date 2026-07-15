@@ -163,6 +163,26 @@ export const handleDeleteActivity = async (id: number) => {
   }
 };
 
+export const handlePermanentlyDeleteActivity = async (id: number) => {
+  try {
+    const { data } = await apiFetch(`/activity/${id}/permanent`, {
+      method: "DELETE",
+    });
+
+    return { ok: true, data };
+  } catch (err) {
+    if (isApiError(err)) {
+      return {
+        ok: false,
+        status: err.status,
+        message: err.data.message,
+        code: err.data.code,
+      };
+    }
+    return { ok: false, status: 500, message: "Unexpected error" };
+  }
+};
+
 export const fetchActivityById = async (
   id: number
 ): Promise<ActivityDetails> => {

@@ -3,6 +3,7 @@ import {
   fetchAllActivities,
   handleActivateActivity,
   handleDeleteActivity,
+  handlePermanentlyDeleteActivity,
   PaginatedActivitiesResponse,
 } from "@/src/lib/service/activity.service";
 import { fetchAllFilters, FilterType } from "@/src/lib/service/filter.service";
@@ -88,6 +89,19 @@ export default function useActivityContainer() {
     },
   });
 
+  const permanentlyDeleteActivity = useMutation({
+    mutationKey: ["permanentlyDeleteActivity"],
+    mutationFn: (id: number) => handlePermanentlyDeleteActivity(id),
+    onSuccess: (result) => {
+      if (!result.ok) {
+        toast.error("Erro ao excluir atividade");
+        return;
+      }
+      toast.success("Atividade excluida com sucesso");
+      queryClient.invalidateQueries({ queryKey: ["activities"] });
+    },
+  });
+
   useEffect(() => {
     if (filters.data) {
       setFilterOptions(
@@ -116,6 +130,10 @@ export default function useActivityContainer() {
     await activateActivity.mutateAsync(id);
   };
 
+  const onPermanentDelete = async (id: number) => {
+    await permanentlyDeleteActivity.mutateAsync(id);
+  };
+
   return {
     filterOptions,
     activityTypeOptions: ACTIVITY_TYPE_OPTIONS,
@@ -127,5 +145,6 @@ export default function useActivityContainer() {
     setCurrentPage,
     onDelete,
     onActivate,
+    onPermanentDelete,
   };
 }

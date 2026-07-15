@@ -3,7 +3,7 @@ import Image from "next/image";
 import DateLabel, { ActivityAvaliableDates } from "../DateLabel/DateLabel";
 import CustomSwitch from "../CustomSwitch/CustomSwitch";
 import ActivityTypeBadge from "../ActivityTypeBadge/ActivityTypeBadge";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
 import DeleteDialog from "../DeleteDialog/DeleteDialog";
 import { ActivityCardProps } from "../ActivitiesContainer/ActivitiesContainer";
 import {
@@ -11,7 +11,6 @@ import {
   fetchActivityById,
 } from "@/src/lib/service/activity.service";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
 
 const ActivityCard = ({
   id,
@@ -23,13 +22,8 @@ const ActivityCard = ({
   onDelete,
   onEdit,
   onActivate,
+  onPermanentDelete,
 }: ActivityCardProps & { onEdit: (activity: ActivityDetails) => void }) => {
-  const [active, setActive] = useState<boolean>(status === 1);
-
-  useEffect(() => {
-    setActive(status === 1);
-  }, [status]);
-
   const handleEditClick = async () => {
     try {
       const activity = await fetchActivityById(id);
@@ -40,16 +34,15 @@ const ActivityCard = ({
     }
   };
 
-  const handleToggleActive = async (value: React.SetStateAction<boolean>) => {
-    const nextValue = typeof value === "function" ? value(active) : value;
-    if (!active && nextValue) {
-      try {
+  const handleToggleActive = async (nextValue: boolean) => {
+    try {
+      if (nextValue) {
         await onActivate(id);
-      } catch {
-        setActive(false);
+      } else {
+        await onDelete(id);
       }
-    } else {
-      setActive(nextValue);
+    } catch {
+      // Erro já tratado via toast na mutation.
     }
   };
 
@@ -70,9 +63,14 @@ const ActivityCard = ({
         <ActivityTypeBadge label={type} />
         <CustomSwitch
           lableClassName="text-base"
-          label="Ativo"
+          label={status == 1 ? "Ativo" : "Inativo"}
           active={status == 1 ? true : false}
           setActive={handleToggleActive}
+          confirmOnDeactivate={{
+            label: "Excluir a atividade: ",
+            itemName: title,
+            text: "Esta atividade será inativada dentro do sistemas, serão desfeitos os agendamentos dos usuários ja feitos e novos agendamentos não poderão ser feitos",
+          }}
         />
       </div>
       <DateLabel avaliable_activities={Dates} />
@@ -91,8 +89,8 @@ const ActivityCard = ({
           id={id}
           label="Excluir a atividade: "
           itemName={title}
-          text="Esta atividade será inativada dentro do sistemas, serão desfeitos os agendamentos dos usuários ja feitos e novos agendamentos não poderão ser feitos"
-          deleteFunction={onDelete}
+          text="Se a atividade não possuir agendamentos, ela será excluída permanentemente do sistema. Caso já possua agendamentos, ela será inativada: os agendamentos dos usuários já feitos serão desfeitos e novos agendamentos não poderão ser feitos"
+          deleteFunction={onPermanentDelete}
         />
       </div>
     </div>
