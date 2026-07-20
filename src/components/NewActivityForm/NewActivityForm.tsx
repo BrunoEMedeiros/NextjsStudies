@@ -71,6 +71,26 @@ export default function NewActivityForm({
             {...register("social_media_url")}
           />
 
+          <FormTextField
+            label="Link da atividade"
+            placeholder="https://..."
+            labelClassName="text-base text-earth-yellow font-bold"
+            type="text"
+            className="w-full"
+            error={errors.activity_link}
+            {...register("activity_link")}
+          />
+
+          <FormTextField
+            label="Informação do link"
+            placeholder="Ex: Inscrição, transmissão, etc."
+            labelClassName="text-base text-earth-yellow font-bold"
+            type="text"
+            className="w-full"
+            error={errors.activity_link_info}
+            {...register("activity_link_info")}
+          />
+
           <div className="flex w-full gap-4 items-end">
             <div className="flex-1 flex flex-col gap-2">
               <FormTextField

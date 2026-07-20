@@ -69,6 +69,14 @@ export const createActivitySchema = z.object({
     .optional(),
   publicity_image_url: z.url("Insira uma URL valida").optional(),
   social_media_url: z.url("Insira uma URL valida").optional(),
+  activity_link: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.url("Insira uma URL valida").optional()
+  ),
+  activity_link_info: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.string().trim().optional()
+  ),
   color_caption: z
     .string()
     .trim()
