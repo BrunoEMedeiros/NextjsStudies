@@ -11,6 +11,7 @@ export type OccurrenceAttendee = {
   foodRestriction?: string;
   observation?: string;
   hasPaymentReceipt: boolean;
+  paymentReceiptUrl?: string;
 };
 
 export type OccurrenceAttendees = {

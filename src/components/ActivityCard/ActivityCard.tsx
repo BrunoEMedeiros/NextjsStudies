@@ -1,4 +1,5 @@
 "use client";
+import { memo } from "react";
 import Image from "next/image";
 import DateLabel, { ActivityAvaliableDates } from "../DateLabel/DateLabel";
 import CustomSwitch from "../CustomSwitch/CustomSwitch";
@@ -97,4 +98,4 @@ const ActivityCard = ({
   );
 };
 
-export default ActivityCard;
+export default memo(ActivityCard);

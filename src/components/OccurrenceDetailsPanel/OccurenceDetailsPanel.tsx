@@ -11,12 +11,14 @@ import {
   Loader2,
   AlertCircle,
   MousePointerClick,
+  ExternalLink,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Badge } from "@/src/components/ui/badge";
 import { Separator } from "@/src/components/ui/separator";
+import { Button } from "@/src/components/ui/button";
 import useOccurrenceAttendees from "./useOccurenceAtendees";
 import { CalendarEvent } from "../SchedulesCalendar/useSchedulesCalendar";
 
@@ -170,6 +172,23 @@ export default function OccurrenceDetailsPanel({
                         </span>
                       )}
                     </div>
+                    {data?.paymentRequired && a.paymentReceiptUrl && (
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="xs"
+                        className="self-start mt-1"
+                      >
+                        <a
+                          href={a.paymentReceiptUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink />
+                          Ver comprovante
+                        </a>
+                      </Button>
+                    )}
                   </div>
                 ))
               )}

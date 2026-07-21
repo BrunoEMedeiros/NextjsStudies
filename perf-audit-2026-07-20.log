@@ -1,0 +1,55 @@
+Performance audit — applied changes
+Date: 2026-07-20
+
+1. Deduplicated /filters requests
+   Files: src/components/ActivitiesContainer/useActivityContainer.ts
+          src/components/Reports/ActivitiesReport/useActivitiesReport.ts
+   Change: queryKey for fetchAllFilters() unified to ["filters"] in both hooks
+           (previously ["filters_search"] and ["reports", "filter-options"]),
+           matching src/components/FIlterContainer/useFilterHook.ts. React Query
+           now dedupes/caches the three call sites instead of firing 2-3 identical
+           GET /filters requests per Activities page load.
+
+2. Memoized activity list handlers + ActivityCard
+   Files: src/components/ActivitiesContainer/useActivityContainer.ts
+          src/components/ActivityCard/ActivityCard.tsx
+   Change: onDelete/onActivate/onPermanentDelete wrapped in useCallback
+           (deps: the respective useMutation object). ActivityCard wrapped in
+           React.memo. Prevents every rendered activity card from re-rendering
+           on unrelated parent state changes (pagination, filters query settling).
+
+3. Memoized user list handler + UsersItems
+   Files: src/components/UsersTable/useUsersTableHook.ts
+          src/components/UsersItems/UsersItems.tsx
+   Change: onSubmit (inactivateUser) wrapped in useCallback (dep: inactivateUser
+           mutation object). UsersItems wrapped in React.memo. Same rationale as #2.
+
+4. Replaced useState+useEffect derivation with useMemo
+   File: src/components/ActivitiesContainer/useActivityContainer.ts
+   Change: filterOptions is now derived directly from filters.data via useMemo
+           instead of being synced into local state inside a useEffect, removing
+           an extra render pass every time the filters query settles.
+
+5. Memoized DashboardReport chart data
+   File: src/components/Reports/DashboardReport/DashboardReport.tsx
+   Change: activitiesPerMonth, schedulesPerMonth, expectedRevenuePerMonth, and
+           schedulesByFilter (each a .map() over query data) wrapped in useMemo,
+           keyed on the corresponding data slice, so they're no longer recomputed
+           on every render.
+
+Verification:
+- npx eslint on all touched files: 0 errors (2 pre-existing warnings unrelated
+  to these changes, confirmed via git stash).
+- useCallback dependencies use the full mutation object (not mutation.mutateAsync)
+  per the project's Next.js 16 / eslint-config-next react-hooks
+  (preserve-manual-memoization / exhaustive-deps) rules.
+
+Not changed (flagged only, no fix applied):
+- useSchedulesReport.ts fetches the full unfiltered activity list under its own
+  query key for a dropdown, conceptually overlapping with the Activities page's
+  paginated/filtered fetch. Different params, so not a strict cache duplicate;
+  would need a dedicated lightweight endpoint to fully address.
+- Inline eventPropGetter in SchedulesCalendar.tsx and inline items array in
+  DashboardNavBar.tsx were left as-is — the components they feed aren't
+  memoized and re-render for legitimate reasons regardless, so useCallback/
+  useMemo there would add overhead without a measurable win.

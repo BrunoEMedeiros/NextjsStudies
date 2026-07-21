@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { AlertCircle, Loader2 } from "lucide-react";
 import {
   Bar,
@@ -73,6 +74,39 @@ const formatCurrency = (value: number) =>
 export default function DashboardReport() {
   const { data, isLoading, isError } = useDashboardReport();
 
+  const activitiesPerMonth = useMemo(
+    () =>
+      data?.activitiesPerMonth.map((m) => ({
+        ...m,
+        label: formatMonthShort(m.month),
+      })) ?? [],
+    [data?.activitiesPerMonth]
+  );
+  const schedulesPerMonth = useMemo(
+    () =>
+      data?.schedulesPerMonth.map((m) => ({
+        ...m,
+        label: formatMonthShort(m.month),
+      })) ?? [],
+    [data?.schedulesPerMonth]
+  );
+  const expectedRevenuePerMonth = useMemo(
+    () =>
+      data?.expectedRevenuePerMonth.map((m) => ({
+        ...m,
+        label: formatMonthShort(m.month),
+      })) ?? [],
+    [data?.expectedRevenuePerMonth]
+  );
+  const schedulesByFilter = useMemo(
+    () =>
+      data?.schedulesByFilter.map((f) => ({
+        ...f,
+        label: f.descricao,
+      })) ?? [],
+    [data?.schedulesByFilter]
+  );
+
   if (isLoading) {
     return <Loader2 className="w-5 h-5 animate-spin text-earth-yellow" />;
   }
@@ -87,23 +121,6 @@ export default function DashboardReport() {
   }
 
   if (!data) return null;
-
-  const activitiesPerMonth = data.activitiesPerMonth.map((m) => ({
-    ...m,
-    label: formatMonthShort(m.month),
-  }));
-  const schedulesPerMonth = data.schedulesPerMonth.map((m) => ({
-    ...m,
-    label: formatMonthShort(m.month),
-  }));
-  const expectedRevenuePerMonth = data.expectedRevenuePerMonth.map((m) => ({
-    ...m,
-    label: formatMonthShort(m.month),
-  }));
-  const schedulesByFilter = data.schedulesByFilter.map((f) => ({
-    ...f,
-    label: f.descricao,
-  }));
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">

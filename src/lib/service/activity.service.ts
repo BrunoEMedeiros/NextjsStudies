@@ -43,6 +43,8 @@ export type ActivityDetails = {
   status: number;
   card_image_url: string;
   social_media_url?: string;
+  activity_link?: string;
+  activity_link_info?: string;
   payment_required: boolean;
   payment_sugestion?: number;
   Dates: { date: string; time: string }[];

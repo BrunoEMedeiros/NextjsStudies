@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { UserRole } from "@/src/lib/schemas/user-register.schema";
 import DeleteDialog from "../DeleteDialog/DeleteDialog";
 import { PromoteUserModal } from "../PromoteUserModal/PromoteUserModal";
@@ -61,4 +62,4 @@ const UsersItems = ({ user, inactivateFunction }: UsersItemsProps) => {
   );
 };
 
-export default UsersItems;
+export default memo(UsersItems);

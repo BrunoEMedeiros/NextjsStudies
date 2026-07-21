@@ -8,7 +8,7 @@ import {
 } from "@/src/lib/service/activity.service";
 import { fetchAllFilters, FilterType } from "@/src/lib/service/filter.service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 // import { ActivityCardProps } from "../ActivitiesList/ActivitiesList";
 import { ActivityTypeSelectOptionProps } from "../ActivityTypeSelectOption/ActivityTypeSelectOption";
 import { useForm } from "react-hook-form";
@@ -32,9 +32,6 @@ export const ACTIVITY_TYPE_OPTIONS = [
 export default function useActivityContainer() {
   const queryClient = useQueryClient();
 
-  const [filterOptions, setFilterOptions] = useState<
-    ActivityTypeSelectOptionProps[]
-  >([]);
   const [appliedParams, setAppliedParams] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -49,7 +46,7 @@ export default function useActivityContainer() {
   });
 
   const filters = useQuery<FilterType[]>({
-    queryKey: ["filters_search"],
+    queryKey: ["filters"],
     queryFn: () => fetchAllFilters(),
     staleTime: 1000 * 60 * 5,
     refetchOnReconnect: false,
@@ -102,17 +99,15 @@ export default function useActivityContainer() {
     },
   });
 
-  useEffect(() => {
-    if (filters.data) {
-      setFilterOptions(
-        filters.data.map((filter) => ({
-          label: filter.descricao,
-          key: filter.descricao,
-          value: filter.id.toString(),
-        }))
-      );
-    }
-  }, [filters.data]);
+  const filterOptions = useMemo<ActivityTypeSelectOptionProps[]>(
+    () =>
+      filters.data?.map((filter) => ({
+        label: filter.descricao,
+        key: filter.descricao,
+        value: filter.id.toString(),
+      })) ?? [],
+    [filters.data]
+  );
 
   const onSearch = (data: ActivityFilterForm) => {
     const params = Object.fromEntries(
@@ -122,17 +117,26 @@ export default function useActivityContainer() {
     setCurrentPage(1);
   };
 
-  const onDelete = async (id: number) => {
-    await deleteActivity.mutateAsync(id);
-  };
+  const onDelete = useCallback(
+    async (id: number) => {
+      await deleteActivity.mutateAsync(id);
+    },
+    [deleteActivity]
+  );
 
-  const onActivate = async (id: number) => {
-    await activateActivity.mutateAsync(id);
-  };
+  const onActivate = useCallback(
+    async (id: number) => {
+      await activateActivity.mutateAsync(id);
+    },
+    [activateActivity]
+  );
 
-  const onPermanentDelete = async (id: number) => {
-    await permanentlyDeleteActivity.mutateAsync(id);
-  };
+  const onPermanentDelete = useCallback(
+    async (id: number) => {
+      await permanentlyDeleteActivity.mutateAsync(id);
+    },
+    [permanentlyDeleteActivity]
+  );
 
   return {
     filterOptions,

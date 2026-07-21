@@ -4,7 +4,7 @@ import {
   PaginatedUsersResponse,
 } from "@/src/lib/service/user.service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 export type UserFilters = {
@@ -60,9 +60,12 @@ export default function useUsersListHook() {
     setCurrentPage(1);
   };
 
-  const onSubmit = async (id: string) => {
-    await inactivateUser.mutateAsync(id);
-  };
+  const onSubmit = useCallback(
+    async (id: string) => {
+      await inactivateUser.mutateAsync(id);
+    },
+    [inactivateUser]
+  );
 
   return {
     users: users.data,

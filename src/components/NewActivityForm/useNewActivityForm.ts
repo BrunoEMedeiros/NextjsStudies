@@ -104,6 +104,8 @@ export function useNewActivityForm({
       title: editingActivity.title,
       description: editingActivity.description,
       social_media_url: editingActivity.social_media_url,
+      activity_link: editingActivity.activity_link,
+      activity_link_info: editingActivity.activity_link_info,
       payment_sugestion: editingActivity.payment_sugestion,
       type: editingActivity.type,
     });
@@ -184,7 +186,18 @@ export function useNewActivityForm({
         payload = { ...payload, social_media_url: data.social_media_url };
       }
 
-      if (data.payment_required != editingActivity.payment_required) {
+      if (data.activity_link != editingActivity.activity_link) {
+        payload = { ...payload, activity_link: data.activity_link };
+      }
+
+      if (data.activity_link_info != editingActivity.activity_link_info) {
+        payload = {
+          ...payload,
+          activity_link_info: data.activity_link_info,
+        };
+      }
+
+      if (paymentRequired != editingActivity.payment_required) {
         payload = {
           ...payload,
           payment_required: paymentRequired,

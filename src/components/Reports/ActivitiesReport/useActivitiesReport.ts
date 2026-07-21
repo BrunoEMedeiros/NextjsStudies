@@ -24,7 +24,7 @@ export default function useActivitiesReport() {
   const [generated, setGenerated] = useState(false);
 
   const filterOptions = useQuery({
-    queryKey: ["reports", "filter-options"],
+    queryKey: ["filters"],
     queryFn: () => fetchAllFilters(),
     staleTime: 1000 * 60 * 5,
   });
