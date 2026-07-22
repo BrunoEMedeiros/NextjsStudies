@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, ExternalLink, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
@@ -141,12 +141,15 @@ export default function SchedulesReport() {
                     Telefone
                   </TableHead>
                   <TableHead className="text-earth-yellow">Datas</TableHead>
+                  <TableHead className="text-earth-yellow">
+                    Comprovante
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading && (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8">
+                    <TableCell colSpan={6} className="text-center py-8">
                       <Loader2 className="w-5 h-5 animate-spin mx-auto text-earth-yellow" />
                     </TableCell>
                   </TableRow>
@@ -154,7 +157,7 @@ export default function SchedulesReport() {
                 {isError && (
                   <TableRow>
                     <TableCell
-                      colSpan={5}
+                      colSpan={6}
                       className="text-center py-8 text-destructive"
                     >
                       <div className="flex items-center justify-center gap-2">
@@ -167,7 +170,7 @@ export default function SchedulesReport() {
                 {!isLoading && !isError && schedules?.length === 0 && (
                   <TableRow>
                     <TableCell
-                      colSpan={5}
+                      colSpan={6}
                       className="text-center py-8 text-muted-foreground"
                     >
                       Nenhum agendamento encontrado.
@@ -191,6 +194,20 @@ export default function SchedulesReport() {
                             ).toLocaleDateString("pt-BR")} ${slot.availableTime}`
                         )
                         .join(", ")}
+                    </TableCell>
+                    <TableCell>
+                      {s.paymentReceiptUrl && (
+                        <Button asChild variant="outline" size="xs">
+                          <a
+                            href={s.paymentReceiptUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <ExternalLink />
+                            Ver comprovante
+                          </a>
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

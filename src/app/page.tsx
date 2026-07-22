@@ -7,7 +7,7 @@ export default async function Root() {
   const isLoged = cookieStore.get("refreshToken")?.value;
 
   if (isLoged) {
-    redirect("/dashboard/activities");
+    redirect("/dashboard/schedules");
   }
   redirect("/signin");
 }

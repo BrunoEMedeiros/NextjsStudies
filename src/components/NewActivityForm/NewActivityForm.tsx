@@ -5,7 +5,7 @@ import { useNewActivityForm } from "./useNewActivityForm";
 import FormTextArea from "../FormTextArea/FormTextArea";
 import CustomSwitch from "../CustomSwitch/CustomSwitch";
 import DateTimeActivityCalendar from "../DateTimeActivityCalendar/DateTimeActivityCalendar";
-import { FaSave } from "react-icons/fa";
+import { FaSave, FaEdit } from "react-icons/fa";
 import DateTimeSchedule from "../DateTimeScheduleContainer/DateTimeScheduleContainer";
 import ActivityTypeSelectOption from "../ActivityTypeSelectOption/ActivityTypeSelectOption";
 import FilterContainer from "../FIlterContainer/FilterContainer";
@@ -40,9 +40,11 @@ export default function NewActivityForm({
   } = useNewActivityForm({ editingActivity, onEditComplete });
 
   return (
-    <div>
+    <div className="border rounded-md border-gray-700 p-4">
       <div className="flex justify-center mb-5">
-        <p className="font-thin text-white">Nova atividade</p>
+        <p className="font-thin text-earth-yellow">
+          {editingActivity ? "Editar" : "Nova"} atividade
+        </p>
       </div>
       <form
         onSubmit={handleSubmit(onSubmit, (validationErrors) =>
@@ -69,26 +71,6 @@ export default function NewActivityForm({
             className="w-full"
             error={errors.social_media_url}
             {...register("social_media_url")}
-          />
-
-          <FormTextField
-            label="Link da atividade"
-            placeholder="https://..."
-            labelClassName="text-base text-earth-yellow font-bold"
-            type="text"
-            className="w-full"
-            error={errors.activity_link}
-            {...register("activity_link")}
-          />
-
-          <FormTextField
-            label="Informação do link"
-            placeholder="Ex: Inscrição, transmissão, etc."
-            labelClassName="text-base text-earth-yellow font-bold"
-            type="text"
-            className="w-full"
-            error={errors.activity_link_info}
-            {...register("activity_link_info")}
           />
 
           <div className="flex w-full gap-4 items-end">
@@ -145,7 +127,30 @@ export default function NewActivityForm({
           />
         </div>
 
-        <DateTimeActivityCalendar />
+        <div className="flex flex-col justify-center items-center">
+          <div className="w-full mb-5 flex gap-3 flex-col">
+            <FormTextField
+              label="Link da atividade"
+              placeholder="https://..."
+              labelClassName="text-base text-earth-yellow font-bold"
+              type="text"
+              className="w-full"
+              error={errors.activity_link}
+              {...register("activity_link")}
+            />
+
+            <FormTextField
+              label="Informação do link"
+              placeholder="Ex: Inscrição, transmissão, etc."
+              labelClassName="text-base text-earth-yellow font-bold"
+              type="text"
+              className="w-full"
+              error={errors.activity_link_info}
+              {...register("activity_link_info")}
+            />
+          </div>
+          <DateTimeActivityCalendar />
+        </div>
         <DateTimeSchedule />
         <FilterContainer />
 
@@ -171,7 +176,11 @@ export default function NewActivityForm({
           type="submit"
           disabled={isSubmitting}
           className={`${
-            isSubmitting ? "bg-gray-600" : "bg-blue-500"
+            isSubmitting
+              ? "bg-gray-600"
+              : editingActivity
+              ? "bg-yellow-500"
+              : "bg-blue-500"
           } text-white p-4 w-1/4 rounded-md col-span-2 mt-4 max-h-14 mx-auto flex items-center justify-center`}
         >
           {isSubmitting ? (
@@ -184,6 +193,11 @@ export default function NewActivityForm({
               animationDuration="0.75"
               ariaLabel="rotating-lines-loading"
             />
+          ) : editingActivity ? (
+            <div className="flex gap-5">
+              <p className="text-sm">Editar</p>
+              <FaEdit className="text-lg" />
+            </div>
           ) : (
             <div className="flex gap-5">
               <p className="text-sm">Criar atividade</p>

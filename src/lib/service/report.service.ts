@@ -68,6 +68,7 @@ export type ScheduleReportItem = {
   modality: string;
   personNumber: number;
   foodRestriction?: string;
+  paymentReceiptUrl?: string;
   activity: { id: number; title: string; type: ActivityType };
   member: {
     id: string;
