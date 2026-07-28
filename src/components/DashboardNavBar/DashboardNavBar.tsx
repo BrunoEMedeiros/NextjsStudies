@@ -51,6 +51,7 @@ export default function DashBoardNavBar() {
           { label: "Agendamentos", href: "/dashboard/schedules" },
           { label: "Atividades", href: "/dashboard/activities" },
           { label: "Membros", href: "/dashboard/members" },
+          { label: "Postagens", href: "/dashboard/posts" },
           { label: "Relatórios", href: "/dashboard/reports" },
           { label: "Sair", onClick: handleSignOut },
         ]}
