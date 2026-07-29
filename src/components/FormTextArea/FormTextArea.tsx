@@ -11,6 +11,7 @@ export interface TextFieldProps
   className?: string;
   labelClassName?: string;
   inputClassName?: string;
+  rows?: number;
 }
 
 export default function FormTextArea({
@@ -21,6 +22,7 @@ export default function FormTextArea({
   className = "",
   labelClassName = "",
   inputClassName = "",
+  rows = 17,
   ...props
 }: TextFieldProps) {
   const inputId = `field-${label.replace(/\s+/g, "-").toLowerCase()}`;
@@ -49,7 +51,7 @@ export default function FormTextArea({
         <textarea
           id={inputId}
           placeholder={placeholder}
-          rows={10}
+          rows={rows}
           className={`
             w-full min-w-6 px-2 py-3 outline-none bg-transparent
             placeholder:text-gray-500 text-base

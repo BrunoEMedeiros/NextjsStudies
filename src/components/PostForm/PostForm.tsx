@@ -63,6 +63,7 @@ export default function PostForm({ editingPost, trigger }: PostFormProps) {
             label="Texto"
             placeholder="Conteúdo da postagem"
             labelClassName="text-base text-earth-yellow font-bold"
+            rows={10}
             error={errors.text}
             {...register("text")}
           />
