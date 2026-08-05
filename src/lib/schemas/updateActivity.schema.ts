@@ -19,28 +19,37 @@ export const updateActivitySchema = z.object({
   description: z
     .string()
     .min(10, "Descrição muito curta, minimo de 10 caracteres")
-    .max(500, "Description too long (max 225 chars)")
+    .max(500, "Descrição deve ter no maximo 500 caracteres")
     .trim()
     .toLowerCase()
     .optional(),
   card_image_url: z
     .any()
-    .refine((file) => !!file, "A imagem é obrigatória.")
     .refine(
-      (file) => typeof window !== "undefined" && file instanceof File,
+      (file) =>
+        file === undefined ||
+        (typeof window !== "undefined" && file instanceof File),
       "O arquivo selecionado é inválido."
     )
     .refine(
-      (file) => file?.size <= MAX_FILE_SIZE,
+      (file) => file === undefined || file?.size <= MAX_FILE_SIZE,
       "A imagem deve ter no máximo 5MB."
     )
     .refine(
-      (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
+      (file) => file === undefined || ACCEPTED_IMAGE_TYPES.includes(file?.type),
       "Formato inválido. Use JPEG, PNG ou WEBP."
     )
     .optional(),
   publicity_image_url: z.url("Insira uma URL valida").optional(),
   social_media_url: z.url("Insira uma URL valida").optional(),
+  activity_link: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.url("Insira uma URL valida").optional()
+  ),
+  activity_link_info: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.string().trim().optional()
+  ),
   color_caption: z
     .string()
     .trim()

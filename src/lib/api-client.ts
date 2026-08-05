@@ -8,13 +8,6 @@ export const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
 const AUTH_ROUTES = ["/accounts/sessions/signin", "/accounts/sessions/signup"];
 
-export class AuthExpiredError extends Error {
-  constructor() {
-    super("SESSION_EXPIRED");
-    this.name = "AuthExpiredError";
-  }
-}
-
 async function applySetCookies(
   setCookieHeaders: string[],
   cookieStore: Awaited<ReturnType<typeof cookies>>
@@ -41,10 +34,50 @@ async function applySetCookies(
   }
 }
 
+type RefreshResult =
+  | { ok: true; newAuthToken: string; setCookies: string[] }
+  | { ok: false };
+
+// The backend rotates+invalidates the refresh token on use, so concurrent
+// requests racing on the same stale refresh token must share a single
+// in-flight refresh instead of each calling /refresh independently.
+const inFlightRefreshes = new Map<string, Promise<RefreshResult>>();
+
+function refreshSession(refreshToken: string): Promise<RefreshResult> {
+  const existing = inFlightRefreshes.get(refreshToken);
+  if (existing) return existing;
+
+  const promise = (async (): Promise<RefreshResult> => {
+    const refreshResponse = await fetch(
+      `${BASE_URL}/accounts/sessions/refresh`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `refreshToken=${refreshToken}`,
+        },
+      }
+    );
+
+    if (!refreshResponse.ok) {
+      return { ok: false };
+    }
+
+    const setCookies = refreshResponse.headers.getSetCookie();
+    const parsed = setCookieParser.parse(setCookies, { decodeValues: false });
+    const newAuthToken = parsed.find((c) => c.name === "authToken")?.value || "";
+    return { ok: true, newAuthToken, setCookies };
+  })();
+
+  inFlightRefreshes.set(refreshToken, promise);
+  promise.finally(() => inFlightRefreshes.delete(refreshToken));
+
+  return promise;
+}
+
 export async function apiFetch<T = any>(
   endpoint: string,
-  options: RequestInit = {},
-  _isRetry = false
+  options: RequestInit = {}
 ): Promise<{ data: T; headers: Record<string, string> }> {
   const url = endpoint.startsWith("http") ? endpoint : `${BASE_URL}${endpoint}`;
   const cookieStore = await cookies();
@@ -70,7 +103,6 @@ export async function apiFetch<T = any>(
 
   if (
     response.status === 401 &&
-    !_isRetry &&
     !url.includes("/refresh") &&
     !AUTH_ROUTES.some((route) => url.includes(route))
   ) {
@@ -80,24 +112,11 @@ export async function apiFetch<T = any>(
       redirect("/signin");
     }
 
-    const refreshResponse = await fetch(
-      `${BASE_URL}/accounts/sessions/refresh`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: `refreshToken=${refreshToken}`,
-        },
-      }
-    );
+    const result = await refreshSession(refreshToken);
 
-    if (refreshResponse.ok) {
-      const newCookies = refreshResponse.headers.getSetCookie();
-      await applySetCookies(newCookies, cookieStore);
-      const parsed = setCookieParser.parse(newCookies, { decodeValues: false });
-      const newAuthToken =
-        parsed.find((c) => c.name === "authToken")?.value || "";
-      response = await fetch(url, buildOptions(newAuthToken));
+    if (result.ok) {
+      await applySetCookies(result.setCookies, cookieStore);
+      response = await fetch(url, buildOptions(result.newAuthToken));
     } else {
       cookieStore.delete("authToken");
       cookieStore.delete("refreshToken");

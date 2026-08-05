@@ -70,7 +70,7 @@ export default function PostForm({ editingPost, trigger }: PostFormProps) {
           <FormTextField
             label="Imagem"
             type="file"
-            accept=".png,.jpg,.jpeg,.pdf"
+            accept="image/png,image/jpeg,image/webp"
             placeholder=""
             labelClassName="text-base text-earth-yellow font-bold"
             inputClassName="file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:bg-earth-yellow file:text-rich-black hover:file:opacity-90 cursor-pointer"

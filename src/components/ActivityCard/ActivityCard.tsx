@@ -12,6 +12,7 @@ import {
   fetchActivityById,
 } from "@/src/lib/service/activity.service";
 import { toast } from "sonner";
+import { Badge } from "../ui/badge";
 
 const ActivityCard = ({
   id,
@@ -20,6 +21,7 @@ const ActivityCard = ({
   status,
   card_image_url,
   Dates,
+  filters,
   onDelete,
   onEdit,
   onActivate,
@@ -75,6 +77,15 @@ const ActivityCard = ({
         />
       </div>
       <DateLabel avaliable_activities={Dates} />
+      {filters.length > 0 && (
+        <div className="w-full flex flex-wrap justify-center gap-1">
+          {filters.map((f) => (
+            <Badge key={f.id} variant="outline" className="text-xs font-light">
+              {f.descricao}
+            </Badge>
+          ))}
+        </div>
+      )}
       <div className="flex gap-4">
         <button
           type="button"

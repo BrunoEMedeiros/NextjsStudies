@@ -31,7 +31,7 @@ export function FilterChip({
   onUpdate,
   isAnyMutating,
 }: FilterChipProps) {
-  const [editMode, setEditMode] = useState<boolean>(true);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const dispatch = useDispatch();
   const filterItems = useSelector((state: RootState) => state.filter.filters);
@@ -55,19 +55,19 @@ export function FilterChip({
 
   const enterEditMode = () => {
     if (isAnyMutating) return;
-    setEditMode(false);
+    setIsEditing(true);
     setTimeout(() => setFocus("descricao"), 0);
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
     if (e.currentTarget.contains(e.relatedTarget as Node)) return; // focus stayed inside
-    setEditMode(true);
+    setIsEditing(false);
     reset({ descricao });
   };
 
   const handleSave = handleSubmit(async (data) => {
     await onUpdate({ id, descricao: data.descricao });
-    setEditMode(true);
+    setIsEditing(false);
   });
 
   const handleSelectFilter = () => {
@@ -111,10 +111,10 @@ export function FilterChip({
         >
           <FormTextField
             placeholder={descricao}
-            disabled={editMode || isFrozen}
+            disabled={!isEditing || isFrozen}
             containerClassName="border-none"
             autoResize
-            className={editMode ? "pointer-events-none select-none" : ""}
+            className={!isEditing ? "pointer-events-none select-none" : ""}
             {...register("descricao")}
           />
           <div className="ml-4 flex items-center gap-1">
@@ -127,7 +127,7 @@ export function FilterChip({
                 animationDuration="0.75"
                 ariaLabel="saving"
               />
-            ) : editMode ? (
+            ) : !isEditing ? (
               <button
                 type="button"
                 onClick={(e) => {

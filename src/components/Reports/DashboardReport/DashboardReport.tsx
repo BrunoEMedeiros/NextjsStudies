@@ -28,12 +28,7 @@ import {
 import { ROLE_LABELS } from "@/src/components/UsersTable/UsersTable";
 import ExportButtons from "../ExportButtons";
 import useDashboardReport from "./useDashboardReport";
-
-const TYPE_LABELS: Record<string, string> = {
-  event: "Evento",
-  course: "Curso",
-  ceremony: "Cerimônia",
-};
+import { ACTIVITY_TYPE_LABELS as TYPE_LABELS } from "@/src/lib/activityType";
 
 const COLOR_PRIMARY = "#dbad6c";
 const COLOR_SECONDARY = "#f58987";
@@ -56,14 +51,18 @@ const tooltipStyle = {
 
 const axisProps = { stroke: "#808080", fontSize: 12 };
 
+// timeZone: "UTC" avoids shifting a UTC-midnight date back a day/month for
+// viewers in negative-offset timezones (e.g. Brazil, UTC-3).
 const formatMonthShort = (iso: string) =>
   new Date(iso).toLocaleDateString("pt-BR", {
+    timeZone: "UTC",
     month: "short",
     year: "2-digit",
   });
 
 const formatMonthFull = (iso: string) =>
   new Date(iso).toLocaleDateString("pt-BR", {
+    timeZone: "UTC",
     month: "long",
     year: "numeric",
   });

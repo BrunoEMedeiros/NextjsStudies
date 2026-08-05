@@ -10,15 +10,10 @@ export type ServiceResult<T> =
   | { ok: false; status: number; code?: string; message: string };
 
 export const fetchAllPosts = async (): Promise<PostType[]> => {
-  try {
-    const { data } = await apiFetch<PostType[]>("/post/all", {
-      method: "GET",
-    });
-    return data;
-  } catch (error) {
-    if (isRedirectError(error)) throw error;
-    throw error;
-  }
+  const { data } = await apiFetch<PostType[]>("/post/all", {
+    method: "GET",
+  });
+  return data;
 };
 
 const buildPostFormData = (payload: Record<string, unknown>): FormData => {
@@ -58,7 +53,7 @@ export const handleCreatePost = async (
       };
     }
 
-    return { ok: false, status: 500, message: "Erro inesperado" };
+    return { ok: false, status: 500, message: "Erro inesperado. Tente novamente." };
   }
 };
 
@@ -88,7 +83,7 @@ export const handleUpdatePost = async (
       };
     }
 
-    return { ok: false, status: 500, message: "Erro inesperado" };
+    return { ok: false, status: 500, message: "Erro inesperado. Tente novamente." };
   }
 };
 
@@ -113,6 +108,6 @@ export const handleDeletePost = async (
       };
     }
 
-    return { ok: false, status: 500, message: "Erro inesperado" };
+    return { ok: false, status: 500, message: "Erro inesperado. Tente novamente." };
   }
 };

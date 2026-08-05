@@ -23,12 +23,7 @@ import {
 } from "@/src/components/ui/table";
 import ExportButtons from "../ExportButtons";
 import useActivitiesReport from "./useActivitiesReport";
-
-const TYPE_LABELS: Record<string, string> = {
-  event: "Evento",
-  course: "Curso",
-  ceremony: "Cerimônia",
-};
+import { ACTIVITY_TYPE_LABELS as TYPE_LABELS } from "@/src/lib/activityType";
 
 export default function ActivitiesReport() {
   const {

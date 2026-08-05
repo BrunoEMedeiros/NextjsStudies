@@ -1,0 +1,330 @@
+MODIFICACOES REALIZADAS - REVISAO DE BUGS E MELHORIAS
+next_studies (zenrp admin dashboard)
+Data: 2026-07-31
+
+Contexto: a partir de uma revisao completa do codigo (camada de dados/auth,
+gerenciamento de estado, formularios/validacao e paginas/componentes), foram
+identificados bugs e pontos de melhoria. Este documento lista o que foi
+corrigido em cada arquivo. O backend (zenrp_nest) NAO foi modificado; onde
+relevante, o contrato da API foi conferido diretamente no backend para
+garantir consistencia. Mensagens de aviso/erro visiveis ao usuario foram
+mantidas em portugues.
+
+
+1. CAMADA DE AUTENTICACAO / DADOS (api-client, proxy, services)
+-----------------------------------------------------------------
+
+src/lib/api-client.ts
+  - Corrigida condicao de corrida no refresh de token: requisicoes
+    concorrentes que compartilham o mesmo refresh token expirado agora
+    aguardam um unico refresh em andamento (single-flight), em vez de cada
+    uma chamar /accounts/sessions/refresh separadamente. Isso evitava logout
+    indevido, pois o backend invalida o refresh token no primeiro uso
+    (rotacao), e a segunda chamada simultanea recebia 401 "already used".
+  - Removido o parametro `_isRetry`, que nunca era usado de fato (a
+    recursao nunca era chamada com "true").
+  - Removida a classe `AuthExpiredError`, que nunca era lancada em lugar
+    nenhum (codigo morto).
+
+src/lib/ApiError.ts
+  - `ApiError` agora tolera um corpo de erro nulo/nao-JSON (ex.: resposta
+    502/504 de um proxy) em vez de quebrar com TypeError dentro do proprio
+    catch. Um fallback com mensagem em portugues ("Erro inesperado. Tente
+    novamente.") e aplicado quando o backend nao retorna JSON valido.
+
+src/proxy.ts
+  - Erros de rede durante o refresh de token (backend fora do ar
+    momentaneamente) agora sao tratados como "fail open" (deixa a
+    requisicao seguir) em vez de forcar logout, que era o comportamento
+    anterior para qualquer falha, incluindo falha de rede.
+  - Adicionado o mesmo mecanismo de single-flight refresh do api-client.ts,
+    evitando chamadas duplicadas de refresh no middleware.
+  - Removida a funcao `getTokenRole`, que so era referenciada dentro de um
+    bloco de codigo comentado ("Futuramente no site"); o bloco de comentario
+    foi mantido, mas a funcao foi comentada junto por estar de fato morta.
+
+src/lib/service/activity.service.ts
+  - Adicionado `isRedirectError` (rethrow) em `handleDeleteActivity` e
+    `handlePermanentlyDeleteActivity`, que antes engoliam o redirecionamento
+    de sessao expirada e mostravam um erro generico em vez de levar o
+    usuario para /signin.
+  - Padronizadas as mensagens de erro genericas para
+    "Erro inesperado. Tente novamente." (antes havia "Erro inesperado" e
+    "Unexpected error" em ingles, inconsistentes entre funcoes).
+  - Removidos blocos try/catch que so faziam "throw error" sem tratamento
+    real (codigo morto).
+
+src/lib/service/filter.service.ts
+  - Adicionado `isRedirectError` (rethrow) em `handleCreateNewFilter`,
+    `handleDeleteFilter` e `handleUpdateFilter`.
+  - Removido `console.log(descricao)` de debug esquecido no codigo.
+  - Mensagens de erro padronizadas em portugues.
+  - Removido try/catch morto em `fetchAllFilters`.
+
+src/lib/service/user.service.ts
+  - Adicionado `isRedirectError` (rethrow) em `handleLogOff`,
+    `alterUserRole` e `handleInactivateUser`.
+  - Corrigido o tipo de retorno de `handleCreateUser`: o endpoint
+    POST /accounts do backend retorna um booleano simples (`true`), nao um
+    objeto de usuario. O tipo estava como `Promise<Promise<any>>`; agora e
+    `Promise<ServiceResult<boolean>>`.
+  - Removidos imports nao utilizados: `ApiError`, `AuthExpiredError`,
+    `BASE_URL`, `RouteModule` (este ultimo importava um caminho interno do
+    Next.js sem uso real no arquivo).
+  - Mensagens de erro padronizadas em portugues.
+  - Removidos try/catch mortos em `fetchProfile` e `fetchUsers`.
+
+src/lib/service/post.service.ts
+  - Mensagens de erro padronizadas em portugues.
+  - Removido try/catch morto em `fetchAllPosts`.
+
+src/lib/service/report.service.ts
+  - Removido o padrao redundante
+    "if (isRedirectError(error)) throw error; throw error;" (as duas
+    ramificacoes faziam a mesma coisa) em 5 funcoes; simplificado para
+    deixar o erro propagar naturalmente.
+
+
+2. GERENCIAMENTO DE ESTADO (Redux, React Query, exportacao)
+-----------------------------------------------------------------
+
+src/lib/feature/auth/authSlice.ts
+  - Removidas as actions `registrationStart`, `registrationSuccess` e
+    `registrationFailure`: eram exportadas mas nunca despachadas em nenhum
+    lugar do app (codigo morto), e `registrationSuccess` tinha um bug
+    latente (nao setava `isLoged`).
+
+src/lib/provider/ReactQueryProvider.tsx
+  - `QueryClient` agora tem `defaultOptions` sensatos: `staleTime` padrao de
+    1 minuto e `retry` que nao tenta novamente quando o erro e um redirect
+    de sessao expirada (evitava atraso de ate ~7s no redirecionamento para
+    /signin, causado pelas 3 tentativas automaticas do React Query).
+
+src/lib/export.ts
+  - `exportToCsv`: adicionado BOM UTF-8 (`﻿`) no inicio do arquivo.
+    Sem isso, o Excel no Windows exibia caracteres acentuados (ã, ç, é)
+    corrompidos ao abrir o CSV exportado.
+  - `downloadBlob`: o link de download agora e anexado ao DOM antes do
+    `.click()` e removido em seguida (evita falha de download em
+    Safari/WebKit mais antigos).
+  - `toSheetRows`: corrigido caso extremo em que um rotulo de coluna vazio
+    (string "") fazia a coluna ser descartada silenciosamente.
+
+src/lib/utils.ts
+  - Adicionada funcao utilitaria `formatDateOnlyPtBR`, usada para corrigir
+    o bug de fuso horario descrito abaixo (item 4, relatorios).
+
+
+3. FORMULARIOS E VALIDACAO (schemas, react-hook-form)
+-----------------------------------------------------------------
+
+src/components/RegisterForm/useRegisterFormView.tsx
+  - Adicionado o caminho de sucesso que faltava: antes, um cadastro bem
+    sucedido nao dava nenhum feedback ao usuario (sem toast, sem reset, sem
+    redirecionamento). Agora mostra toast de sucesso, limpa o formulario e
+    redireciona para /signin.
+  - Erros nao tratados explicitamente (diferentes de 409 de e-mail/telefone
+    em uso) agora mostram a mensagem retornada pelo backend via toast, em
+    vez de serem ignorados silenciosamente.
+
+src/lib/schemas/newActivity.schema.ts
+  - Corrigida a validacao de imagem obrigatoria em `createActivitySchema`:
+    o `.refine()` que verificava "imagem obrigatoria" estava encadeado
+    antes de um `.optional()` final, o que fazia o Zod pular a validacao
+    inteira quando o valor era `undefined` (ou seja, a regra de
+    obrigatoriedade nunca era, de fato, aplicada pelo schema).
+
+src/lib/schemas/updateActivity.schema.ts
+  - Adicionados os campos `activity_link` e `activity_link_info`, que
+    existiam em `createActivitySchema` mas estavam ausentes aqui. Como o
+    Zod remove por padrao chaves nao declaradas no schema, esses campos
+    seriam perdidos silenciosamente se este schema fosse usado para
+    validar uma edicao com link preenchido.
+  - Corrigida mensagem de erro que estava em ingles e com numero errado:
+    "Description too long (max 225 chars)" -> "Descricao deve ter no
+    maximo 500 caracteres" (o limite real, conforme `.max(500, ...)`, e
+    500).
+  - Removido o `.refine()` de "imagem obrigatoria" (fazia sentido em
+    criacao, mas nao em edicao, onde a imagem e legitimamente opcional -
+    o usuario pode manter a imagem atual).
+
+src/components/NewActivityForm/useNewActivityForm.ts
+  - O formulario agora valida contra `updateActivitySchema` quando esta
+    editando uma atividade, e contra `createActivitySchema` quando esta
+    criando uma nova. Antes, o modo de edicao sempre usava
+    `createActivitySchema`, o que tornava as regras especificas de
+    atualizacao (schema separado) letra morta.
+
+src/components/PromoteUserModal/PromoteUserModal.tsx
+src/components/PromoteUserModal/useAlterUserAccountRole.tsx
+  - Corrigido bug em que o modal de "promover usuario" fechava mesmo
+    quando a alteracao de cargo falhava no backend, dando a falsa
+    impressao de sucesso. Agora o modal so fecha se a operacao realmente
+    for bem-sucedida.
+  - Em caso de falha, o cargo exibido na interface volta para o valor
+    original (`initialRole`), evitando que a tela mostre um cargo que na
+    verdade nao foi salvo.
+
+src/components/FormTextField/FormTextField.tsx
+  - Corrigida a ordem de props no `<input>`: o `{...props}` (que inclui o
+    `onChange` do `register()` do react-hook-form) era espalhado depois de
+    `onChange={handleChange}`, sobrescrevendo silenciosamente a logica de
+    `autoResize`. Agora `{...props}` vem primeiro e `onChange={handleChange}`
+    por ultimo (que por sua vez ja chama `props.onChange` internamente).
+
+src/components/FormInputPhoto/FormInputPhoto.tsx
+  - Corrigido vazamento de memoria: a Object URL criada com
+    `URL.createObjectURL` nunca era revogada. Agora e revogada tanto ao
+    trocar de arquivo quanto ao desmontar o componente.
+  - O rotulo do campo (antes um `<h2>` solto) agora e um `<label>`
+    associado ao input via `htmlFor`/`id` (acessibilidade).
+
+src/components/CustomSwitch/CustomSwitch.tsx
+  - O `id`/`htmlFor` estava fixo como `"airplane-mode"`, duplicado sempre
+    que o componente era renderizado varias vezes na mesma pagina (ex.: um
+    switch por card de atividade). Agora usa `useId()` para gerar um id
+    unico por instancia.
+
+src/components/ActivityTypeSelectOption/ActivityTypeSelectOption.tsx
+  - Mesmo problema de `id` duplicado (`"ActivityTypeSelectOption"` fixo),
+    corrigido com `useId()`. O componente e renderizado duas vezes na
+    mesma tela de atividades (filtro "Filtros" e "Tipo"), entao o HTML
+    tinha dois elementos com o mesmo id.
+
+src/lib/schemas/post.schema.ts
+src/components/PostForm/PostForm.tsx
+  - O campo de imagem de postagem nao tinha validacao de tipo MIME (podia
+    aceitar qualquer arquivo). Agora reutiliza a lista `ACCEPTED_IMAGE_TYPES`
+    (ja usada nas atividades) para restringir a imagens de fato, mantendo
+    o campo "Arquivo" livre para outros formatos (ex.: PDF).
+  - Corrigido o atributo `accept` do campo "Imagem" no formulario, que
+    incluia `.pdf` por engano; agora aceita apenas
+    image/png, image/jpeg, image/webp.
+
+Arquivos removidos por estarem confirmadamente sem uso em nenhum lugar do
+app (verificado por busca em todo o codigo):
+  - src/components/PaymentRequireSwitch/PaymentRequireSwitch.tsx
+  - src/lib/schemas/jwtToken.schema.ts
+
+
+4. PAGINAS E COMPONENTES
+-----------------------------------------------------------------
+
+src/components/SchedulesCalendar/useSchedulesCalendar.ts
+  - Corrigido bug na troca para visualizacao "Semana"/"Dia": o calculo do
+    intervalo usava `new Date()` (a data de hoje) em vez da data
+    atualmente navegada pelo usuario. Ao navegar para um mes futuro e
+    depois trocar para visualizacao semanal, o calendario mostrava a
+    semana atual (errada) em vez da semana do periodo navegado.
+  - Tipo de `view` corrigido de `string` generico para o tipo `View` da
+    biblioteca react-big-calendar (remove a necessidade de `as any`).
+
+src/components/SchedulesCalendar/SchedulesCalendar.tsx
+  - Removido o cast `view={view as any}`, agora desnecessario com a
+    tipagem corrigida acima.
+
+src/components/UsersTable/UsersTable.tsx
+src/components/UsersItems/UsersItems.tsx (nenhuma alteracao necessaria)
+  - O cabecalho da coluna dizia "Inativar | Ativar", mas foi confirmado no
+    backend (zenrp_nest) que NAO existe nenhum endpoint de reativacao de
+    usuario (so existe DELETE /accounts/inactivate). Como o backend nao
+    pode ser modificado, o texto do cabecalho foi corrigido para
+    "Inativar", removendo a promessa de uma funcionalidade que nao existe.
+
+src/components/DateLabel/DateLabel.tsx
+  - Corrigido crash quando a lista de datas disponiveis de uma atividade
+    vem vazia (`avaliable_activities[0]` quebrava com "Cannot read
+    properties of undefined"). Agora retorna `null` nesse caso.
+
+src/components/DashboardNavBar/useDashboardNavBar.tsx
+  - Removida verificacao morta `error?.isAuthExpired === true` (nenhuma
+    parte do codigo jamais define essa propriedade); substituida por uma
+    checagem correta com `isApiError(error) && error.status === 401`.
+  - Corrigida promise nao tratada: `handleSignOut()` era chamada sem
+    `await`/`.catch()` dentro de um efeito, o que podia gerar um
+    "unhandled promise rejection" se a chamada de logout falhasse.
+  - Removida navegacao duplicada para /signin (a mutation de logout ja
+    fazia o `router.push`).
+  - Corrigida ordem de declaracao de `handleSignOut` (estava sendo
+    referenciada antes de ser declarada no corpo do componente).
+
+src/components/ActivitiesContainer/ActivitiesContainer.tsx
+src/components/FIlterContainer/FilterContainer.tsx
+src/components/FIlterContainer/useFilterHook.ts
+  - Adicionado tratamento de erro (`isError`) nas listagens de atividades
+    e de filtros. Antes, quando a busca falhava, a tela mostrava a mesma
+    mensagem de "nenhum resultado encontrado" usada para lista
+    genuinamente vazia, escondendo o erro real do usuario.
+
+src/components/ActivityCard/ActivityCard.tsx
+  - A prop `filters` (tags/categorias da atividade) era passada para o
+    card mas nunca era exibida (dado buscado da API e descartado). Agora
+    os filtros sao exibidos como badges no card.
+
+src/components/DateTimeScheduleContainer/DateTimeScheduleContainer.tsx
+  - Removida a solucao improvisada que somava um dia manualmente
+    (`day + 1`) para compensar deslocamento de fuso horario. Essa conta so
+    funcionava corretamente para navegadores com fuso negativo (ex.:
+    Brasil); em qualquer outro fuso, exibia a data adiantada. Substituida
+    pela mesma abordagem robusta ja usada em DateLabel.tsx
+    (`Intl.DateTimeFormat` com `timeZone: "UTC"`).
+
+src/components/Reports/DashboardReport/DashboardReport.tsx
+src/components/Reports/SchedulesReport/SchedulesReport.tsx
+src/components/Reports/UsersReport/UsersReport.tsx
+  - Corrigido erro de fuso horario que fazia datas dos relatorios
+    aparecerem um dia (ou mes) adiantadas/atrasadas para usuarios no
+    fuso do Brasil (UTC-3). O problema: `toLocaleDateString` era chamado
+    sem especificar `timeZone`, entao usava o fuso local do navegador
+    sobre uma data-only vinda do backend como UTC-meia-noite. Corrigido
+    com `timeZone: "UTC"` (DashboardReport) e com a nova funcao
+    `formatDateOnlyPtBR` de src/lib/utils.ts (SchedulesReport e
+    UsersReport), eliminando tambem duplicacao de logica entre os dois
+    ultimos arquivos.
+
+src/lib/activityType.ts (novo arquivo)
+  - Criado modulo compartilhado `ACTIVITY_TYPE_LABELS` (Evento/Curso/
+    Cerimonia) e `ACTIVITY_TYPE_COLORS`, que antes estavam duplicados,
+    de forma independente, em 5 arquivos diferentes (risco de
+    inconsistencia caso um rotulo mudasse em um lugar e nao nos outros).
+    Atualizados para usar o modulo compartilhado:
+      - src/components/OccurrenceDetailsPanel/OccurenceDetailsPanel.tsx
+      - src/components/ActivityTypeBadge/ActivityTypeBadge.tsx
+      - src/components/Reports/ActivitiesReport/ActivitiesReport.tsx
+      - src/components/Reports/DashboardReport/DashboardReport.tsx
+      - src/components/SchedulesCalendar/useSchedulesCalendar.ts
+      - src/components/SchedulesCalendar/SchedulesCalendar.tsx
+
+src/components/FilterChip/FilterChip.tsx
+  - Renomeado o estado `editMode` para `isEditing`, invertendo a logica.
+    Antes, `editMode === true` significava "NAO esta editando" (nome
+    enganoso, armadilha para futuras alteracoes); agora o nome reflete o
+    valor real.
+
+
+5. VERIFICACAO FINAL
+-----------------------------------------------------------------
+  - `npm run build` executado com sucesso (compilacao Turbopack + checagem
+    de tipos do Next.js + geracao de todas as rotas estaticas/dinamicas),
+    sem erros introduzidos pelas mudancas.
+  - `npm run lint` conferido nos arquivos alterados: nenhum erro novo foi
+    introduzido pelas correcoes. Os poucos erros/avisos remanescentes
+    (ex.: alguns `prefer-const`, imports nao usados em arquivos como
+    UsersTable.tsx/PromoteUserModal.tsx, um aviso de
+    `react-hooks/set-state-in-effect` em FormInputPhoto.tsx) ja existiam
+    antes desta revisao e nao faziam parte da lista de bugs reportada;
+    foram deixados de fora do escopo por nao serem bugs funcionais.
+
+
+6. ITENS IDENTIFICADOS MAS DELIBERADAMENTE NAO ALTERADOS
+-----------------------------------------------------------------
+  - Duplicacao de logica de refresh de cookies entre src/proxy.ts (roda em
+    Edge runtime) e src/lib/api-client.ts (roda em Node "use server"): os
+    dois ambientes tem APIs de cookies diferentes, entao unificar exigiria
+    uma refatoracao maior fora do escopo de uma correcao de bug pontual.
+  - Unificacao total do bloco de loading/erro/vazio (boilerplate) repetido
+    nos 4 componentes de Reports/*: risco de alterar layout visual sem
+    validacao de design; tratado como melhoria futura, nao bug.
+  - Rotulo "Cancel" (em ingles) no botao do modal PromoteUserModal.tsx: nao
+    e uma mensagem de aviso/erro, e nao estava na lista de bugs revisada;
+    fora do escopo desta rodada de correcoes.

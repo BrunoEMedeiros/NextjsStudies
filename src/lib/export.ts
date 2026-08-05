@@ -9,7 +9,7 @@ function toSheetRows<T extends object>(
     const mapped: Record<string, unknown> = {};
     for (const key of Object.keys(columns) as (keyof T)[]) {
       const label = columns[key];
-      if (label) mapped[label] = row[key];
+      if (label !== undefined) mapped[label] = row[key];
     }
     return mapped;
   });
@@ -20,7 +20,9 @@ function downloadBlob(blob: Blob, filename: string) {
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = filename;
+  document.body.appendChild(anchor);
   anchor.click();
+  anchor.remove();
   URL.revokeObjectURL(url);
 }
 
@@ -42,8 +44,10 @@ export function exportToCsv<T extends object>(
 ) {
   const sheet = XLSX.utils.json_to_sheet(toSheetRows(rows, columns));
   const csv = XLSX.utils.sheet_to_csv(sheet);
+  // Prefix a UTF-8 BOM so Excel (which ignores the charset in the MIME type
+  // and guesses from the raw bytes) doesn't mangle accented pt-BR text.
   downloadBlob(
-    new Blob([csv], { type: "text/csv;charset=utf-8;" }),
+    new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" }),
     `${filename}.csv`
   );
 }

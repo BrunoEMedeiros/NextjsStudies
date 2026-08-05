@@ -17,6 +17,7 @@ export default function FilterContainer() {
     errors,
     onDelete,
     isLoading,
+    isError,
     onUpdate,
     isUpdating,
   } = useFiltersHook();
@@ -68,7 +69,11 @@ export default function FilterContainer() {
           </Button>
         </div>
         <div className="flex flex-wrap gap-2">
-          {filters.length > 0 ? (
+          {isError ? (
+            <p className="font-light text-sm text-red-500">
+              Erro ao carregar filtros.
+            </p>
+          ) : filters.length > 0 ? (
             filters.map((item) => {
               return (
                 <FilterChip

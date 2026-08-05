@@ -10,6 +10,10 @@ import { Loader2, AlertCircle, CalendarDays } from "lucide-react";
 import { Card, CardContent } from "@/src/components/ui/card";
 import useScheduleCalendar, { CalendarEvent } from "./useSchedulesCalendar";
 import OccurrenceDetailsPanel from "../OccurrenceDetailsPanel/OccurenceDetailsPanel";
+import {
+  ACTIVITY_TYPE_COLORS,
+  ACTIVITY_TYPE_LABELS,
+} from "@/src/lib/activityType";
 
 const localizer = dateFnsLocalizer({
   format,
@@ -35,10 +39,14 @@ const messages = {
 };
 
 const TYPE_META: { key: string; label: string; color: string }[] = [
-  { key: "event", label: "Evento", color: "#DBAD6C" },
-  { key: "course", label: "Curso", color: "#6C9EDB" },
-  { key: "ceremony", label: "Cerimônia", color: "#6CDB8A" },
-];
+  "event",
+  "course",
+  "ceremony",
+].map((key) => ({
+  key,
+  label: ACTIVITY_TYPE_LABELS[key],
+  color: ACTIVITY_TYPE_COLORS[key],
+}));
 
 function CalendarLegend({
   activeTypes,
@@ -154,7 +162,7 @@ export default function ScheduleCalendar() {
                   views={[Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA]}
                   messages={messages}
                   culture="pt-BR"
-                  view={view as any}
+                  view={view}
                   date={date}
                   onView={onView}
                   onNavigate={onNavigate}

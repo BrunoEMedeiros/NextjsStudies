@@ -1,5 +1,6 @@
 import { Resolver, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import {
   CreateAccountSchema,
   createAccountSchema,
@@ -9,11 +10,14 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export function useRegisterViewModel() {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
+    reset,
   } = useForm<CreateAccountSchema>({
     resolver: zodResolver(
       createAccountSchema
@@ -43,13 +47,17 @@ export function useRegisterViewModel() {
             return;
           }
         }
-        if (result.status === 500) {
-          toast.error(
-            `Ocorreu um erro inesperado, por favor verifique sua conexão com a internet`
-          );
-          return;
-        }
+
+        toast.error(
+          result.message ||
+            "Ocorreu um erro inesperado, por favor verifique sua conexão com a internet"
+        );
+        return;
       }
+
+      toast.success("Conta criada com sucesso! Faça login para continuar.");
+      reset();
+      router.push("/signin");
     },
   });
 

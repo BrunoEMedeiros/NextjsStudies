@@ -1,7 +1,6 @@
 "use server";
 
 import { apiFetch } from "../api-client";
-import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { buildQueryParams } from "./activity.service";
 
 export type ActivityType = "event" | "course" | "ceremony";
@@ -100,72 +99,47 @@ export type DashboardReport = {
 export const fetchSchedulesByUserReport = async (
   userId: string
 ): Promise<ScheduleByUserReportItem[]> => {
-  try {
-    const { data } = await apiFetch<ScheduleByUserReportItem[]>(
-      `/reports/schedules-by-user?userId=${encodeURIComponent(userId)}`
-    );
-    return data;
-  } catch (error) {
-    if (isRedirectError(error)) throw error;
-    throw error;
-  }
+  const { data } = await apiFetch<ScheduleByUserReportItem[]>(
+    `/reports/schedules-by-user?userId=${encodeURIComponent(userId)}`
+  );
+  return data;
 };
 
 export const fetchUsersByRoleReport = async (
   role?: UserRoleFilter
 ): Promise<UserByRoleReportItem[]> => {
-  try {
-    const query = await buildQueryParams({ role });
-    const { data } = await apiFetch<UserByRoleReportItem[]>(
-      `/reports/users-by-role${query}`
-    );
-    return data;
-  } catch (error) {
-    if (isRedirectError(error)) throw error;
-    throw error;
-  }
+  const query = await buildQueryParams({ role });
+  const { data } = await apiFetch<UserByRoleReportItem[]>(
+    `/reports/users-by-role${query}`
+  );
+  return data;
 };
 
 export const fetchActivitiesReport = async (
   filters: ActivitiesReportFilters
 ): Promise<ActivityReportItem[]> => {
-  try {
-    const { filterIds, ...rest } = filters;
-    const query = await buildQueryParams({
-      ...rest,
-      filterIds: filterIds && filterIds.length > 0 ? filterIds.join(",") : undefined,
-    });
-    const { data } = await apiFetch<ActivityReportItem[]>(
-      `/reports/activities${query}`
-    );
-    return data;
-  } catch (error) {
-    if (isRedirectError(error)) throw error;
-    throw error;
-  }
+  const { filterIds, ...rest } = filters;
+  const query = await buildQueryParams({
+    ...rest,
+    filterIds: filterIds && filterIds.length > 0 ? filterIds.join(",") : undefined,
+  });
+  const { data } = await apiFetch<ActivityReportItem[]>(
+    `/reports/activities${query}`
+  );
+  return data;
 };
 
 export const fetchSchedulesReport = async (
   filters: SchedulesReportFilters
 ): Promise<ScheduleReportItem[]> => {
-  try {
-    const query = await buildQueryParams({ ...filters });
-    const { data } = await apiFetch<ScheduleReportItem[]>(
-      `/reports/schedules${query}`
-    );
-    return data;
-  } catch (error) {
-    if (isRedirectError(error)) throw error;
-    throw error;
-  }
+  const query = await buildQueryParams({ ...filters });
+  const { data } = await apiFetch<ScheduleReportItem[]>(
+    `/reports/schedules${query}`
+  );
+  return data;
 };
 
 export const fetchDashboardReport = async (): Promise<DashboardReport> => {
-  try {
-    const { data } = await apiFetch<DashboardReport>("/reports/dashboard");
-    return data;
-  } catch (error) {
-    if (isRedirectError(error)) throw error;
-    throw error;
-  }
+  const { data } = await apiFetch<DashboardReport>("/reports/dashboard");
+  return data;
 };

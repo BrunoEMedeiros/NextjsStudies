@@ -9,6 +9,8 @@ export type DateLabelProps = HTMLAttributes<Text> & {
 };
 
 const DateLabel = ({ avaliable_activities }: DateLabelProps) => {
+  if (avaliable_activities.length === 0) return null;
+
   const firstDate = avaliable_activities[0].date;
   const dateEquals = avaliable_activities.every(
     (item) => item.date === firstDate

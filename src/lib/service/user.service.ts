@@ -1,12 +1,11 @@
 "use server";
 import { CreateAccountSchema, UserRole } from "../schemas/user-register.schema";
-import { apiFetch, AuthExpiredError, BASE_URL } from "../api-client";
-import { ApiError, isApiError } from "../ApiError";
+import { apiFetch } from "../api-client";
+import { isApiError } from "../ApiError";
 import { UserProfileType } from "../schemas/user-profile.schema";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { cookies } from "next/headers";
 import { UserType } from "../schemas/users.schema";
-import { RouteModule } from "next/dist/server/route-modules/route-module";
 
 export type ServiceResult<T> =
   | { ok: true; data: T }
@@ -20,11 +19,12 @@ export type PaginatedUsersResponse = {
   data: UserType[];
 };
 
+// POST /accounts returns a bare boolean (`true`) on success, not a user object.
 export const handleCreateUser = async (
   user: CreateAccountSchema
-): Promise<Promise<any>> => {
+): Promise<ServiceResult<boolean>> => {
   try {
-    const { data } = await apiFetch("/accounts", {
+    const { data } = await apiFetch<boolean>("/accounts", {
       method: "POST",
       body: JSON.stringify({
         name: user.name,
@@ -49,7 +49,7 @@ export const handleCreateUser = async (
       };
     }
 
-    return { ok: false, status: 500, message: "Erro inesperado" };
+    return { ok: false, status: 500, message: "Erro inesperado. Tente novamente." };
   }
 };
 
@@ -77,20 +77,15 @@ export const handleLoginUser = async (
         message: error.data.message,
       };
     }
-    return { ok: false, status: 500, message: "Erro inesperado" };
+    return { ok: false, status: 500, message: "Erro inesperado. Tente novamente." };
   }
 };
 
 export const fetchProfile = async (): Promise<UserProfileType> => {
-  try {
-    const { data } = await apiFetch<UserProfileType>("/accounts/profile", {
-      method: "GET",
-    });
-    return data;
-  } catch (error) {
-    if (isRedirectError(error)) throw error;
-    throw error;
-  }
+  const { data } = await apiFetch<UserProfileType>("/accounts/profile", {
+    method: "GET",
+  });
+  return data;
 };
 
 export const handleLogOff = async (): Promise<ServiceResult<void>> => {
@@ -108,6 +103,8 @@ export const handleLogOff = async (): Promise<ServiceResult<void>> => {
 
     return { ok: true, data };
   } catch (err) {
+    if (isRedirectError(err)) throw err;
+
     if (isApiError(err)) {
       return {
         ok: false,
@@ -116,7 +113,7 @@ export const handleLogOff = async (): Promise<ServiceResult<void>> => {
         code: err.data.code,
       };
     }
-    return { ok: false, status: 500, message: "Unexpected error" };
+    return { ok: false, status: 500, message: "Erro inesperado. Tente novamente." };
   }
 };
 
@@ -149,7 +146,6 @@ export const fetchUsers = async (
     );
     return data;
   } catch (error) {
-    if (isRedirectError(error)) throw error;
     throw error;
   }
 };
@@ -184,6 +180,8 @@ export const alterUserRole = async (
 
     return { ok: true, data };
   } catch (err) {
+    if (isRedirectError(err)) throw err;
+
     if (isApiError(err)) {
       return {
         ok: false,
@@ -192,7 +190,7 @@ export const alterUserRole = async (
         code: err.data.code,
       };
     }
-    return { ok: false, status: 500, message: "Unexpected error" };
+    return { ok: false, status: 500, message: "Erro inesperado. Tente novamente." };
   }
 };
 
@@ -207,6 +205,8 @@ export async function handleInactivateUser(
 
     return { ok: true, data };
   } catch (err) {
+    if (isRedirectError(err)) throw err;
+
     if (isApiError(err)) {
       return {
         ok: false,
@@ -215,6 +215,6 @@ export async function handleInactivateUser(
         code: err.data.code,
       };
     }
-    return { ok: false, status: 500, message: "Unexpected error" };
+    return { ok: false, status: 500, message: "Erro inesperado. Tente novamente." };
   }
 }

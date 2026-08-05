@@ -1,18 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Views } from "react-big-calendar";
+import { Views, View } from "react-big-calendar";
 import {
   CalendarActivity,
   fetchActivitiesForCalendar,
   fetchActivitiesForCalendarRange,
 } from "@/src/lib/service/activity.service";
 import { startOfWeek, endOfWeek, startOfDay, endOfDay } from "date-fns";
-
-const TYPE_COLOR: Record<string, string> = {
-  event: "#DBAD6C",
-  course: "#6C9EDB",
-  ceremony: "#6CDB8A",
-};
+import { ACTIVITY_TYPE_COLORS as TYPE_COLOR } from "@/src/lib/activityType";
 
 export type CalendarEvent = {
   id: number;
@@ -53,8 +48,9 @@ function toEvents(data: CalendarActivity[]): CalendarEvent[] {
 }
 
 export default function useScheduleCalendar() {
-  const [view, setView] = useState<string>(Views.MONTH);
+  const [view, setView] = useState<View>(Views.MONTH);
   const [range, setRange] = useState<CalendarRange>(null);
+  const [date, setDate] = useState(new Date());
 
   const isRangeView = view === Views.WEEK || view === Views.DAY;
 
@@ -113,22 +109,20 @@ export default function useScheduleCalendar() {
     }
   };
 
-  const onView = (newView: string) => {
+  const onView = (newView: View) => {
     setView(newView);
     if (newView === Views.WEEK) {
-      const s = startOfWeek(new Date());
-      const e = endOfWeek(new Date());
+      const s = startOfWeek(date);
+      const e = endOfWeek(date);
       s.setUTCHours(0, 0, 0, 0);
       e.setUTCHours(23, 59, 59, 999);
       setRange({ start: s, end: e });
     } else if (newView === Views.DAY) {
-      setRange(toUTCRange(new Date()));
+      setRange(toUTCRange(date));
     } else {
       setRange(null);
     }
   };
-
-  const [date, setDate] = useState(new Date());
 
   const onNavigate = (newDate: Date) => setDate(newDate);
 

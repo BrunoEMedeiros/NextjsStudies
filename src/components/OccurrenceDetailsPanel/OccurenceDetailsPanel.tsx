@@ -21,12 +21,7 @@ import { Separator } from "@/src/components/ui/separator";
 import { Button } from "@/src/components/ui/button";
 import useOccurrenceAttendees from "./useOccurenceAtendees";
 import { CalendarEvent } from "../SchedulesCalendar/useSchedulesCalendar";
-
-const TYPE_LABEL: Record<string, string> = {
-  event: "Evento",
-  course: "Curso",
-  ceremony: "Cerimônia",
-};
+import { ACTIVITY_TYPE_LABELS } from "@/src/lib/activityType";
 
 function StatBlock({
   icon: Icon,
@@ -88,7 +83,7 @@ export default function OccurrenceDetailsPanel({
             className="shrink-0 text-xs"
             style={{ borderColor: event.color, color: event.color }}
           >
-            {TYPE_LABEL[event.type] ?? event.type}
+            {ACTIVITY_TYPE_LABELS[event.type] ?? event.type}
           </Badge>
         </div>
 

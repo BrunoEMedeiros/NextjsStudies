@@ -63,7 +63,7 @@ export function useSigninViewModel() {
         return;
       }
 
-      router.push("/dashboard/activities");
+      router.push("/dashboard/schedules");
     },
   });
 

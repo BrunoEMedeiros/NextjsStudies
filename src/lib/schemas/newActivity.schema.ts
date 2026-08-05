@@ -53,7 +53,7 @@ export const createActivitySchema = z.object({
     .optional(),
   card_image_url: z
     .any()
-    .refine((file) => !!file, "A imagem é obrigatória.") // Check if it exists
+    .refine((file) => !!file, "A imagem é obrigatória.")
     .refine(
       (file) => typeof window !== "undefined" && file instanceof File,
       "O arquivo selecionado é inválido."
@@ -65,8 +65,7 @@ export const createActivitySchema = z.object({
     .refine(
       (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
       "Formato inválido. Use JPEG, PNG ou WEBP."
-    )
-    .optional(),
+    ),
   publicity_image_url: z.url("Insira uma URL valida").optional(),
   social_media_url: z.url("Insira uma URL valida").optional(),
   activity_link: z.preprocess(

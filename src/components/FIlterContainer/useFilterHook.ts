@@ -30,7 +30,7 @@ export function useFiltersHook() {
     ) as unknown as Resolver<NewFilterType>,
   });
 
-  const { data, isLoading, error } = useQuery<FilterType[]>({
+  const { data, isLoading, isError } = useQuery<FilterType[]>({
     queryKey: ["filters"],
     queryFn: () => fetchAllFilters(),
     staleTime: 1000 * 60 * 5,
@@ -114,6 +114,7 @@ export function useFiltersHook() {
     onDelete,
     onUpdate,
     isLoading,
+    isError,
     isUpdating: updateFilter.isPending,
   };
 }

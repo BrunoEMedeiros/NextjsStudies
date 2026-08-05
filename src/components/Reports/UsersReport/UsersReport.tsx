@@ -23,6 +23,7 @@ import {
 import { ROLE_LABELS } from "@/src/components/UsersTable/UsersTable";
 import ExportButtons from "../ExportButtons";
 import useUsersReport from "./useUsersReport";
+import { formatDateOnlyPtBR } from "@/src/lib/utils";
 
 export default function UsersReport() {
   const {
@@ -57,9 +58,7 @@ export default function UsersReport() {
         datas: s.slots
           .map(
             (slot) =>
-              `${new Date(slot.availableData).toLocaleDateString(
-                "pt-BR"
-              )} ${slot.availableTime}`
+              `${formatDateOnlyPtBR(slot.availableData)} ${slot.availableTime}`
           )
           .join(", "),
       })),
@@ -191,9 +190,7 @@ export default function UsersReport() {
                         {s.slots
                           .map(
                             (slot) =>
-                              `${new Date(
-                                slot.availableData
-                              ).toLocaleDateString("pt-BR")} ${slot.availableTime}`
+                              `${formatDateOnlyPtBR(slot.availableData)} ${slot.availableTime}`
                           )
                           .join(", ")}
                       </TableCell>

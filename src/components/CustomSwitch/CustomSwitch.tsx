@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
 } from "@/src/components/ui/alert-dialog";
 import { Button } from "@/src/components/ui/button";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Loader2 } from "lucide-react";
 
 type ConfirmOnDeactivate = {
@@ -35,6 +35,7 @@ export default function CustomSwitch({
   lableClassName = "",
   confirmOnDeactivate,
 }: CustomSwitch) {
+  const switchId = useId();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -59,13 +60,13 @@ export default function CustomSwitch({
   return (
     <div className="flex items-center space-x-2 gap-1">
       <Label
-        htmlFor="airplane-mode"
+        htmlFor={switchId}
         className={`text-sm font-light text-earth-yellow ${lableClassName}`}
       >
         {label}
       </Label>
       <Switch
-        id="airplane-mode"
+        id={switchId}
         className="data-[state=checked]:bg-earth-yellow data-[state=unchecked]:bg-gray-400"
         checked={active}
         onCheckedChange={handleCheckedChange}

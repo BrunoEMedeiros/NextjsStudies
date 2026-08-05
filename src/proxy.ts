@@ -16,38 +16,57 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
 //   regular: ["/dashboard/activities"],
 // };
 
-function getTokenRole(token: string): string | null {
-  try {
-    const payload = token.split(".")[1];
-    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const pad = base64.length % 4;
-    const decoded = JSON.parse(
-      atob(pad ? base64 + "=".repeat(4 - pad) : base64)
-    );
-    return decoded.role ?? null;
-  } catch {
-    return null;
-  }
-}
+// function getTokenRole(token: string): string | null {
+//   try {
+//     const payload = token.split(".")[1];
+//     const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+//     const pad = base64.length % 4;
+//     const decoded = JSON.parse(
+//       atob(pad ? base64 + "=".repeat(4 - pad) : base64)
+//     );
+//     return decoded.role ?? null;
+//   } catch {
+//     return null;
+//   }
+// }
 
-async function fetchNewTokens(refreshToken: string): Promise<string[] | null> {
-  try {
-    const response = await fetch(`${BASE_URL}/accounts/sessions/refresh`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Cookie: `refreshToken=${refreshToken}`,
-      },
-    });
+type RefreshResult =
+  | { ok: true; cookies: string[] }
+  | { ok: false; reason: "network" | "unauthorized" };
 
-    if (response.ok) {
-      return response.headers.getSetCookie();
+// The backend rotates+invalidates the refresh token on use, so concurrent
+// requests racing on the same stale refresh token must share a single
+// in-flight refresh instead of each calling /refresh independently.
+const inFlightRefreshes = new Map<string, Promise<RefreshResult>>();
+
+function fetchNewTokens(refreshToken: string): Promise<RefreshResult> {
+  const existing = inFlightRefreshes.get(refreshToken);
+  if (existing) return existing;
+
+  const promise = (async (): Promise<RefreshResult> => {
+    try {
+      const response = await fetch(`${BASE_URL}/accounts/sessions/refresh`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `refreshToken=${refreshToken}`,
+        },
+      });
+
+      if (response.ok) {
+        return { ok: true, cookies: response.headers.getSetCookie() };
+      }
+      return { ok: false, reason: "unauthorized" };
+    } catch (error) {
+      console.error("[Middleware] Network error during token refresh:", error);
+      return { ok: false, reason: "network" };
     }
-    return null;
-  } catch (error) {
-    console.error("[Middleware] Network error during token refresh:", error);
-    return null;
-  }
+  })();
+
+  inFlightRefreshes.set(refreshToken, promise);
+  promise.finally(() => inFlightRefreshes.delete(refreshToken));
+
+  return promise;
 }
 
 function getTokenExpiry(token: string): number | null {
@@ -80,10 +99,10 @@ export async function proxy(request: NextRequest) {
     refreshToken && (!authToken || isTokenExpired(authToken));
 
   if (needsRefresh) {
-    const setCookieHeaders = await fetchNewTokens(refreshToken);
+    const result = await fetchNewTokens(refreshToken);
 
-    if (setCookieHeaders && setCookieHeaders.length > 0) {
-      const parsedCookies = setCookieParser.parse(setCookieHeaders, {
+    if (result.ok && result.cookies.length > 0) {
+      const parsedCookies = setCookieParser.parse(result.cookies, {
         decodeValues: false,
       });
 
@@ -111,6 +130,12 @@ export async function proxy(request: NextRequest) {
       });
 
       return response;
+    }
+
+    if (!result.ok && result.reason === "network") {
+      // Backend is transiently unreachable: fail open instead of forcing a
+      // logout. apiFetch will retry the refresh on the next request.
+      return NextResponse.next();
     }
 
     const redirectResponse = NextResponse.redirect(

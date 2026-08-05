@@ -88,8 +88,8 @@ export function PromoteUserModal({
           <Button
             className="text-white bg-confirm"
             onClick={async () => {
-              await onSubmit();
-              setOpen(false);
+              const succeeded = await onSubmit();
+              if (succeeded) setOpen(false);
             }}
           >
             Alterar conta

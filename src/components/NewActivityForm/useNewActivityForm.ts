@@ -4,14 +4,13 @@ import {
   createActivitySchema,
 } from "@/src/lib/schemas/newActivity.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Resolver, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/src/lib/store";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { handleCreateNewActivity } from "@/src/lib/service/activity.service";
 import { toast } from "sonner";
-import { useEffect } from "react";
 import {
   clearSchedule,
   setScheduleItems,
@@ -24,7 +23,10 @@ import {
   ActivityDetails,
   handleUpdateActivity,
 } from "@/src/lib/service/activity.service";
-import { UpdateActivity } from "@/src/lib/schemas/updateActivity.schema";
+import {
+  UpdateActivity,
+  updateActivitySchema,
+} from "@/src/lib/schemas/updateActivity.schema";
 import { isEqual, cloneDeep } from "lodash-es";
 
 type ActivityPayload = Omit<
@@ -52,6 +54,23 @@ export function useNewActivityForm({
     (state: RootState) => state.filter.filters
   );
 
+  // Edit mode must validate against updateActivitySchema (image optional,
+  // no "required" refine) instead of createActivitySchema. The ref keeps the
+  // resolver identity stable while always reading the latest edit state.
+  const editingActivityRef = useRef(editingActivity);
+  useEffect(() => {
+    editingActivityRef.current = editingActivity;
+  }, [editingActivity]);
+
+  const resolver: Resolver<CreateActivity> = useCallback((values, context, options) => {
+    const schema = editingActivityRef.current
+      ? updateActivitySchema
+      : createActivitySchema;
+    return (
+      zodResolver(schema as unknown as typeof createActivitySchema) as unknown as Resolver<CreateActivity>
+    )(values, context, options);
+  }, []);
+
   const resetForm = () => {
     reset(); // clears react-hook-form fields
     setPaymentRequired(false);
@@ -69,9 +88,7 @@ export function useNewActivityForm({
     setValue,
     control,
   } = useForm<CreateActivity>({
-    resolver: zodResolver(
-      createActivitySchema
-    ) as unknown as Resolver<CreateActivity>,
+    resolver,
   });
 
   const createActivity = useMutation({

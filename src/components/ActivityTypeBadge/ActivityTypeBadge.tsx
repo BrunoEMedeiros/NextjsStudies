@@ -1,4 +1,5 @@
 import { Badge } from "../ui/badge";
+import { ACTIVITY_TYPE_LABELS } from "@/src/lib/activityType";
 
 interface ActivityTypeBadgeProps {
   label: "event" | "course" | "ceremony";
@@ -16,13 +17,7 @@ const ActivityTypeBadge = ({ label }: ActivityTypeBadgeProps) => {
       }
       className="px-5 py-3"
     >
-      <p className="font-light text-sm">
-        {label == "event"
-          ? "Evento"
-          : label == "ceremony"
-          ? "Cerimônia"
-          : "Curso"}
-      </p>
+      <p className="font-light text-sm">{ACTIVITY_TYPE_LABELS[label]}</p>
     </Badge>
   );
 };

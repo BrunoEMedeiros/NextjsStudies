@@ -22,6 +22,7 @@ import {
 } from "@/src/components/ui/table";
 import ExportButtons from "../ExportButtons";
 import useSchedulesReport from "./useSchedulesReport";
+import { formatDateOnlyPtBR } from "@/src/lib/utils";
 
 export default function SchedulesReport() {
   const {
@@ -49,9 +50,7 @@ export default function SchedulesReport() {
         datas: s.slots
           .map(
             (slot) =>
-              `${new Date(slot.availableData).toLocaleDateString(
-                "pt-BR"
-              )} ${slot.availableTime}`
+              `${formatDateOnlyPtBR(slot.availableData)} ${slot.availableTime}`
           )
           .join(", "),
       })),
@@ -189,9 +188,7 @@ export default function SchedulesReport() {
                       {s.slots
                         .map(
                           (slot) =>
-                            `${new Date(
-                              slot.availableData
-                            ).toLocaleDateString("pt-BR")} ${slot.availableTime}`
+                            `${formatDateOnlyPtBR(slot.availableData)} ${slot.availableTime}`
                         )
                         .join(", ")}
                     </TableCell>

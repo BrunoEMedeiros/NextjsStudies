@@ -1,6 +1,6 @@
 // ActivityTypeSelectOption.tsx
 "use client";
-import React from "react";
+import React, { useId } from "react";
 
 export type ActivityTypeSelectOptionProps = {
   label: string;
@@ -22,16 +22,17 @@ const ActivityTypeSelectOption = React.forwardRef<
   HTMLSelectElement,
   SelectProps
 >(({ options, style = "", name, onChange, onBlur, label = "", value }, ref) => {
+  const selectId = useId();
   return (
     <div className="flex-1 flex flex-col gap-1">
       <label
-        htmlFor="ActivityTypeSelectOption"
+        htmlFor={selectId}
         className="text-base text-earth-yellow font-light"
       >
         {label}
       </label>
       <select
-        id="ActivityTypeSelectOption"
+        id={selectId}
         ref={ref}
         name={name}
         value={value}

@@ -90,19 +90,14 @@ export const fetchAllActivities = async ({
 export const fetchActivitiesByMonth = async (
   month: number
 ): Promise<Date[]> => {
-  try {
-    const { data } = await apiFetch<ActivitiesByMonthType[]>(
-      `/activity/month/${month}`,
-      { method: "GET" }
-    );
-    return data.map((item) => {
-      const [year, month, day] = item.date.split("T")[0].split("-");
-      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-    });
-  } catch (error) {
-    if (isRedirectError(error)) throw error;
-    throw error;
-  }
+  const { data } = await apiFetch<ActivitiesByMonthType[]>(
+    `/activity/month/${month}`,
+    { method: "GET" }
+  );
+  return data.map((item) => {
+    const [year, month, day] = item.date.split("T")[0].split("-");
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  });
 };
 
 export const handleCreateNewActivity = async (
@@ -141,7 +136,7 @@ export const handleCreateNewActivity = async (
       };
     }
 
-    return { ok: false, status: 500, message: "Erro inesperado" };
+    return { ok: false, status: 500, message: "Erro inesperado. Tente novamente." };
   }
 };
 
@@ -153,6 +148,8 @@ export const handleDeleteActivity = async (id: number) => {
 
     return { ok: true, data };
   } catch (err) {
+    if (isRedirectError(err)) throw err;
+
     if (isApiError(err)) {
       return {
         ok: false,
@@ -161,7 +158,7 @@ export const handleDeleteActivity = async (id: number) => {
         code: err.data.code,
       };
     }
-    return { ok: false, status: 500, message: "Unexpected error" };
+    return { ok: false, status: 500, message: "Erro inesperado. Tente novamente." };
   }
 };
 
@@ -173,6 +170,8 @@ export const handlePermanentlyDeleteActivity = async (id: number) => {
 
     return { ok: true, data };
   } catch (err) {
+    if (isRedirectError(err)) throw err;
+
     if (isApiError(err)) {
       return {
         ok: false,
@@ -181,7 +180,7 @@ export const handlePermanentlyDeleteActivity = async (id: number) => {
         code: err.data.code,
       };
     }
-    return { ok: false, status: 500, message: "Unexpected error" };
+    return { ok: false, status: 500, message: "Erro inesperado. Tente novamente." };
   }
 };
 
@@ -225,7 +224,7 @@ export const handleUpdateActivity = async (
     if (isRedirectError(error)) throw error;
     if (isApiError(error))
       return { ok: false, status: error.status, message: error.data.message };
-    return { ok: false, status: 500, message: "Erro inesperado" };
+    return { ok: false, status: 500, message: "Erro inesperado. Tente novamente." };
   }
 };
 
@@ -240,7 +239,7 @@ export const handleActivateActivity = async (id: number) => {
     if (isRedirectError(error)) throw error;
     if (isApiError(error))
       return { ok: false, status: error.status, message: error.data.message };
-    return { ok: false, status: 500, message: "Erro inesperado" };
+    return { ok: false, status: 500, message: "Erro inesperado. Tente novamente." };
   }
 };
 
@@ -256,25 +255,16 @@ export type CalendarActivity = {
 export const fetchActivitiesForCalendar = async (): Promise<
   CalendarActivity[]
 > => {
-  try {
-    const { data } = await apiFetch<CalendarActivity[]>("/activity/calendar");
-    return data;
-  } catch (error) {
-    if (isRedirectError(error)) throw error;
-    throw error;
-  }
+  const { data } = await apiFetch<CalendarActivity[]>("/activity/calendar");
+  return data;
 };
 
 export const fetchActivitiesForCalendarRange = async (
   start: Date,
   end: Date
 ): Promise<CalendarActivity[]> => {
-  try {
-    const { data } = await apiFetch<CalendarActivity[]>(
-      `/activity/calendar/range?start=${start.toISOString()}&end=${end.toISOString()}`
-    );
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const { data } = await apiFetch<CalendarActivity[]>(
+    `/activity/calendar/range?start=${start.toISOString()}&end=${end.toISOString()}`
+  );
+  return data;
 };

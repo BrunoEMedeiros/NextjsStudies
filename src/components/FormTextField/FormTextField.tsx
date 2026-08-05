@@ -102,7 +102,6 @@ const FormTextField = forwardRef<HTMLInputElement, TextFieldProps>(
             id={inputId}
             type={passwordVisible}
             ref={handleRef}
-            onChange={handleChange}
             className={cn(
               "min-w-4 px-2 py-3 outline-none bg-transparent placeholder:text-gray-500 text-base dark:text-white text-white",
               autoResize ? "" : "w-full",
@@ -111,6 +110,7 @@ const FormTextField = forwardRef<HTMLInputElement, TextFieldProps>(
             placeholder={placeholder}
             style={autoResize ? { width: `${contentLength + 2}ch` } : undefined}
             {...props}
+            onChange={handleChange}
           />
           {type === "password" && (
             <div

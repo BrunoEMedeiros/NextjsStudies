@@ -125,6 +125,10 @@ export default function ActivityContainer({ onEdit }: ActivityContainerProps) {
             <ActivityCardSkeleton key={i} />
           ))}
         </div>
+      ) : activities.isError ? (
+        <p className="text-red-500 text-sm text-center py-6 w-full">
+          Erro ao carregar atividades.
+        </p>
       ) : (
         <div className="flex flex-wrap gap-3">
           {activities.data?.data.map((activity) => (

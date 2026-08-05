@@ -25,7 +25,8 @@ export default function useAlterUserAccountRole(
     mutationFn: () => alterUserRole(role, userId),
     onSuccess: (result) => {
       if (!result.ok) {
-        toast.error("Erro ao alterar usuário");
+        toast.error(result.message || "Erro ao alterar usuário");
+        setRole(initialRole);
         return;
       }
       toast.success("Permissão de usuário alterado com sucesso");
@@ -34,8 +35,9 @@ export default function useAlterUserAccountRole(
     },
   });
 
-  const onSubmit = async () => {
-    await updateRole.mutateAsync();
+  const onSubmit = async (): Promise<boolean> => {
+    const result = await updateRole.mutateAsync();
+    return result.ok;
   };
 
   return {

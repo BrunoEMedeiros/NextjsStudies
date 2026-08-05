@@ -185,7 +185,7 @@ export default function UsersTable() {
                 Editar
               </TableHead>
               <TableHead className="text-base text-earth-yellow p-6">
-                Inativar | Ativar
+                Inativar
               </TableHead>
             </TableRow>
           </TableHeader>

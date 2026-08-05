@@ -17,9 +17,9 @@ export default function DateTimeSchedule() {
         {scheduleItems.length > 0 ? (
           scheduleItems.map((item) => {
             let splitTime = item.time.split(":");
-            const [year, month, day] = item.date.split("-").map(Number);
-            const date = new Date(Date.UTC(year, month - 1, day + 1));
-            const brazilianDate = date.toLocaleDateString("pt-BR");
+            const brazilianDate = new Intl.DateTimeFormat("pt-BR", {
+              timeZone: "UTC",
+            }).format(new Date(item.date));
             return (
               <DateTimeChip
                 key={`${item.date}-${item.time}`}
